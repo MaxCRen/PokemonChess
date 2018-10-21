@@ -1,0 +1,14 @@
+### Starting build.
+# Target: pokemon.ml.depends, tags: { extension:ml, file:pokemon.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules pokemon.ml > pokemon.ml.depends
+# Target: pokemon.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:pokemon.cmo, file:pokemon.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o pokemon.cmo pokemon.ml
+# Target: ptype.ml.depends, tags: { extension:ml, file:ptype.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules ptype.ml > ptype.ml.depends
+# Target: ptype.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ptype.cmo, file:ptype.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o ptype.cmo ptype.ml
+# Target: moves.ml.depends, tags: { extension:ml, file:moves.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules moves.ml > moves.ml.depends
+# Target: moves.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:moves.cmo, file:moves.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o moves.cmo moves.ml
+# Compilation successful.
