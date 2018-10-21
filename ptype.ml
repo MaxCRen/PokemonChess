@@ -1,16 +1,16 @@
-type ptype = {
-  name: string;
-  effectives: (string*float) list
-}
+module Ptype = struct
 
-let fire = {name = "Fire"; effectives = [("Fire", 1.)]}
+  type t = {
+    name: string;
+    effectives: (string*float) list
+  }
 
-exception NotFound of string
+  let rec getVal (pair: (string*float) list) (poke:string)= 
+    match pair with
+    |[] -> 1.
+    |(name, eff)::t -> if name = poke then eff else getVal t poke
 
-let rec getVal (pair: (string*float) list) (poke:string)= 
-  match pair with
-  |[] -> raise (NotFound "this type is not found in list")
-  |(name, eff)::t -> if name = poke then eff else getVal t poke
 
-let getEffective (t1: ptype) (t2: ptype) = 
-  t2.name |> getVal t1.effectives
+  let getEffective (t1: t) (t2: t) = 
+    t2.name |> getVal t1.effectives
+end
