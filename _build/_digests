@@ -1,5 +1,18 @@
-"Resource: /Users/Genghis/Desktop/3110/midterm/moves.ml": "\212\029\140\217\143\000\178\004\233\128\t\152\236\248B~"
+"Resource: /Users/Genghis/Desktop/3110/midterm/moves.ml": "\164\027)a\214}\133\255\006\004\246\153\207\1379\233"
 "Resource: /Users/Genghis/Desktop/3110/midterm/pokemon.ml": "\212\029\140\217\143\000\178\004\233\128\t\152\236\248B~"
+<<<<<<< HEAD
+"Rule: ocaml dependencies mli (%=ptype )": "$8\131D8Jr\219\137]\204(\250u\2017"
+"Rule: ocaml dependencies ml (%=moves )": "g\185\1394\237\r\254S\005\134\026\193\212\170\141\202"
+"Resource: /Users/Genghis/Desktop/3110/midterm/ptype.ml": "=\170\000\166\218\192\243\250\194\211\169\158\212V\171\166"
+"Rule: ocaml: ml -> cmo & cmi (%=ptype )": "\015F\171\028\"\209\019\027\183hS\028\224l\2306"
+"Rule: ocaml dependencies ml (%=pokemon )": "*\028\169u3\006L\173\235\"Zt\002\004\140\134"
+"Rule: ocaml: ml -> cmo & cmi (%=pokemon )": ">\1698*\175^\240~\168\0195\132\213\141%a"
+"Rule: ocaml: ml & cmi -> cmo (%=ptype )": "0\221\176/e\002\026\016\133I\006R\190`\137\030"
+"Rule: ocaml: ml -> cmo & cmi (%=moves )": "\0289\175T\228\179\018\207\221\154\133\133L\2464C"
+"Rule: ocaml dependencies ml (%=ptype )": "\231\022\n\024\239]A\248OA\164t\015&\130\243"
+"Resource: /Users/Genghis/Desktop/3110/midterm/ptype.mli": "\205\244@\204?\201\225\230D\186B%X\185\163\244"
+"Rule: ocaml: mli -> cmi (%=ptype )": "T\003+SS\028V\2473\213\233[\007\210\128#"
+=======
 "Rule: ocaml dependencies mli (%=ptype )": "\172d\236\175m\246\003E~\129[.<4q\031"
 "Rule: ocaml dependencies ml (%=moves )": "\025'\138a\2141L9\236\020F]\138\\j\187"
 "Resource: /Users/Genghis/Desktop/3110/midterm/ptype.ml": "\133m\137;\011ak-Y\1972\170\029$4\178"
@@ -14,3 +27,4 @@
 "Rule: ocaml dependencies ml (%=ptype )": "\b\002\021p|\150ES\244\219(\021\207\204\156d"
 "Rule: ocaml: mli -> cmi (%=ptype )": "\002\142\255\223\003\237\225\159\233\240\012\029\0277\016\248"
 "Resource: /Users/dbmarzag/Documents/CS3110/midterm/midterm/moves.ml": "6\245\146\175\003d(u\143\168`\159k\250\204\220"
+>>>>>>> 2e0e7dd89adaef39e7a0746c68ec1d4adccfac88

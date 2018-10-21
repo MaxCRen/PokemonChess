@@ -13,6 +13,8 @@ ocamlfind ocamldep -modules ptype.ml > ptype.ml.depends # cached
 ocamlfind ocamlc -c -o ptype.cmo ptype.ml # cached
 # Target: moves.ml.depends, tags: { extension:ml, file:moves.ml, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -modules moves.ml > moves.ml.depends
-# Target: moves.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:moves.cmo, file:moves.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o moves.cmo moves.ml
-# Compilation successful.
++ ocamlfind ocamldep -modules moves.ml > moves.ml.depends
+File "moves.ml", line 1, characters 5-10:
+Error: Syntax error
+Command exited with code 2.
+# Compilation unsuccessful.
