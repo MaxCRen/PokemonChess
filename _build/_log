@@ -8,9 +8,9 @@ ocamlfind ocamldep -modules ptype.mli > ptype.mli.depends # cached
 # Target: ptype.cmi, tags: { byte, compile, extension:mli, file:ptype.mli, interf, ocaml, quiet }
 ocamlfind ocamlc -c -o ptype.cmi ptype.mli # cached
 # Target: ptype.ml.depends, tags: { extension:ml, file:ptype.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules ptype.ml > ptype.ml.depends
+ocamlfind ocamldep -modules ptype.ml > ptype.ml.depends # cached
 # Target: ptype.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ptype.cmo, file:ptype.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o ptype.cmo ptype.ml
+ocamlfind ocamlc -c -o ptype.cmo ptype.ml # cached
 # Target: moves.ml.depends, tags: { extension:ml, file:moves.ml, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -modules moves.ml > moves.ml.depends
 + ocamlfind ocamldep -modules moves.ml > moves.ml.depends

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 module type ptype = sig
 
   (*Our representation of pokemon types has a name of the type, and an association
@@ -31,3 +32,18 @@ module Ptype:ptype = struct
   let getEffective (t1: t) (t2: t) = 
     t2.name |> getVal t1.effectives
 end
+=======
+  type t = {
+    name: string;
+    effectives: (string*float) list
+  }
+
+  let rec getVal (pair: (string*float) list) (poke:string)= 
+    match pair with
+    |[] -> 1.
+    |(name, eff)::t -> if name = poke then eff else getVal t poke
+
+
+  let getEffective (t1: t) (t2: t) = 
+    t2.name |> getVal t1.effectives
+>>>>>>> 2e0e7dd89adaef39e7a0746c68ec1d4adccfac88
