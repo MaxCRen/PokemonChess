@@ -2,7 +2,7 @@ open Ptype
 
 type move = {
   name : string;
-  ptype : Ptype.t;
+  ptype : Ptype;
   pp: int;
   description: string
 }

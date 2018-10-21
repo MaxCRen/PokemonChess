@@ -1,3 +1,6 @@
+open Ptype
+module Poke_type = struct
+
   type t = {
     name: string;
     effectives: (string*float) list
@@ -11,3 +14,4 @@
 
   let getEffective (t1: t) (t2: t) = 
     t2.name |> getVal t1.effectives
+end
