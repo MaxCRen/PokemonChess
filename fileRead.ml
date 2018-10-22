@@ -22,9 +22,6 @@ let break_string str =
 
 (*[filter_string str_lst] is the pokemon.t representation of a pokemon from the string
 list str_lst*)
-let filter_string str_lst = 
-  let poke_lst = break_string str in
-  {
-    name = poke_lst
-  }
+let filter_string str_lst: Pokemon.t = 
+  failwith "unimplemented"
 
