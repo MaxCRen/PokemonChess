@@ -9,7 +9,6 @@ type effects = Heal of float
             | Stats of (int*float) list
             | Condition of (status*float)
             | Confusion of (bool*float)
-            | Flinch of float
             | Recoil of int
             | Charge of bool
 
@@ -19,14 +18,28 @@ type t = {
 
   pp: int;
   description: string;
-  (* Physical attack or special attack *)
-  physical: bool;
 
   power: int;
   acc: int;
   crit_rate: float;
 
   side_effect: effects list
+}
+
+let make_move n typ p desc pow acc crit side =
+{
+  name = n;
+  ptype = typ;
+
+  pp = p;
+  description = desc;
+
+  power = pow;
+  acc = acc;
+  crit_rate = crit;
+
+  side_effect = side
+
 }
 
 let can_use move = if move.pp = 0 then false else true

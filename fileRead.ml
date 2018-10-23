@@ -61,7 +61,9 @@ let rec loop_lines str file_channel =
 type, then MissingVal exception is raised*)
 let get_type str = 
     Pervasives.open_in (dir^types)|> loop_lines str
-
+(*******************************Methods for Move Parsing************************)
+let get_move str =
+  failwith "unimplemented"
   
 
 
