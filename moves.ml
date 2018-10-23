@@ -2,9 +2,7 @@ open Ptype
 
 type status = Normal|Poison|Paralyzed of int|Sleep of int|Burned|Frozen of int
 
-(*Heal: how much to heal; Stats: int refers to which attribute will be changed,
-and float is how much the multiplier is increased or decreased. Condition is 
-the change in status. *)
+
 type effects = Heal of float 
             | Stats of (int*float) list
             | Condition of (status*float)
