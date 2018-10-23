@@ -1,26 +1,26 @@
 ### Starting build.
 # Target: pokemon.mli.depends, tags: { extension:mli, file:pokemon.mli, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules pokemon.mli > pokemon.mli.depends
-# Target: pokemon.cmi, tags: { byte, compile, extension:mli, file:pokemon.mli, interf, ocaml, quiet }
-ocamlfind ocamlc -c -o pokemon.cmi pokemon.mli
-# Target: pokemon.ml.depends, tags: { extension:ml, file:pokemon.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules pokemon.ml > pokemon.ml.depends
+ocamlfind ocamldep -modules pokemon.mli > pokemon.mli.depends # cached
 # Target: moves.mli.depends, tags: { extension:mli, file:moves.mli, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules moves.mli > moves.mli.depends
+ocamlfind ocamldep -modules moves.mli > moves.mli.depends # cached
+# Target: moves.cmi, tags: { byte, compile, extension:mli, file:moves.mli, interf, ocaml, quiet }
+ocamlfind ocamlc -c -o moves.cmi moves.mli # cached
 # Target: ptype.mli.depends, tags: { extension:mli, file:ptype.mli, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -modules ptype.mli > ptype.mli.depends # cached
 # Target: ptype.cmi, tags: { byte, compile, extension:mli, file:ptype.mli, interf, ocaml, quiet }
 ocamlfind ocamlc -c -o ptype.cmi ptype.mli # cached
-# Target: moves.cmi, tags: { byte, compile, extension:mli, file:moves.mli, interf, ocaml, quiet }
-ocamlfind ocamlc -c -o moves.cmi moves.mli
+# Target: pokemon.cmi, tags: { byte, compile, extension:mli, file:pokemon.mli, interf, ocaml, quiet }
+ocamlfind ocamlc -c -o pokemon.cmi pokemon.mli # cached
+# Target: pokemon.ml.depends, tags: { extension:ml, file:pokemon.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules pokemon.ml > pokemon.ml.depends # cached
 # Target: pokemon.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:pokemon.cmo, file:pokemon.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o pokemon.cmo pokemon.ml
+ocamlfind ocamlc -c -o pokemon.cmo pokemon.ml # cached
 # Target: ptype.ml.depends, tags: { extension:ml, file:ptype.ml, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -modules ptype.ml > ptype.ml.depends # cached
 # Target: ptype.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ptype.cmo, file:ptype.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -o ptype.cmo ptype.ml # cached
 # Target: moves.ml.depends, tags: { extension:ml, file:moves.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules moves.ml > moves.ml.depends
+ocamlfind ocamldep -modules moves.ml > moves.ml.depends # cached
 # Target: moves.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:moves.cmo, file:moves.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o moves.cmo moves.ml
+ocamlfind ocamlc -c -o moves.cmo moves.ml # cached
 # Compilation successful.
