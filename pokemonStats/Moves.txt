@@ -1,0 +1,111 @@
+Absorb;GRASS;20;100;25;User recovers half the HP inflicted on opponent.
+Acid Armor;POISON;0;100;20;Sharply raises user's Defense.
+Agility;PSYCHIC;0;100;30;Sharply raises user's Speed.
+Aurora Beam;ICE;65;100;20;May lower opponent's Attack.
+Barrier;PSYCHIC;0;100;20;Sharply raises user's Defense.
+Blizzard;ICE;110;70;5;May freeze opponent.
+Body Slam;NORMAL;85;100;15;May paralyze opponent.
+Bubble;WATER;40;100;30;May lower opponent's Speed.
+Bubble Beam;WATER;65;100;20;May lower opponent's Speed.
+Confuse Ray;GHOST;0;100;10;Confuses opponent.
+Confusion;PSYCHIC;50;100;25;May confuse opponent.
+Constrict;NORMAL;10;100;35;May lower opponent's Speed by one stage.
+Crabhammer;WATER;100;90;10;High critical hit ratio.	
+Defense Curl;NORMAL;0;100;40;Raises user's Defense.
+Dizzy Punch;NORMAL;70;100;10;May confuse opponent.
+Double Team	NORMAL	—	—	15	Raises user's Evasiveness.
+Double-Edge	NORMAL	120	100	15	User receives recoil damage.
+Dragon Rage	DRAGON	—	100	10	Always inflicts 40 HP.
+Drill Peck	FLYING	80	100	20	
+Earthquake	GROUND	100	100	10	
+Egg Bomb	NORMAL	100	75	10	
+Ember	FIRE	40	100	25	May burn opponent.
+Explosion	NORMAL	250	100	5	User faints.
+Fire Blast	FIRE	110	85	5	May burn opponent.
+Fire Punch	FIRE	75	100	15	May burn opponent.
+Fissure	GROUND	—	—	5	One-Hit-KO, if it hits.
+Flamethrower	FIRE	90	100	15	May burn opponent.
+Flash	NORMAL	—	100	20	Lowers opponent's Accuracy.
+Glare	NORMAL	—	100	30	Paralyzes opponent.
+Growl	NORMAL	—	100	40	Lowers opponent's Attack.
+Guillotine	NORMAL	—	—	5	One-Hit-KO, if it hits.
+Gust	FLYING	40	100	35	
+Harden	NORMAL	—	—	30	Raises user's Defense.
+Haze	ICE	—	—	30	Resets all stat changes.
+High Jump Kick	FIGHTING	130	90	10	
+Horn Attack	NORMAL	65	100	25	
+Horn Drill	NORMAL	—	—	5	One-Hit-KO, if it hits.
+Hydro Pump	WATER	110	80	5	
+Hyper Beam	NORMAL	150	90	5	Charges
+Hypnosis	PSYCHIC	—	60	20	Puts opponent to sleep.
+Ice Beam	ICE	90	100	10	May freeze opponent.
+Ice Punch	ICE	75	100	15	May freeze opponent.
+Karate Chop	FIGHTING	50	100	25	High critical hit ratio.
+Kinesis	PSYCHIC	—	80	15	Lowers opponent's Accuracy.
+Leech Life	BUG	80	100	10	User recovers half the HP inflicted on opponent.
+Leer	NORMAL	—	100	30	Lowers opponent's Defense.
+Lick	GHOST	30	100	30	May paralyze opponent.
+Lovely Kiss	NORMAL	—	75	10	Puts opponent to sleep.
+Low Kick	FIGHTING	—	100	20	The heavier the opponent, the stronger the attack.
+Meditate	PSYCHIC	—	—	40	Raises user's Attack.
+Mega Drain	GRASS	40	100	15	User recovers half the HP inflicted on opponent.
+Mega Kick	NORMAL	120	75	5	
+Minimize	NORMAL	—	—	10	Sharply raises user's Evasiveness.
+Mist	ICE	—	—	30	User's stats cannot be changed for a period of time.
+Night Shade	GHOST	—	100	15	Inflicts damage equal to user's level.
+Peck	FLYING	35	100	35	
+Poison Gas	POISON	—	90	40	Poisons opponent.
+Poison Powder	POISON	—	75	35	Poisons opponent.
+Poison Sting	POISON	15	100	35	May poison the opponent.
+Pound	NORMAL	40	100	35	
+Psybeam	PSYCHIC	65	100	20	May confuse opponent.
+Psywave	PSYCHIC	—	80	15	Inflicts damage 50-150% of user's level.
+Quick Attack	NORMAL	40	100	30	User attacks first.
+Rage	NORMAL	20	100	20	Raises user's Attack when hit.
+Razor Leaf	GRASS	55	95	25	High critical hit ratio.
+Razor Wind	NORMAL	80	100	10	Charges on first turn, attacks on second. High critical hit ratio.
+Recover	NORMAL	—	—	10	User recovers half its max HP.
+Rest	PSYCHIC	—	—	10	User sleeps for 2 turns, but user is fully healed.
+Rock Throw	ROCK	50	90	15	
+Sand Attack	GROUND	—	100	15	Lowers opponent's Accuracy.
+Scratch	NORMAL	40	100	35	
+Screech	NORMAL	—	85	40	Sharply lowers opponent's Defense.
+Seismic Toss	FIGHTING	—	100	20	Inflicts damage equal to user's level.
+Self-Destruct	NORMAL	200	100	5	User faints.
+Sharpen	NORMAL	—	—	30	Raises user's Attack.
+Sing	NORMAL	—	55	15	Puts opponent to sleep.
+Slam	NORMAL	80	75	20	
+Slash	NORMAL	70	100	20	High critical hit ratio.
+Sleep Powder	GRASS	—	75	15	Puts opponent to sleep.
+Sludge	POISON	65	100	20	May poison opponent.
+Smog	POISON	30	70	20	May poison opponent.
+Smokescreen	NORMAL	—	100	20	Lowers opponent's Accuracy.
+Soft-Boiled	NORMAL	—	—	10	User recovers half its max HP.
+Solar Beam	GRASS	120	100	10	Charges on first turn, attacks on second.
+Sonic Boom	NORMAL	—	90	20	Always inflicts 20 HP.
+Splash	NORMAL	—	—	40	Doesn't do ANYTHING.
+Spore	GRASS	—	100	15	Puts opponent to sleep.
+Strength	NORMAL	80	100	15	
+String Shot	BUG	—	95	40	Sharply lowers opponent's Speed.
+Struggle	NORMAL	50	100	—	Only usable when all PP are gone. Hurts the user.
+Stun Spore	GRASS	—	75	30	Paralyzes opponent.
+Submission	FIGHTING	80	80	20	User receives recoil damage.
+Super Fang	NORMAL	—	90	10	Always takes off half of the opponent's HP.
+Supersonic	NORMAL	—	55	20	Confuses opponent.
+Surf	WATER	90	100	15	Hits all adjacent Pokémon.
+Swords Dance	NORMAL	—	—	20	Sharply raises user's Attack.
+Tackle	NORMAL	40	100	35	
+Tail Whip	NORMAL	—	100	30	Lowers opponent's Defense.
+Take Down	NORMAL	90	85	20	User receives recoil damage.
+Thrash	NORMAL	120	100	10	User attacks for 2-3 turns but then becomes confused.
+Thunder	ELECTRIC	110	70	10	May paralyze opponent.
+Thunder Punch	ELECTRIC	75	100	15	May paralyze opponent.
+Thunder Shock	ELECTRIC	40	100	30	May paralyze opponent.
+Thunder Wave	ELECTRIC	—	90	20	Paralyzes opponent.
+Thunderbolt	ELECTRIC	90	100	15	May paralyze opponent.
+Toxic	POISON	—	90	10	Badly poisons opponent.
+Vice Grip	NORMAL	55	100	30	
+Vine Whip	GRASS	45	100	25	
+Water Gun	WATER	40	100	25	
+Wing Attack	FLYING	60	100	35	
+Withdraw	WATER	—	—	40	Raises user's Defense.

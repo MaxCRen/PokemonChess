@@ -53,14 +53,16 @@ is the in_channel for file Type.txt*)
 let rec loop_lines str file_channel =
   match Pervasives.input_line file_channel with
   | exception End_of_file -> Pervasives.close_in file_channel; raise MissingVal
-  | string -> let typ = name_to_eff string |> List.hd in 
-              if typ = str 
+  | string -> let typ = name_to_eff string |> List.hd |> String.lowercase_ascii in 
+              if typ = String.lowercase_ascii str 
               then make_type string else loop_lines str file_channel
   
 (*[get_type str] is the Ptype.t representation of [str]. If str is not a valid
 type, then MissingVal exception is raised*)
 let get_type str = 
     Pervasives.open_in (dir^types)|> loop_lines str
+
+  
 
 
 
