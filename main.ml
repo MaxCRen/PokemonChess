@@ -71,25 +71,23 @@ let print_help ()=
   print_string("Type 'info [move]/[pokemon] to get information about your pokemon\n");
   print_string("Type 'quit' if you want to quit\n\n\n")
 
-
-
-
 let use_move bat str = 
-  if true then 
+  if can_use_move bat str then 
   let poke_name = bat |> Battle.get_player |> Pokemon.get_name in
   let move_list = bat |> Battle.get_player |> get_moves in
   let move = get_move_from_str move_list str in
   print_string (poke_name^" used "^(Moves.get_name move)^"\n\n\n");
-                        Battle.use_move bat move;
+  Battle.use_move bat move
   else print_string "Can Not Use Move\n\n\n\n" 
 
-
-
-
-
+let check_fainted bat = 
+  if Pokemon.get_curr_hp (Battle.get_opponent bat) <= 0 then 
+    (print_string("Your opponent has fainted!\n\n\n"); exit 0)
+  else (print_string "")
 
 
 let rec loop bat =
+  check_fainted bat ;
   match read_line () with
   | str -> begin
     match Command.parse_phrase str with

@@ -71,8 +71,12 @@ let calc_effective move poke dam=
                     (Ptype.getEffective move_type t2)*.dam
 
 (** [deal_damage dam poke]  Deals [dam] to pokemon [poke] *)
-let deal_damage dam poke= 
-  Pokemon.change_health poke (-dam)
+let deal_damage dam poke = 
+  let hp = Pokemon.get_curr_hp poke in 
+  if hp < dam then 
+    Pokemon.change_health poke (-hp)
+  else 
+    Pokemon.change_health poke (-dam)
 
 (* 
 let rec parse_side_effects eff_lst opponent_player =

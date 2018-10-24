@@ -32,6 +32,7 @@ let rec get_move_from_str move_lst move_str =
     |h::t when Moves.get_name h = move_str -> h
     |h::t -> get_move_from_str t move_str
 
+(** [can_move move] returns true if the pp for move [move] > 0 *)
 let can_move move=
   if Moves.get_pp move = 0  then false else true
 
@@ -70,8 +71,12 @@ let calc_effective move poke dam=
                     (Ptype.getEffective move_type t2)*.dam
 
 (** [deal_damage dam poke]  Deals [dam] to pokemon [poke] *)
-let deal_damage dam poke= 
-  Pokemon.change_health poke (-dam)
+let deal_damage dam poke = 
+  let hp = Pokemon.get_curr_hp poke in 
+  if hp < dam then 
+    Pokemon.change_health poke (-dam)
+  else 
+    Pokemon.change_health poke (-hp)
 
 (* 
 let rec parse_side_effects eff_lst opponent_player =
