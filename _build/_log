@@ -1,26 +1,50 @@
 ### Starting build.
-# Target: pokemon.mli.depends, tags: { extension:mli, file:pokemon.mli, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules pokemon.mli > pokemon.mli.depends
-# Target: moves.mli.depends, tags: { extension:mli, file:moves.mli, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules moves.mli > moves.mli.depends # cached
-# Target: ptype.mli.depends, tags: { extension:mli, file:ptype.mli, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules ptype.mli > ptype.mli.depends # cached
-# Target: ptype.cmi, tags: { byte, compile, extension:mli, file:ptype.mli, interf, ocaml, quiet }
-ocamlfind ocamlc -c -o ptype.cmi ptype.mli # cached
-# Target: moves.cmi, tags: { byte, compile, extension:mli, file:moves.mli, interf, ocaml, quiet }
-ocamlfind ocamlc -c -o moves.cmi moves.mli # cached
-# Target: pokemon.cmi, tags: { byte, compile, extension:mli, file:pokemon.mli, interf, ocaml, quiet }
-ocamlfind ocamlc -c -o pokemon.cmi pokemon.mli
-# Target: pokemon.ml.depends, tags: { extension:ml, file:pokemon.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules pokemon.ml > pokemon.ml.depends # cached
-# Target: pokemon.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:pokemon.cmo, file:pokemon.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o pokemon.cmo pokemon.ml
-# Target: ptype.ml.depends, tags: { extension:ml, file:ptype.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules ptype.ml > ptype.ml.depends # cached
-# Target: ptype.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ptype.cmo, file:ptype.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o ptype.cmo ptype.ml # cached
-# Target: moves.ml.depends, tags: { extension:ml, file:moves.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules moves.ml > moves.ml.depends # cached
-# Target: moves.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:moves.cmo, file:moves.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o moves.cmo moves.ml # cached
+# Target: pokemon.mli.depends, tags: { package(ANSITerminal), package(yojson), extension:mli, file:pokemon.mli, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules pokemon.mli > pokemon.mli.depends # cached
+# Target: moves.mli.depends, tags: { package(ANSITerminal), package(yojson), extension:mli, file:moves.mli, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules moves.mli > moves.mli.depends # cached
+# Target: ptype.mli.depends, tags: { package(ANSITerminal), package(yojson), extension:mli, file:ptype.mli, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules ptype.mli > ptype.mli.depends # cached
+# Target: ptype.cmi, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:mli, file:ptype.mli, interf, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o ptype.cmi ptype.mli # cached
+# Target: moves.cmi, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:mli, file:moves.mli, interf, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o moves.cmi moves.mli # cached
+# Target: pokemon.cmi, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:mli, file:pokemon.mli, interf, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o pokemon.cmi pokemon.mli # cached
+# Target: pokemon.ml.depends, tags: { package(ANSITerminal), package(yojson), extension:ml, file:pokemon.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules pokemon.ml > pokemon.ml.depends # cached
+# Target: pokemon.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:pokemon.cmo, file:pokemon.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o pokemon.cmo pokemon.ml # cached
+# Target: ptype.ml.depends, tags: { package(ANSITerminal), package(yojson), extension:ml, file:ptype.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules ptype.ml > ptype.ml.depends # cached
+# Target: ptype.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:ptype.cmo, file:ptype.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o ptype.cmo ptype.ml # cached
+# Target: moves.ml.depends, tags: { package(ANSITerminal), package(yojson), extension:ml, file:moves.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules moves.ml > moves.ml.depends # cached
+# Target: moves.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:moves.cmo, file:moves.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o moves.cmo moves.ml # cached
+# Target: battle.mli.depends, tags: { package(ANSITerminal), package(yojson), extension:mli, file:battle.mli, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules battle.mli > battle.mli.depends # cached
+# Target: battle.cmi, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:mli, file:battle.mli, interf, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o battle.cmi battle.mli # cached
+# Target: battle.ml.depends, tags: { package(ANSITerminal), package(yojson), extension:ml, file:battle.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules battle.ml > battle.ml.depends # cached
+# Target: battle.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:battle.cmo, file:battle.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o battle.cmo battle.ml # cached
+# Target: command.mli.depends, tags: { package(ANSITerminal), package(yojson), extension:mli, file:command.mli, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules command.mli > command.mli.depends # cached
+# Target: command.cmi, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:mli, file:command.mli, interf, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o command.cmi command.mli # cached
+# Target: command.ml.depends, tags: { package(ANSITerminal), package(yojson), extension:ml, file:command.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules command.ml > command.ml.depends # cached
+# Target: command.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:command.cmo, file:command.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o command.cmo command.ml # cached
+# Target: fileRead.mli.depends, tags: { package(ANSITerminal), package(yojson), extension:mli, file:fileRead.mli, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules fileRead.mli > fileRead.mli.depends # cached
+# Target: fileRead.cmi, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:mli, file:fileRead.mli, interf, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o fileRead.cmi fileRead.mli # cached
+# Target: fileRead.ml.depends, tags: { package(ANSITerminal), package(yojson), extension:ml, file:fileRead.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules fileRead.ml > fileRead.ml.depends
+# Target: fileRead.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:fileRead.cmo, file:fileRead.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o fileRead.cmo fileRead.ml
 # Compilation successful.

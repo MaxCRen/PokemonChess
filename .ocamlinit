@@ -1,0 +1,6 @@
+#directory "_build";;
+#require "yojson";;
+#require "ANSITerminal";;
+#directory "_build";;
+#load_rec "ptype.cmo";;
+#load_rec "pokemon.cmo";;

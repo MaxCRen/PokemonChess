@@ -8,5 +8,4 @@ type command =
 exception Empty
 exception Incorrect
 
-let parse_phrase string = 
-  failwith"unimplemented"
+val parse_phrase: string -> command

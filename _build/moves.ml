@@ -4,21 +4,21 @@ open Random
 type status = Normal|Poison|Paralyzed of int|Sleep of int|Burned|Frozen of int
 
 
-type effects = Heal of float 
+type effects = |Heal of float 
             | Stats of (int*float) list
             | Condition of (status*float)
             | Confusion of (bool*float)
             | Recoil of int
-            | Charge of bool
+            | Charge of int
 
 type t = {
   name : string;
   ptype : Ptype.t;
 
-  pp: int;
+  mutable pp: int;
   description: string;
 
-  power: int;
+  power: float;
   acc: float;
   crit_rate: float;
 
@@ -43,7 +43,7 @@ let make_move n typ p desc pow acc crit side =
 
 let can_use move = if move.pp = 0 then false else true
 
-let dec_pp move = if can_use move then move.pp - 1 else 0
+let dec_pp move = move.pp <- move.pp -1
 
 let get_name move = move.name
 
@@ -55,7 +55,7 @@ let get_description move = move.description
 
 let get_power move = 
     let ran_num = Random.float 1. in
-    if ran_num <= move.crit_rate then move.power*2 else move.power
+    if ran_num <= move.crit_rate then move.power*.2. else move.power
   
 let get_acc move = move.acc
 

@@ -14,10 +14,10 @@ has pp *)
 val can_use: t -> bool
 
 (* [dec_pp move] decreases the pp of the move used *)
-val dec_pp: t -> int
+val dec_pp: t -> unit
 
 (*[make move n typ p desc pow acc crit side] creates our representation of a move type*)
-val make_move: string -> Ptype.t -> int -> string -> int -> float -> float -> effects list -> t
+val make_move: string -> Ptype.t -> int -> string -> float -> float -> float -> effects list -> t
 
 (*[get_name move] is the name of the move [move]*)
 val get_name: t -> string
@@ -32,7 +32,7 @@ val get_type: t-> Ptype.t
 val get_description: t -> string
 
 (*[get_power move] is the power of the move, accounting for a critical hit*)
-val get_power: t -> int
+val get_power: t -> float
 
 (*[gett_acc move] is the accuracy of the move*)
 val get_acc: t -> float

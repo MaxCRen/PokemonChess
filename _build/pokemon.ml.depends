@@ -1,1 +1,1 @@
-pokemon.ml: List Moves Ptype
+pokemon.ml: List Moves Pervasives Ptype

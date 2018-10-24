@@ -1,4 +1,4 @@
-MODULES=pokemon ptype moves
+MODULES=pokemon ptype moves battle command fileRead
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
