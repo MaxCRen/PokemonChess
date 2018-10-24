@@ -1,1 +1,1 @@
-test.ml: Battle Command FileRead Moves OUnit2 Pokemon Ptype
+test.ml: Battle Command FileRead List Moves OUnit2 Pokemon Ptype

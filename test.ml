@@ -1,4 +1,4 @@
-(* open OUnit2 *)
+open OUnit2 
 open Battle
 open Command
 open Pokemon
@@ -24,4 +24,11 @@ let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
                                         [22.;30.;40.;10.] (None)
 
 
+let pokemon_tests = []
 
+let suite = 
+  "test suite for midterm project" >::: List.flatten [
+    pokemon_tests
+  ]
+
+let _ = run_test_tt_main suite

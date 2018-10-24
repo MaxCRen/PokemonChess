@@ -14,6 +14,9 @@ let ember = make_move ("ember") (fire) (25)
                               ("doesdamage") (30.) (1.) (0.10) ([])
 
 
+let available_moves = ["ember"]
+
+(* placeholder pokemon until we implement battles in full *)
 let squirtle = make_pokemon "Squirtle" (water, None) [bubble] 
                                         [44.;98.;129.;43.] (None)
 
@@ -29,24 +32,39 @@ let rec display_moves moves =
                 print_string("\n\t"^Moves.get_name h); (display_moves t); 
   |h::t ->  print_string("\t\t\t"^Moves.get_name h); (display_moves t)
 
+(** [hp_display number pokemon] returns a rough percentage of [number] '*'
+    characters that is equivalent to (current_health / max_health) of 
+    pokemon [poke] *)
+let hp_display num poke = 
+  let percentage_health = 
+    (float_of_int (get_curr_hp poke)) /. (float_of_int (get_max_health poke)) in
+  String.make (int_of_float (percentage_health *. num)) '*'
 
+
+(** [printed battle] displays information about the battle [battle] such as
+    the current pokemon on either side, the current HP of either pokemon,
+    and the moveset available to each pokemon. *)
 let printed bat = 
   print_string("__________________________________________________________\n");
   let opponent = Battle.get_opponent bat in
   let player = Battle.get_player bat in
   print_string("Pokemon Battle: \nOpponent's Pokemon: \n"); 
-  print_string(Pokemon.get_name opponent ^ "\t Health: ********************");
+  print_string(Pokemon.get_name opponent ^ "\t Health:" ^ 
+               (hp_display 50. opponent));
   let opp_health = get_curr_hp opponent |> Pervasives.string_of_int in
   let opp_max_health = get_max_health opponent |> Pervasives.string_of_int in
   print_string(opp_health^"/"^opp_max_health^" hp\nMoves:");
   print_string("\n\n\n\nPlayer's Pokemon:\n");
-  print_string(Pokemon.get_name player ^ "\t Health: ******************** ");
+  print_string(Pokemon.get_name player ^ "\t Health: " ^ 
+               (hp_display 50. player));
   let curr_health = get_curr_hp player |> Pervasives.string_of_int in
   let max_health = get_max_health player |> Pervasives.string_of_int in
   print_string(curr_health^"/"^max_health^" hp\nMoves:");
   get_moves player |> display_moves;
   print_string("__________________________________________________________\n")
 
+(** [print_help] displays to the the given output a list of possible
+    commands available to the player *) 
 let print_help ()=
   print_string("Here are some general rules: \n");
   print_string("Type 'use [move]' to use a move of your pokemons\n");
@@ -75,11 +93,19 @@ let rec loop bat =
   match read_line () with
   | str -> begin
     match Command.parse_phrase str with
-    | exception Empty -> print_string "Please enter a valid command\n\n\n"; loop bat
+    | exception Empty -> 
+      print_string "Please enter a valid command\n\n\n"; loop bat
     | Help -> print_help (); loop bat
-    | Info str-> print_string"unimplemented\n\n\n"; loop bat
-    | Incorrect -> print_string "Incorrect Command - Type 'Help' if you need help\n\n\n"; loop bat
-    | Use str -> use_move bat str; printed bat; loop bat
+    | Info str-> print_string "unimplemented\n\n\n"; loop bat
+    | Incorrect -> 
+      print_string "Incorrect Command - 
+                    Type 'Help' if you need help\n\n\n"; 
+      loop bat
+    | Use str -> 
+      if List.mem str available_moves then
+       (use_move bat str; printed bat; loop bat)
+      else 
+       (print_string (str ^ " is not an available move!\n\n\n"); loop bat)
     | Quit -> print_string "Quitting ...\n\n\n"; exit 0
     
   end
