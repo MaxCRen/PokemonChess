@@ -13,6 +13,10 @@ type t = {
   op_poke: Pokemon.t
 }
 
+let get_player battle= battle.current_poke
+
+let get_opponent battle = battle.op_poke
+
 let make_battle player opponent={
   current_poke = player;
   op_poke = opponent
@@ -37,6 +41,15 @@ let calc_damage move battle =
   let poke_attr = Pokemon.get_attr poke in
   (hit poke move)*.((20.*.(Moves.get_power move)*.(List.nth poke_attr 1)/.(List.nth poke_attr 2))/.50.)
 
+(*[calc_effective move poke dam] calculates the effectiveness of move on pokemon
+[poke] and applies the necessary mutiliplier to the damage [dam]*)
+let calc_effective move poke dam= 
+  let move_type = Moves.get_type move in
+  match Pokemon.get_type poke with
+  | (t1, None) -> (Ptype.getEffective move_type t1)*.dam
+  | (t1, Some t2) -> (Ptype.getEffective move_type t1)*.
+                    (Ptype.getEffective move_type t2)*.dam
+
 let deal_damage dam poke= 
   Pokemon.change_health poke dam
 
@@ -47,9 +60,9 @@ let rec parse_side_effects eff_lst opponent_player =
 
 (* uses the move on poke*)
 let use_move battle move =
-  if can_use move then 
-  let dam = battle |> calc_damage move |> Pervasives.int_of_float in
-  deal_damage dam battle.current_poke
+  if can_use move then
+  let dam = battle |> calc_damage move |> calc_effective move battle.op_poke |> 
+  Pervasives.int_of_float in deal_damage dam battle.current_poke
   else raise IllegalMove
 
   

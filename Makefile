@@ -1,8 +1,9 @@
-MODULES=pokemon ptype moves battle command fileRead
+MODULES=pokemon ptype moves battle command fileRead main
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
 TEST=test.byte
+MAIN=main.byte
 OCAMLBUILD=ocamlbuild -use-ocamlfind
 PKGS=unix,oUnit,str,qcheck
 
@@ -11,6 +12,10 @@ default: build
 
 build:
 	$(OCAMLBUILD) $(OBJECTS)
+
+
+play:
+	$(OCAMLBUILD) $(MAIN) && ./$(MAIN)
 
 test:
 	$(OCAMLBUILD) -tag 'debug' $(TEST) && ./$(TEST) -runner sequential

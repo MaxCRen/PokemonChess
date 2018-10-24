@@ -22,6 +22,8 @@ val get_mult: t -> float list
 
 val get_curr_hp: t -> int
 
+val get_max_health: t -> int
+
 val get_status: t  ->  Moves.status option
 
 val get_confused: t -> bool

@@ -8,5 +8,8 @@ type command =
 exception Empty
 exception Incorrect
 
+let break_string str =
+  str |> String.lowercase_ascii
+
 let parse_phrase string = 
   failwith"unimplemented"

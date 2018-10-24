@@ -7,7 +7,7 @@ type status = Normal|Poison|Paralyzed of int|Sleep of int|Burned|Frozen of int
 type effects = |Heal of float 
             | Stats of (int*float) list
             | Condition of (status*float)
-            | Confusion of (bool*float)
+            | Confusion of (bool*float*int)
             | Recoil of int
             | Charge of int
 

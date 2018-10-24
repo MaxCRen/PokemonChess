@@ -52,6 +52,8 @@ let get_mult poke = poke.attr_mult
 
 let get_curr_hp poke = poke.curr_hp
 
+let get_max_health poke = poke.attributes |> List.hd |> Pervasives.int_of_float
+
 let get_status poke = poke.status
 
 let get_confused poke = poke.confused

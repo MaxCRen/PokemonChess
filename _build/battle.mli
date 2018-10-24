@@ -14,3 +14,10 @@ val can_move: t -> Moves.t -> bool
 [move]*)
 val use_move: t -> Moves.t -> unit
 
+val get_player: t -> Pokemon.t
+
+val get_opponent: t -> Pokemon.t
+
+
+val make_battle: Pokemon.t -> Pokemon.t -> t
+
