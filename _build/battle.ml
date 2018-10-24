@@ -9,14 +9,15 @@ exception IllegalMove
 exception Charging
 
 type t = {
-  mutable current_poke: Pokemon.t;
-  mutable op_poke: Pokemon.t
+  current_poke: Pokemon.t;
+  op_poke: Pokemon.t
 }
 
 let get_player battle= battle.current_poke
 
 let get_opponent battle = battle.op_poke
 
+(* Creates an instance of our battle *)
 let make_battle player opponent={
   current_poke = player;
   op_poke = opponent
@@ -65,6 +66,7 @@ let calc_effective move poke dam=
   | (t1, Some t2) -> (Ptype.getEffective move_type t1)*.
                     (Ptype.getEffective move_type t2)*.dam
 
+(* Deals [dam] to pokemon [poke] *)
 let deal_damage dam poke= 
   Pokemon.change_health poke (-dam)
 

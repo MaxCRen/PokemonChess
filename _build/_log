@@ -4,7 +4,7 @@ ocamlfind ocamldep -package yojson -package ANSITerminal -modules main.mli > mai
 # Target: main.cmi, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:mli, file:main.mli, interf, ocaml, quiet, traverse }
 ocamlfind ocamlc -c -package yojson -package ANSITerminal -o main.cmi main.mli # cached
 # Target: main.ml.depends, tags: { package(ANSITerminal), package(yojson), extension:ml, file:main.ml, ocaml, ocamldep, quiet, traverse }
-ocamlfind ocamldep -package yojson -package ANSITerminal -modules main.ml > main.ml.depends
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules main.ml > main.ml.depends # cached
 # Target: battle.mli.depends, tags: { package(ANSITerminal), package(yojson), extension:mli, file:battle.mli, ocaml, ocamldep, quiet, traverse }
 ocamlfind ocamldep -package yojson -package ANSITerminal -modules battle.mli > battle.mli.depends # cached
 # Target: moves.mli.depends, tags: { package(ANSITerminal), package(yojson), extension:mli, file:moves.mli, ocaml, ocamldep, quiet, traverse }
@@ -26,11 +26,9 @@ ocamlfind ocamldep -package yojson -package ANSITerminal -modules command.mli > 
 # Target: command.cmi, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:mli, file:command.mli, interf, ocaml, quiet, traverse }
 ocamlfind ocamlc -c -package yojson -package ANSITerminal -o command.cmi command.mli # cached
 # Target: main.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:main.cmo, file:main.ml, implem, ocaml, quiet, traverse }
-ocamlfind ocamlc -c -package yojson -package ANSITerminal -o main.cmo main.ml
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o main.cmo main.ml # cached
 # Target: battle.ml.depends, tags: { package(ANSITerminal), package(yojson), extension:ml, file:battle.ml, ocaml, ocamldep, quiet, traverse }
-ocamlfind ocamldep -package yojson -package ANSITerminal -modules battle.ml > battle.ml.depends # cached
-# Target: battle.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:battle.cmo, file:battle.ml, implem, ocaml, quiet, traverse }
-ocamlfind ocamlc -c -package yojson -package ANSITerminal -o battle.cmo battle.ml # cached
+ocamlfind ocamldep -package yojson -package ANSITerminal -modules battle.ml > battle.ml.depends
 # Target: command.ml.depends, tags: { package(ANSITerminal), package(yojson), extension:ml, file:command.ml, ocaml, ocamldep, quiet, traverse }
 ocamlfind ocamldep -package yojson -package ANSITerminal -modules command.ml > command.ml.depends # cached
 # Target: command.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:command.cmo, file:command.ml, implem, ocaml, quiet, traverse }
@@ -47,6 +45,8 @@ ocamlfind ocamlc -c -package yojson -package ANSITerminal -o pokemon.cmo pokemon
 ocamlfind ocamldep -package yojson -package ANSITerminal -modules ptype.ml > ptype.ml.depends # cached
 # Target: ptype.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:ptype.cmo, file:ptype.ml, implem, ocaml, quiet, traverse }
 ocamlfind ocamlc -c -package yojson -package ANSITerminal -o ptype.cmo ptype.ml # cached
+# Target: battle.cmo, tags: { package(ANSITerminal), package(yojson), byte, compile, extension:cmo, extension:ml, file:battle.cmo, file:battle.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package yojson -package ANSITerminal -o battle.cmo battle.ml
 # Target: main.byte, tags: { package(ANSITerminal), package(yojson), byte, dont_link_with, extension:byte, file:main.byte, link, ocaml, program, quiet, traverse }
-ocamlfind ocamlc -linkpkg -package yojson -package ANSITerminal ptype.cmo moves.cmo pokemon.cmo battle.cmo command.cmo main.cmo -o main.byte
+ocamlfind ocamlc -linkpkg -package yojson -package ANSITerminal ptype.cmo moves.cmo pokemon.cmo battle.cmo command.cmo main.cmo -o main.byte # cached
 # Compilation successful.
