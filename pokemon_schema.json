@@ -1,0 +1,29 @@
+{
+	"type": "object",
+	"properties": {
+		"name" : { "type" : "string" },
+		"ptype" : { 
+			"type" : "array",
+			"name" : { "type" : "string" }
+		},
+		"moves" : {
+			"type" : "array",
+			"name": { "type" : "string" },
+			"ptype" : { "type" : "string" },
+			"pp" : { "type": "int" },
+			"description" : { "type" : "int" },
+			"power" : { "type" : "int" },
+			"accuracy" : { "type" : "int" }
+		},
+		"stats" : {
+			"type" : "object",
+			"properties" : {
+				"hp" : { "type" : "int" },
+				"attack" : { "type" : "int" },
+				"defense" : { "type" : "int" },
+				"speed" : { "type" : "int" }
+			}
+		}
+	}
+
+}
