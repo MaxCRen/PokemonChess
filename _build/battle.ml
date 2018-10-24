@@ -9,8 +9,8 @@ exception IllegalMove
 exception Charging
 
 type t = {
-  current_poke: Pokemon.t;
-  op_poke: Pokemon.t
+  mutable current_poke: Pokemon.t;
+  mutable op_poke: Pokemon.t
 }
 
 let get_player battle= battle.current_poke
@@ -22,8 +22,22 @@ let make_battle player opponent={
   op_poke = opponent
 } 
 
-let can_move battle move=
-  if Moves.get_pp move = 0 then false else true
+let rec get_move_from_str move_lst move_str =
+  match move_lst with 
+    |[] -> raise IllegalMove
+    |h::t when Moves.get_name h = move_str -> h
+    |h::t -> get_move_from_str t move_str
+
+let can_move move=
+  if Moves.get_pp move = 0  then false else true
+
+let can_use_move battle str =
+  let moves_lst = battle.current_poke |> Pokemon.get_moves in
+  match get_move_from_str moves_lst str with 
+  | exception IllegalMove -> false
+  | move -> can_move move 
+  
+
 
 (*[hit poke move] determines whether the pokemon [poke] hits or misses with the
 move [move]. It is 0 if it misses, and 1 if it hits*)
@@ -39,7 +53,8 @@ Calculation:
 let calc_damage move battle =
   let poke = battle.current_poke in
   let poke_attr = Pokemon.get_attr poke in
-  (hit poke move)*.((20.*.(Moves.get_power move)*.(List.nth poke_attr 1)/.(List.nth poke_attr 2))/.50.)
+  (20.*.(Moves.get_power move)*.(List.nth poke_attr 1)/.(List.nth poke_attr 2))/.50.
+
 
 (*[calc_effective move poke dam] calculates the effectiveness of move on pokemon
 [poke] and applies the necessary mutiliplier to the damage [dam]*)
@@ -51,7 +66,7 @@ let calc_effective move poke dam=
                     (Ptype.getEffective move_type t2)*.dam
 
 let deal_damage dam poke= 
-  Pokemon.change_health poke dam
+  Pokemon.change_health poke (-dam)
 
 (* 
 let rec parse_side_effects eff_lst opponent_player =
@@ -60,10 +75,8 @@ let rec parse_side_effects eff_lst opponent_player =
 
 (* uses the move on poke*)
 let use_move battle move =
-  if can_use move then
   let dam = battle |> calc_damage move |> calc_effective move battle.op_poke |> 
-  Pervasives.int_of_float in deal_damage dam battle.current_poke
-  else raise IllegalMove
+  Pervasives.int_of_float in deal_damage dam battle.op_poke
 
   
 

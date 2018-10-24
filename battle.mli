@@ -6,9 +6,13 @@ open Ptype
 type t
 
 
+val get_move_from_str: Moves.t list -> string -> Moves.t
+
 (*[can_use_move battle move] is true if the current pokemon can use
 the move [move] otherwise it is false*)
-val can_move: t -> Moves.t -> bool
+val can_use_move: t -> string -> bool
+
+
 
 (*[use_move battle move] gives us a new battle after using
 [move]*)
