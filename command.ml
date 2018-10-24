@@ -17,8 +17,7 @@ exception Empty
 let break_string str =
   str |> String.lowercase_ascii |> String.split_on_char ' '
 
-(** [parse_phrase str] parses the string [str] into the commands it may
-    or may not contain *)
+
 let parse_phrase str = 
   match break_string str with 
   |[] -> raise Empty
