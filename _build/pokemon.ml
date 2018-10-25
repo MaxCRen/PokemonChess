@@ -45,7 +45,7 @@ let get_attr poke =
     |[], [] -> acc
     |multiplier::t1, attribute::t2 -> get_attr' (multiplier*.(attribute)::acc) t1 t2
     | _, _ -> raise NotDefinedCorrectly in
-  
+
   get_attr' [] poke.attr_mult poke.attributes
 
 let get_mult poke = poke.attr_mult
@@ -60,7 +60,8 @@ let get_confused poke = poke.confused
 
 let get_accuracy poke = poke.accuracy
 
-let change_health poke health = poke.curr_hp <- poke.curr_hp + health
+let change_health poke health = poke.curr_hp <- 
+    Pervasives.max (poke.curr_hp + health) (get_max_health poke)
 
 
 
