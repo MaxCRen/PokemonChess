@@ -92,6 +92,7 @@ let rec loop bat =
   | str -> begin
     match Command.parse_phrase str with
     | exception Empty -> 
+      ANSITerminal.erase Screen;
       print_string "Please enter a valid command\n\n\n"; loop bat
     | Help -> print_help (); loop bat
     | Info str-> print_string "unimplemented\n\n\n"; loop bat
@@ -101,14 +102,14 @@ let rec loop bat =
       loop bat
     | Use str -> 
       if List.mem str available_moves then
-       (use_move bat str; printed bat; loop bat)
+        (ANSITerminal.erase Screen; use_move bat str;  printed bat; loop bat)
       else 
        (print_string (str ^ " is not an available move!\n\n\n"); loop bat)
     | Quit -> print_string "Quitting ...\n\n\n"; exit 0
-    
   end
 
 let rec play_game () = 
+  ANSITerminal.erase Screen;
   printed battle;
   loop battle
 
