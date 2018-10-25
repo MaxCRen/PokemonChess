@@ -12,8 +12,11 @@ type command =
 
 exception Empty
 
+(** [break_string str] breaks string [str] into its space-delimited 
+   component parts *)
 let break_string str =
   str |> String.lowercase_ascii |> String.split_on_char ' '
+
 
 let parse_phrase str = 
   match break_string str with 

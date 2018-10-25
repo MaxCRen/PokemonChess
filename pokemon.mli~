@@ -38,17 +38,10 @@ val get_curr_hp: t -> int
     could have *)
 val get_max_health: t -> int
 
-(** [get_status poke] returns [Some] of the current status of pokemon [poke] if 
-    it has one. Otherwise, returns [None] *)
 val get_status: t  ->  Moves.status option
 
-(** [get_confused poke] returns [true] if pokemon [poke] is currently 
-    confused *)
 val get_confused: t -> bool
 
-(** [get_accuracy poke] returns the current accuracy of pokemon [poke] *)
 val get_accuracy: t -> float
 
-(** [change_health poke num] adds [num] to the current health of 
-    pokemon [poke] *)
 val change_health: t -> int -> unit

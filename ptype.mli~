@@ -12,4 +12,6 @@
   (*[getEffectives t1 t2] gets the float effective value of type [t1] 
   on type [t2]*)
   val getEffective: t -> t -> float
-end
+
+  (*[makeType n eff] is the ptype.t with name [n] and effectiveness [eff]*)
+  val makeType: string -> (string*float) list -> t
