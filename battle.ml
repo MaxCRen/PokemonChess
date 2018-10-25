@@ -13,7 +13,8 @@ exception Charging
 
 type t = {
   current_poke: Pokemon.t;
-  op_poke: Pokemon.t
+  op_poke: Pokemon.t;
+  mutable turn : Pokemon.t
 }
 
 let get_player battle= battle.current_poke
@@ -21,9 +22,10 @@ let get_player battle= battle.current_poke
 let get_opponent battle = battle.op_poke
 
 (* Creates an instance of our battle *)
-let make_battle player opponent={
+let make_battle player opponent = {
   current_poke = player;
-  op_poke = opponent
+  op_poke = opponent;
+  turn = player
 } 
 
 let rec get_move_from_str move_lst move_str =
@@ -37,7 +39,7 @@ let can_move move=
   if Moves.get_pp move = 0  then false else true
 
 let can_use_move battle str =
-  let moves_lst = battle.current_poke |> Pokemon.get_moves in
+  let moves_lst = battle.turn |> Pokemon.get_moves in
   match get_move_from_str moves_lst str with 
   | exception IllegalMove -> false
   | move -> can_move move 
@@ -85,8 +87,10 @@ let rec parse_side_effects eff_lst opponent_player =
 
 (* uses the move on poke*)
 let use_move battle move =
-  let dam = battle |> calc_damage move |> calc_effective move battle.op_poke |> 
-  Pervasives.int_of_float in deal_damage dam battle.op_poke
+  let dam = battle |> calc_damage move |> calc_effective move battle.turn |> 
+            Pervasives.int_of_float in deal_damage dam battle.turn;
+  if(battle.turn == battle.op_poke) then battle.turn <- battle.current_poke
+  else battle.turn <- battle.op_poke
 
   
 

@@ -3,8 +3,12 @@ open Pokemon
 open Moves
 open Ptype
 open Command
+open Random
+
+let rand = Random.self_init
 
 let water = makeType "water" [("water", 0.5);("fire", 2.)]
+
 let fire = makeType "fire" [("fire", 0.5);("water", 2.)]
 
 let bubble = make_move ("bubble") (water) (25) 
@@ -23,7 +27,19 @@ let squirtle = make_pokemon "Squirtle" (water, None) [bubble]
 let charmander = make_pokemon "Charmander" (fire, None) [ember]
                                         [39.;112.;93.;10.] (None)
 
+
 let battle = Battle.make_battle charmander squirtle
+
+let opponent_move bat = 
+  let op_poke = Battle.get_opponent bat in 
+  let opponent_moves = Pokemon.get_moves op_poke in
+  let op_name = Pokemon.get_name op_poke in 
+  let r = Random.int (List.length opponent_moves) in 
+  let move = List.nth opponent_moves r in 
+  if can_use_move bat (Moves.get_name move) then 
+    (print_string (op_name^" used "^(Moves.get_name move)^"\n\n\n");
+    Battle.use_move bat move)
+  else print_string "Can Not Use Move\n\n\n\n" 
 
 let rec display_moves moves =
   match moves with
@@ -83,6 +99,8 @@ let use_move bat str =
 let check_fainted bat = 
   if Pokemon.get_curr_hp (Battle.get_opponent bat) <= 0 then 
     (print_string("Your opponent has fainted!\n\n\n"); exit 0)
+  else if Pokemon.get_curr_hp (Battle.get_player bat) <= 0 then
+    (print_string ("You have fainted!\n\n\n"); exit 0)
   else (print_string "")
 
 
@@ -102,7 +120,7 @@ let rec loop bat =
       loop bat
     | Use str -> 
       if List.mem str available_moves then
-        (ANSITerminal.erase Screen; use_move bat str;  printed bat; loop bat)
+        (ANSITerminal.erase Screen; use_move bat str; opponent_move bat;  printed bat; loop bat)
       else 
        (print_string (str ^ " is not an available move!\n\n\n"); loop bat)
     | Quit -> print_string "Quitting ...\n\n\n"; exit 0
