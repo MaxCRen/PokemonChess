@@ -8,7 +8,6 @@ type command =
   |Info of command_phrase
   |Quit
   |Incorrect
-
 (** [exception] if a command is empty *)
 exception Empty
 

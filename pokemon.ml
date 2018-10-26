@@ -6,7 +6,7 @@ exception NotDefinedCorrectly
 type t = {
   name: string;
   pokeType: (Ptype.t * Ptype.t option);
-  mutable moveSet: Moves.t list;
+  moveSet: Moves.t list;
   (*contains the multiplier for attributes, it is initializes as all 1's*)
   mutable attr_mult: float list;
   (* attributes [hp; attack; defense; speed] *)
@@ -14,19 +14,19 @@ type t = {
   attributes: float list;
   mutable status : Moves.status option;
 
-  mutable confused: bool;
+  mutable confused: int;
   mutable accuracy: float
 }
 
-let make_pokemon n typ mset attr stat = {
+let make_pokemon n typ mset attr = {
   name = n;
   pokeType = typ;
   attr_mult = [1.;1.;1.;1.];
   moveSet= mset;
   curr_hp = attr |> List.hd |> Pervasives.int_of_float;
   attributes = attr;
-  status = stat;
-  confused = false;
+  status = None;
+  confused = 0;
   accuracy =  1.
 }
 
@@ -46,7 +46,7 @@ let get_attr poke =
     |multiplier::t1, attribute::t2 -> get_attr' (multiplier*.(attribute)::acc) t1 t2
     | _, _ -> raise NotDefinedCorrectly in
   
-  get_attr' [] poke.attr_mult poke.attributes
+  List.rev (get_attr' [] poke.attr_mult poke.attributes)
 
 let get_mult poke = poke.attr_mult
 
@@ -60,7 +60,21 @@ let get_confused poke = poke.confused
 
 let get_accuracy poke = poke.accuracy
 
-let change_health poke health = poke.curr_hp <- poke.curr_hp + health
+
+let change_health poke health = 
+  let max_health = get_max_health poke in
+  let new_health = health + poke.curr_hp in
+  if new_health < 0 then poke.curr_hp <- 0
+  else if new_health > max_health then poke.curr_hp <- max_health 
+  else poke.curr_hp <- new_health
+
+let change_attr_mult poke mult = poke.attr_mult <- mult
+
+let change_status poke status = poke.status <- status
+
+let change_confusion poke length= poke.confused <- length
+
+let change_accuracy poke amount = poke.accuracy <- poke.accuracy -. amount
 
 
 

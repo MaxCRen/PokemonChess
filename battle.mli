@@ -32,3 +32,8 @@ val get_opponent: t -> Pokemon.t
     pokemon [poke1] and pokemon [poke2] *)
 val make_battle: Pokemon.t -> Pokemon.t -> t
 
+
+val calc_effective: Moves.t -> Pokemon.t -> float
+
+val compare_speed: Pokemon.t -> Pokemon.t -> Pokemon.t
+

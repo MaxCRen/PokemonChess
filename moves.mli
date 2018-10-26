@@ -1,13 +1,19 @@
 
 (** Our representation of a pokemon status. They can either be Poisoned, 
 Paralyzed, Slept, Burnt, or Frozen *)
-type status
+type status = Poison|Paralyzed of int|Sleep of int|Burned|Frozen of int
+
 (** Our representation of a move pokemon move. It contains a name, a ptype, a pp
 counter, a description, power, and accuracy *)
 type t
 (**Our representation of move side effects, the can either heal, change stats
 change condition, confuse, have recoil, or charge *)
-type effects
+type effects = |Heal of (float*bool) 
+            | Stats of (float list)*bool
+            | Condition of (status*float)
+            | Confusion of (float*int)
+            | Recoil of float
+            | Charge of int
 
 (** [can_use move] is true if the move still has pp, and is false if it no longer
 has pp *)

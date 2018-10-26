@@ -6,7 +6,7 @@ type t
 (*[make_pokemon name poketype moveset attributes status] creates a our representation
 of a pokmon type using the given arguments*)
 val make_pokemon: string -> (Ptype.t * Ptype.t option) -> 
-                            Moves.t list -> float list -> Moves.status option -> t
+                            Moves.t list -> float list -> t
 
 (** [get_moves pokemon] returns a list of type [Moves.t] that the pokemon
    [pokemon] has available to it *)
@@ -44,11 +44,22 @@ val get_status: t  ->  Moves.status option
 
 (** [get_confused poke] returns [true] if pokemon [poke] is currently 
     confused *)
-val get_confused: t -> bool
+val get_confused: t -> int
 
 (** [get_accuracy poke] returns the current accuracy of pokemon [poke] *)
 val get_accuracy: t -> float
 
-(** [change_health poke num] adds [num] to the current health of 
-    pokemon [poke] *)
+(**[change_health poke health] changes the pokemon's hp by [health] if the new
+hp is greater than the max health, then they gain up to max health, if it is
+less then zero then the pokemon's health becomes 0*)
 val change_health: t -> int -> unit
+
+val change_attr_mult: t -> float list -> unit
+
+val change_status: t -> Moves.status option -> unit
+
+val change_confusion: t -> int -> unit
+
+val change_accuracy: t -> float -> unit
+
+
