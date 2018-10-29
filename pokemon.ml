@@ -21,8 +21,8 @@ type t = {
 let make_pokemon n typ mset attr = {
   name = n;
   pokeType = typ;
-  attr_mult = [1.;1.;1.;1.];
   moveSet= mset;
+  attr_mult = [1.;1.;1.;1.];
   curr_hp = attr |> List.hd |> Pervasives.int_of_float;
   attributes = attr;
   status = None;
@@ -45,7 +45,7 @@ let get_attr poke =
     |[], [] -> acc
     |multiplier::t1, attribute::t2 -> get_attr' (multiplier*.(attribute)::acc) t1 t2
     | _, _ -> raise NotDefinedCorrectly in
-  
+
   List.rev (get_attr' [] poke.attr_mult poke.attributes)
 
 let get_mult poke = poke.attr_mult
