@@ -9,7 +9,7 @@ exception IllegalMove
 
 (** [exception Charging] is raised if an attempt is made to use a pokemon 
    who is currently charging a move *)
-exception Charging
+exception Charging of int
 
 type t = {
   current_poke: Pokemon.t;
@@ -141,7 +141,7 @@ let apply_effect effect poke1 poke2 dam=
   |Stats (lst, _) -> lst |> deal_with_attr poke2 
                                     |> Pokemon.change_attr_mult poke2
   |Condition (stat, perc) -> apply_condition poke2 stat perc;
-  |Charge -> raise Charging 
+  |Charge -> raise (Charging 1)
 
  (**[parse_side_effects eff_lst bat dam] goes through the list of side effects
  and applies the effects to the battle [bat]*)
@@ -155,10 +155,9 @@ let use_move battle move =
   let dam = battle |> calc_damage move |> Pervasives.int_of_float in 
   deal_damage dam (other_player battle);
   parse_side_effects (Moves.get_eff move) battle dam;
-  if(battle.turn == battle.op_poke) then (battle.turn <- battle.current_poke;)
-  else battle.turn <- battle.op_poke;
+  battle.turn <- other_player battle
 
+let change_turn battle poke = battle.turn <- poke
   
-
-
+let get_turn battle = battle.turn
   

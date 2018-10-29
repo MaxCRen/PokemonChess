@@ -12,7 +12,6 @@ type status =
 type effects = | Heal of (float*bool) 
                | Stats of (float list)*bool
                | Condition of (status*float)
-               | Charge
 
 type t = {
   name : string;

@@ -30,11 +30,11 @@ let water = makeType "water" [("water", 0.5);("fire", 2.)]
 
 let fire = makeType "fire" [("fire", 0.5);("water", 0.5)]
 
-let bubble = make_move ("Bubble") (water) (25) 
+let bubble = make_move ("Bubble") (water) (0) 
     ("Does damage") (30.) (1.) (0.10) false None
 
-let random2 = make_move ("Speed") (water) (25) 
-    ("Does damage") (0.) (1.) (0.) false (Some (Stats ([0.;1.0;1.0;0.], true)))
+let random2 = make_move ("Sleep") (water) (25) 
+    ("Does damage") (0.) (1.) (0.) false (Some (Condition (Sleep (1), 1.)))
 
 let ember = make_move ("Ember") (fire) (25) 
     ("Does damage") (30.) (1.) (0.10) false None
@@ -146,13 +146,45 @@ let use_move move bat=
     
     (* Sequence of events: use move -> print the new state -> print action ->
        print effectiveness -> check if opponent has fainted *)
-    Battle.use_move bat move; printed bat;
+    Battle.use_move bat move;
+    
+    bat |> Battle.other_player |> Battle.change_turn bat;
+    
+     printed bat;
     ANSITerminal.(print_string[green] (poke_name^" used "^(Moves.get_name move)^"\n"));
     print_eff move (Battle.get_opponent bat); check_fainted bat; )
   else (printed bat; print_string "Cannot use move\n\n\n\n" )
 
+(*[conditions_helper poke status] matches the correct condition effect with 
+what it does to the pokemon. (i.e.) poison hurts the pokemon and sleep puts
+the pokemon to sleep*)
+let conditions_helper poke status =
+  let max_health = Pokemon.get_max_health poke |> Pervasives.float_of_int in
+  match status with 
+  | Poison ->  Battle.deal_damage (Pervasives.int_of_float (0.06*.max_health)) poke;
+              print_string ((Pokemon.get_name poke)^" was hurt by poison\n")
+  | Paralyzed x-> if x - 1 = 0 then (print_string "Paralysis wore off\n";
+                  Pokemon.change_status poke None)
+                  else Pokemon.change_status poke (Some (Paralyzed (x-1)))
+  | Sleep x -> if x - 1 = 0 then 
+                  (print_string ((Pokemon.get_name poke)^" woke up!\n");
+                  Pokemon.change_status poke None)
+                  else Pokemon.change_status poke (Some (Sleep (x-1)))
+  | Burned -> print_string ((Pokemon.get_name poke)^" was burned!\n");
+          Battle.deal_damage (Pervasives.int_of_float (0.06*.max_health)) poke
+  | Frozen x -> failwith "Coming soon"
 
-
+(**[deal_with_conditions bat] deals with the pokemon's conditions after every
+turn*)
+let deal_with_conditions bat =
+  let player = Battle.get_player bat in
+  let opponent = Battle.get_opponent bat in
+  match (Pokemon.get_status player), (Pokemon.get_status opponent) with
+  | None, None -> ()
+  | Some stat, None -> conditions_helper player stat
+  | None, Some stat -> conditions_helper opponent stat
+  | Some stat1, Some stat2 -> conditions_helper player stat1; 
+                                  conditions_helper opponent stat2
 
 (*Likely refactor these two methods later, but for now Leave as is.*)
 (**[move_first bat str] takes in the battle and the move of the player [str] and
@@ -162,9 +194,10 @@ let move_first bat str=
   let move = get_move_from_str move_list str in
   let player = Battle.get_player bat in
   let opponent = Battle.get_opponent bat in
-  if (Moves.is_priority move) then use_move move bat else
-  if (compare_speed player opponent) = player then use_move move bat else 
-    opponent_move bat
+  if (Moves.is_priority move) then (change_turn bat player; use_move move bat) else
+  let faster = compare_speed player opponent in change_turn bat (faster); 
+  if faster = player then use_move move bat else
+  opponent_move bat
 
 (**[move_second bat str] takes in the battle and the move of the player [str] and
    peforms the move of the pokemon that moves second*)
@@ -172,10 +205,7 @@ let move_second bat str =
   let move_list = bat |> Battle.get_player |> get_moves in
   let move = get_move_from_str move_list str in
   let player = Battle.get_player bat in
-  let opponent = Battle.get_opponent bat in
-  if (Moves.is_priority move) then opponent_move bat else
-  if (compare_speed player opponent) = player then opponent_move bat else 
-    use_move move bat
+  if player = Battle.get_turn bat then use_move move bat else opponent_move bat
 
 (* [pause_bool] is used to check if we are in the enter anything to continue state
    or if we are in parsing the player's move state. last_move is the last move
@@ -204,12 +234,20 @@ let rec loop bat pause_bool last_move=
           loop bat false last_move
         | Use str -> 
           if List.mem str available_moves then
-            (ANSITerminal.erase Screen; move_first bat str; loop bat true str;)
+            let move_list = bat |> Battle.get_player |> get_moves in
+            let move = get_move_from_str move_list str in
+            if Battle.can_move move then
+            (ANSITerminal.erase Screen; move_first bat str; deal_with_conditions bat;
+             loop bat true str;)
+             else(
+              print_string (str ^ " is out of PP!\n\n"); loop bat false str)
           else 
             (print_string (str ^ " is not an available move!\n\n\n"); 
              loop bat false last_move)
         | Quit -> print_string "Quitting ...\n\n\n"; exit 0
       end
+
+      
 
 let play_game () = 
   printed battle;

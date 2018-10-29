@@ -11,7 +11,6 @@ change condition, confuse, have recoil, or charge *)
 type effects = |Heal of (float*bool) 
             | Stats of (float list)*bool
             | Condition of (status*float)
-            | Charge
 
 (** [can_use move] is true if the move still has pp, and is false if it no longer
 has pp *)
