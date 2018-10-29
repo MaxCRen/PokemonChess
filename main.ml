@@ -5,20 +5,23 @@ open Ptype
 open Command
 open Random
 
+
+(**[print_logo ()] is used to print the ascii art of the logo for pokemon,
+ascii drawing courtesy of https://www.asciiart.eu/video-games/pokemon*)
 let print_logo () = 
   ANSITerminal.(print_string [yellow]
                   "_________________________________________________________________________                                  
-|                                  ,'                                   |
-|   _.----.        ____         ,'  _\\   ___    ___     ____            |
-|_,-'       `.     |    |  /`.   \,-'    |   \\  /   |   |    \\  |`.     |
+|                                  ,'\\                                  |
+|   _.----.        ____          ,'  _\\   ___    ___     ____           |
+|_,-'       `.     |    |  /`.   \\,-'    |   \\  /   |   |    \\  |`.     |
 |\\      __    \\    '-.  | /   `.  ___    |    \\/    |   '-.   \\ |  |    |
-| \.    \\ \\   |  __  |  |/    ,','_  `.  |          | __  |    \|  |    |
+| \\.    \\ \\   |  __  |  |/    ,','_  `.  |          | __  |    \\|  |    |
 |   \\    \\/   /,' _`.|      ,' / / / /   |          ,' _`.|     |  |    |
-|    \\     ,-'/  /   \\    ,'   | \/ / ,`.|         /  /   \\  |     |    |
-|     \\    \\ |   \_/  |   `-.  \\    `'  /|  |    ||   \_/  | |\\    |    |
+|    \\     ,-'/  /   \\    ,'   | \\/ / ,`.|         /  /   \\  |     |    |
+|     \\    \\ |   \\_/  |   `-.  \\    `'  /|  |    ||   \\_/  | |\\    |    |
 |      \\    \\ \\      /       `-.`.___,-' |  |\\  /| \\      /  | |   |    |
 |       \\    \\ `.__,'|  |`-._    `|      |__| \\/ |  `.__,'|  | |   |    |
-|        \_.-'       |__|    `-._ |              '-.|     '-.| |   |    |
+|        \\_.-'       |__|    `-._ |              '-.|     '-.| |   |    |
 |                                `'                            '-._|    |\n")
 
 let rand = Random.self_init
@@ -28,18 +31,18 @@ let water = makeType "water" [("water", 0.5);("fire", 2.)]
 let fire = makeType "fire" [("fire", 0.5);("water", 0.5)]
 
 let bubble = make_move ("Bubble") (water) (25) 
-    ("Does damage") (30.) (1.) (0.10) ([])
+    ("Does damage") (30.) (1.) (0.10) false None
 
-let random2 = make_move ("Not Bubble") (water) (25) 
-    ("Does damage") (30.) (1.) (0.10) ([])
+let random2 = make_move ("Speed") (water) (25) 
+    ("Does damage") (0.) (1.) (0.) false (Some (Stats ([0.;0.;0.;1.0], true)))
 
 let ember = make_move ("Ember") (fire) (25) 
-    ("Does damage") (30.) (1.) (0.10) ([])
+    ("Does damage") (30.) (1.) (0.10) false None
 
 (** [get_move_names moves] is a list of the names of all moves in [moves], with
     each name in all lowercase. *)
 let get_move_names moves =
-  List.map (fun x -> Moves.get_name x |> String.lowercase_ascii) moves
+  List.map (fun x -> Moves.get_name x) moves
 
 (* placeholder pokemon until we implement battles in full *)
 let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
@@ -53,9 +56,9 @@ let battle = Battle.make_battle squirtle charmander
 
 let print_eff move poke = 
   match Battle.calc_effective move poke with
-  | x -> if x >= 2. then print_string "It's super effective!\n"
-    else if x < 0. then print_string "It's not very effective...\n"
-    else if x = 0. then print_string "But nothing happened...\n"
+  | x -> if x >= 2. then print_string "It's super effective!\n\n\n"
+    else if x < 0. then print_string "It's not very effective...\n\n\n"
+    else if x = 0. then print_string "But nothing happened...\n\n\n"
 
 (** [hp_display number pokemon] returns a rough percentage of [number] '*'
     characters that is equivalent to (current_health / max_health) of 
@@ -115,7 +118,7 @@ let opponent_move bat =
   let op_name = Pokemon.get_name op_poke in 
   let r = Random.int (List.length opponent_moves) in 
   let move = List.nth opponent_moves r in 
-  if can_use_move bat (Moves.get_name move) then 
+  if Battle.can_move move then 
     (* Sequence of events: use move -> print the new state -> print action ->
        print effectiveness -> check if opponent has fainted *)
     (Battle.use_move bat move; printed bat;
@@ -137,17 +140,16 @@ let print_help ()=
 
 (**[use_move str bat] takes the string representation of a move [str] and then
    applies it to the battle [bat] by either doing damage or some other effect*)
-let use_move str bat= 
-  if can_use_move bat str then 
+let use_move move bat= 
+  if Battle.can_move move then (
     let poke_name = bat |> Battle.get_player |> Pokemon.get_name in
-    let move_list = bat |> Battle.get_player |> get_moves in
-    let move = get_move_from_str move_list str in
+    
     (* Sequence of events: use move -> print the new state -> print action ->
        print effectiveness -> check if opponent has fainted *)
     Battle.use_move bat move; printed bat;
     ANSITerminal.(print_string[green] (poke_name^" used "^(Moves.get_name move)^"\n"));
-    print_eff move (Battle.get_opponent bat); check_fainted bat ; 
-  else print_string "Cannot use move\n\n\n\n" 
+    print_eff move (Battle.get_opponent bat); check_fainted bat; )
+  else (printed bat; print_string "Cannot use move\n\n\n\n" )
 
 
 
@@ -156,18 +158,24 @@ let use_move str bat=
 (**[move_first bat str] takes in the battle and the move of the player [str] and
    peforms the move of the pokemon that moves first*)
 let move_first bat str= 
+  let move_list = bat |> Battle.get_player |> get_moves in
+  let move = get_move_from_str move_list str in
   let player = Battle.get_player bat in
   let opponent = Battle.get_opponent bat in
-  if (compare_speed player opponent) = player then use_move str bat else 
+  if (Moves.is_priority move) then use_move move bat else
+  if (compare_speed player opponent) = player then use_move move bat else 
     opponent_move bat
 
 (**[move_second bat str] takes in the battle and the move of the player [str] and
    peforms the move of the pokemon that moves second*)
 let move_second bat str = 
+  let move_list = bat |> Battle.get_player |> get_moves in
+  let move = get_move_from_str move_list str in
   let player = Battle.get_player bat in
   let opponent = Battle.get_opponent bat in
+  if (Moves.is_priority move) then opponent_move bat else
   if (compare_speed player opponent) = player then opponent_move bat else 
-    use_move str bat
+    use_move move bat
 
 (* [pause_bool] is used to check if we are in the enter anything to continue state
    or if we are in parsing the player's move state. last_move is the last move

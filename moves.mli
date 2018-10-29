@@ -11,9 +11,7 @@ change condition, confuse, have recoil, or charge *)
 type effects = |Heal of (float*bool) 
             | Stats of (float list)*bool
             | Condition of (status*float)
-            | Confusion of (float*int)
-            | Recoil of float
-            | Charge of int
+            | Charge
 
 (** [can_use move] is true if the move still has pp, and is false if it no longer
 has pp *)
@@ -23,7 +21,8 @@ val can_use: t -> bool
 val dec_pp: t -> unit
 
 (**[make move n typ p desc pow acc crit side] creates our representation of a move type*)
-val make_move: string -> Ptype.t -> int -> string -> float -> float -> float -> effects list -> t
+val make_move: string -> Ptype.t -> int -> string -> float -> float -> float 
+                                            -> bool -> effects option-> t
 
 (**[get_name move] is the name of the move [move]*)
 val get_name: t -> string
@@ -44,4 +43,8 @@ val get_power: t -> float
 val get_acc: t -> float
 
 (**[get_eff move] is the list of side effects of the [move]*)
-val get_eff: t-> effects list
+val get_eff: t-> effects option
+
+(**[is_priority move] is true if [move] is a priority move and is false
+if it is not a priority move*)
+val is_priority: t -> bool

@@ -5,6 +5,7 @@ open Ptype
 (**representation of a battle *)
 type t
 
+exception Charging
 
 (** [get_move_from_str moves move] returns the move in [moves] corresponding
     to the string [move] *)
@@ -12,7 +13,7 @@ val get_move_from_str: Moves.t list -> string -> Moves.t
 
 (**[can_use_move battle move] is true if the current pokemon can use
 the move [move] otherwise it is false*)
-val can_use_move: t -> string -> bool
+val can_move: Moves.t -> bool
 
 
 

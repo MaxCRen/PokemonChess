@@ -8,13 +8,11 @@ type status =
   | Burned
   | Frozen of int
 
-
+(* Heal can either be recoil or self heal *)
 type effects = | Heal of (float*bool) 
                | Stats of (float list)*bool
                | Condition of (status*float)
-               | Confusion of (float*int)
-               | Recoil of float
-               | Charge of int
+               | Charge
 
 type t = {
   name : string;
@@ -24,10 +22,11 @@ type t = {
   power: float;
   acc: float;
   crit_rate: float;
-  side_effect: effects list
+  priority: bool;
+  side_effect: effects option
 }
 
-let make_move n typ p desc pow acc crit side =
+let make_move n typ p desc pow acc crit pri side =
   {
     name = n;
     ptype = typ;
@@ -38,7 +37,7 @@ let make_move n typ p desc pow acc crit side =
     power = pow;
     acc = acc;
     crit_rate = crit;
-
+    priority = pri;
     side_effect = side
 
   }
@@ -62,3 +61,5 @@ let get_power move =
 let get_acc move = move.acc
 
 let get_eff move = move.side_effect
+
+let is_priority move = move.priority
