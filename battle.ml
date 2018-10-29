@@ -72,10 +72,12 @@ Calculation:
       type_Mult *(20* Move Power * (Pokemon Attack/Opponent Defense)/50)*)
 let calc_damage move battle =
   (*The pokemon we are doing damage to*)
-  let poke = other_player battle in
-  let poke_attr = Pokemon.get_attr poke in
-  let type_mult = calc_effective move poke in
-  type_mult*.(20.*.(Moves.get_power move)*.(List.nth poke_attr 1)/.(List.nth poke_attr 2))/.50.
+  let curr_poke = battle.turn in
+  let curr_poke_atk = List.nth (Pokemon.get_attr curr_poke) 1  in
+  let other_poke = other_player battle in
+  let other_poke_def = List.nth (Pokemon.get_attr other_poke) 2  in
+  let type_mult = calc_effective move other_poke in
+  type_mult*.(20.*.(Moves.get_power move)*.(curr_poke_atk)/.(other_poke_def))/.50.
 
 
 (**[calc_effective move poke dam] calculates the effectiveness of move on pokemon

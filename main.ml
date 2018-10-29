@@ -34,7 +34,7 @@ let bubble = make_move ("Bubble") (water) (25)
     ("Does damage") (30.) (1.) (0.10) false None
 
 let random2 = make_move ("Speed") (water) (25) 
-    ("Does damage") (0.) (1.) (0.) false (Some (Stats ([0.;0.;0.;1.0], true)))
+    ("Does damage") (0.) (1.) (0.) false (Some (Stats ([0.;1.0;1.0;0.], true)))
 
 let ember = make_move ("Ember") (fire) (25) 
     ("Does damage") (30.) (1.) (0.10) false None
