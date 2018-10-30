@@ -30,7 +30,7 @@ let water = makeType "water" [("water", 0.5);("fire", 2.)]
 
 let fire = makeType "fire" [("fire", 0.5);("water", 0.5)]
 
-let bubble = make_move ("Bubble") (water) (0) 
+let bubble = make_move ("Bubble") (water) (25) 
     ("Does damage") (30.) (1.) (0.10) false None
 
 let random2 = make_move ("Sleep") (water) (25) 
@@ -79,6 +79,15 @@ let rec display_moves moves =
   | h::t ->  ANSITerminal.(print_string[green]("\t"^Moves.get_name h)); 
     (display_moves t)
 
+
+let display_status poke = 
+  match (Pokemon.get_status poke) with
+    | Some Poison -> ANSITerminal.(print_string[green] "[PSN]")
+    | Some Paralyzed _ -> ANSITerminal.(print_string[green] "[PAR]")
+    | Some Sleep _-> ANSITerminal.(print_string[yellow] "[SLP]")
+    | Some Burned -> ANSITerminal.(print_string[red] "[BUR]")
+    | Some Frozen _-> ANSITerminal.(print_string[cyan] "[FRZ]")
+    | _ -> ()
 (** [printed battle] displays information about the battle [battle] such as
     the current Pokemon on either side, the current HP of either Pokemon,
     and the moveset available to each Pokemon. *)
@@ -87,13 +96,14 @@ let printed bat =
   ANSITerminal.(print_string [yellow] ("|_______________________________________________________________________|\n"));
   let opponent = Battle.get_opponent bat in
   let player = Battle.get_player bat in
-  ANSITerminal.(print_string[red](" \nOpponent's Pokemon: \t\t\t\t")); 
+  
+  ANSITerminal.(print_string[red]("\nOpponent's Pokemon: \t\t")); display_status opponent;
   ANSITerminal.(print_string[red](Pokemon.get_name opponent ^ "\n\t\t\tHealth:" ^ 
                                   (hp_display 35. opponent) ^ "\n\t\t\t"));
   let opp_health = get_curr_hp opponent |> Pervasives.string_of_int in
   let opp_max_health = get_max_health opponent |> Pervasives.string_of_int in
   ANSITerminal.(print_string[red](opp_health^"/"^opp_max_health^" hp"));
-  ANSITerminal.(print_string[green]("\n\n\n\nPlayer's Pokemon:\t\t\t\t"));
+  ANSITerminal.(print_string[green]("\n\n\n\nPlayer's Pokemon:\t\t"));display_status player;
   ANSITerminal.(print_string [green] 
                   (Pokemon.get_name player ^ "\n\t\t\tHealth:" 
                    ^ (hp_display 35. player) ^ "\n\t\t\t"));
@@ -112,22 +122,6 @@ let check_fainted bat =
     (print_string ("You have fainted!\n\n\n"); exit 0)
   else (print_string "")
 
-let opponent_move bat = 
-  let op_poke = Battle.get_opponent bat in 
-  let opponent_moves = Pokemon.get_moves op_poke in
-  let op_name = Pokemon.get_name op_poke in 
-  let r = Random.int (List.length opponent_moves) in 
-  let move = List.nth opponent_moves r in 
-  if Battle.can_move move then 
-    (* Sequence of events: use move -> print the new state -> print action ->
-       print effectiveness -> check if opponent has fainted *)
-    (Battle.use_move bat move; printed bat;
-     ANSITerminal.(print_string [red](op_name^" used "^(Moves.get_name move)^"!\n");
-                   print_eff move (Battle.get_opponent bat); check_fainted bat ;))
-
-  else print_string "Cannot use move\n\n\n\n" 
-
-
 
 (** [print_help] displays to the the given output a list of possible
     commands available to the player *) 
@@ -137,23 +131,6 @@ let print_help ()=
   print_string("Type 'info [move]/[pokemon] to get information about your pokemon\n");
   print_string("Type 'quit' if you want to quit\n\n\n")
 
-
-(**[use_move str bat] takes the string representation of a move [str] and then
-   applies it to the battle [bat] by either doing damage or some other effect*)
-let use_move move bat= 
-  if Battle.can_move move then (
-    let poke_name = bat |> Battle.get_player |> Pokemon.get_name in
-    
-    (* Sequence of events: use move -> print the new state -> print action ->
-       print effectiveness -> check if opponent has fainted *)
-    Battle.use_move bat move;
-    
-    bat |> Battle.other_player |> Battle.change_turn bat;
-    
-     printed bat;
-    ANSITerminal.(print_string[green] (poke_name^" used "^(Moves.get_name move)^"\n"));
-    print_eff move (Battle.get_opponent bat); check_fainted bat; )
-  else (printed bat; print_string "Cannot use move\n\n\n\n" )
 
 (*[conditions_helper poke status] matches the correct condition effect with 
 what it does to the pokemon. (i.e.) poison hurts the pokemon and sleep puts
@@ -186,73 +163,101 @@ let deal_with_conditions bat =
   | Some stat1, Some stat2 -> conditions_helper player stat1; 
                                   conditions_helper opponent stat2
 
+
+let pause_bet_states battle func move =
+  print_string "Enter anything to continue";
+  match read_line () with
+     |_ ->  (ANSITerminal.erase Screen; printed battle; func move battle)
+
+(**[use_move str bat] takes the string representation of a move [str] and then
+   applies it to the battle [bat] by either doing damage or some other effect*)
+let use_move move bat= 
+  if Battle.can_move move then (
+    let poke_name = bat |> Battle.get_turn |> Pokemon.get_name in
+    
+    (* Sequence of events: use move -> print the new state -> print action ->
+       print effectiveness -> check if opponent has fainted *)
+    Battle.use_move bat move;
+    
+    
+    bat |> Battle.other_player |> Battle.change_turn bat;
+    printed bat;
+    (if Battle.get_turn bat = Battle.get_opponent bat then (
+    ANSITerminal.(print_string[green] (poke_name^" used "^(Moves.get_name move)^"\n"));
+    print_eff move (Battle.other_player bat); check_fainted bat;)
+    else
+    ANSITerminal.(print_string[red] (poke_name^" used "^(Moves.get_name move)^"\n"));
+    print_eff move (Battle.other_player bat); check_fainted bat;)
+  )
+  else (printed bat; print_string "Cannot use move\n\n\n\n" )
+
 (*Likely refactor these two methods later, but for now Leave as is.*)
 (**[move_first bat str] takes in the battle and the move of the player [str] and
    peforms the move of the pokemon that moves first*)
-let move_first bat str= 
+let move_turns bat str= 
   let move_list = bat |> Battle.get_player |> get_moves in
   let move = get_move_from_str move_list str in
   let player = Battle.get_player bat in
   let opponent = Battle.get_opponent bat in
-  if (Moves.is_priority move) then (change_turn bat player; use_move move bat) else
-  let faster = compare_speed player opponent in change_turn bat (faster); 
-  if faster = player then use_move move bat else
-  opponent_move bat
+  let opponent_moves = Pokemon.get_moves opponent in
+  let op_move = Random.int (List.length opponent_moves) |> List.nth opponent_moves in 
 
-(**[move_second bat str] takes in the battle and the move of the player [str] and
+  if (Moves.is_priority move) then (change_turn bat player; use_move move bat;
+  pause_bet_states bat use_move move)
+  else
+  let faster = compare_speed player opponent in
+  change_turn bat (faster); 
+  use_move op_move bat; pause_bet_states bat use_move move
+
+  
+(* (**[move_second bat str] takes in the battle and the move of the player [str] and
    peforms the move of the pokemon that moves second*)
 let move_second bat str = 
   let move_list = bat |> Battle.get_player |> get_moves in
   let move = get_move_from_str move_list str in
   let player = Battle.get_player bat in
-  if player = Battle.get_turn bat then use_move move bat else opponent_move bat
+  if player = Battle.get_turn bat then use_move move bat else opponent_move bat *)
 
 (* [pause_bool] is used to check if we are in the enter anything to continue state
    or if we are in parsing the player's move state. last_move is the last move
    used by the player so we can use it if the player moves second *)
-let rec loop bat pause_bool last_move=
+let rec loop bat =
   let available_moves = get_move_names 
       (Pokemon.get_moves (Battle.get_player bat)) in
-  if pause_bool then 
-    (print_string "Enter anything to continue";
-     match read_line () with
-     |_ ->  ANSITerminal.erase Screen; move_second bat last_move; loop bat false last_move)
-  else
     (* Parses actions that the player may want to take*)
-    match read_line () with
-    | str -> begin
-        match Command.parse_phrase str with
-        (* Empty then we just deal with a command *)
-        | exception Empty -> 
-          ANSITerminal.erase Above;
-          print_string "Please enter a valid command\n\n\n"; loop bat false last_move
-        | Help -> print_help (); loop bat false last_move
-        | Info str-> print_string "unimplemented\n\n\n"; loop bat false last_move
-        | Incorrect ->  
-          print_string "Incorrect Command - 
-                    Type 'Help' if you need help\n\n\n"; 
-          loop bat false last_move
-        | Use str -> 
-          if List.mem str available_moves then
-            let move_list = bat |> Battle.get_player |> get_moves in
-            let move = get_move_from_str move_list str in
-            if Battle.can_move move then
-            (ANSITerminal.erase Screen; move_first bat str; deal_with_conditions bat;
-             loop bat true str;)
-             else(
-              print_string (str ^ " is out of PP!\n\n"); loop bat false str)
-          else 
-            (print_string (str ^ " is not an available move!\n\n\n"); 
-             loop bat false last_move)
-        | Quit -> print_string "Quitting ...\n\n\n"; exit 0
-      end
+  match read_line () with
+  | str -> begin
+      match Command.parse_phrase str with
+      (* Empty then we just deal with a command *)
+      | exception Empty -> 
+        ANSITerminal.erase Above;
+        print_string "Please enter a valid command\n\n\n"; loop bat 
+      | Help -> print_help (); loop bat
+      | Info str-> print_string "unimplemented\n\n\n"; loop bat
+      | Incorrect ->  
+        print_string "Incorrect Command - 
+                  Type 'Help' if you need help\n\n\n"; 
+        loop bat
+      | Use str -> 
+        if List.mem str available_moves then
+          let move_list = bat |> Battle.get_player |> get_moves in
+          let move = get_move_from_str move_list str in
+          if Battle.can_move move then
+          (ANSITerminal.erase Screen; move_turns bat str; loop bat;)
+          else(
+            print_string (str ^ " is out of PP!\n\n"); loop bat)
+        else 
+          (print_string (str ^ " is not an available move!\n\n\n"); 
+            loop bat)
+      | Quit -> print_string "Quitting ...\n\n\n"; exit 0
+    end
 
       
 
 let play_game () = 
   printed battle;
   print_string "You entered a battle with a pokemon. Fight to stay alive\n";
-  loop battle false ""
+  loop battle
 
 
 let main () =

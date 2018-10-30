@@ -49,7 +49,7 @@ let rec get_move_from_str move_lst move_str =
 let can_move move=
   if Moves.get_pp move = 0  then false else true
 
-  
+
 
 
 (**[hit poke move] determines whether the pokemon [poke] hits or misses with the
@@ -140,8 +140,7 @@ let apply_effect effect poke1 poke2 dam=
                                     |> Pokemon.change_attr_mult poke1
   |Stats (lst, _) -> lst |> deal_with_attr poke2 
                                     |> Pokemon.change_attr_mult poke2
-  |Condition (stat, perc) -> apply_condition poke2 stat perc;
-  |Charge -> raise (Charging 1)
+  |Condition (stat, perc) -> apply_condition poke2 stat perc
 
  (**[parse_side_effects eff_lst bat dam] goes through the list of side effects
  and applies the effects to the battle [bat]*)
@@ -154,8 +153,7 @@ let parse_side_effects eff bat dam=
 let use_move battle move =
   let dam = battle |> calc_damage move |> Pervasives.int_of_float in 
   deal_damage dam (other_player battle);
-  parse_side_effects (Moves.get_eff move) battle dam;
-  battle.turn <- other_player battle
+  parse_side_effects (Moves.get_eff move) battle dam
 
 let change_turn battle poke = battle.turn <- poke
   
