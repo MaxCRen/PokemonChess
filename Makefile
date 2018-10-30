@@ -1,4 +1,4 @@
-MODULES=pokemon ptype moves battle command fileRead main
+MODULES=pokemon ptype moves battle command fileRead chess main
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
@@ -30,7 +30,7 @@ finalcheck: check
 bisect: clean test
 	bisect-report -I _build -html report bisect0001.out
 
-zip: bisect
+zip:
 	zip search_src.zip *.ml* _tags Makefile report/*
 	
 docs: docs-public docs-private
