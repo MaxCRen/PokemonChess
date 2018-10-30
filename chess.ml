@@ -92,7 +92,7 @@ let rec get_next_square color (c,r) acc square board =
         board (* if there are no pieces in the way, we add
                  the square onto our list and forge onward *)
       | Some (p,col,_,_) -> 
-        if (color = col || is_king p) then acc (* we shouldn't like to add
+        if (color = col) then acc (* we shouldn't like to add
                                                    a square as viable, which
                                                    holds a king or a piece
                                                    with the same color *)
@@ -140,10 +140,8 @@ let piece_move (piece, color, (cl, r), moved) board (cx, ry) strict =
       if strict then []
       else [(letter_of_int (c + cx)), r + ry] 
     | Some (p, color2, _, _) -> 
-      if not (is_king p) then 
         if color = color2 then []
         else [(letter_of_int (c + cx)), r + ry]
-      else [] 
   with InvalidSquare sq -> []
 
 let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board = 
