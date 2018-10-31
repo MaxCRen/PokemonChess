@@ -96,7 +96,7 @@ module type Game = sig
   val move : square -> square -> t -> piece option * piece option * t option * t
 
   (** [as_list game] returns a list representation of [game] *)
-  val as_list : t -> (square * piece option) list list
+  val as_list : t -> (square * piece option * color option * color) list list
 
 end 
 

@@ -31,16 +31,16 @@ let print_logo () =
 _________________________________________________________________________\n\n")
 
 
-let print_nth_of_col (square: Chess.square * Chess.piece option) =
+let print_nth_of_col (square: Chess.square * Chess.piece option * Chess.color option * Chess.color) =
   ANSITerminal.(print_string [yellow]  "#");
   match square with 
-  | (_, None) -> print_string "       "
-  | (_, Some (Pawn x)) -> print_string "   P   "
-  | (_, Some (Rook x)) -> print_string "   R   "
-  | (_, Some (Knight x)) -> print_string "   Z   "
-  | (_, Some (Bishop x)) -> print_string "   B   "
-  | (_, Some (Queen x)) -> print_string "   Q   "
-  | (_, Some (King x)) -> print_string "   K   "
+  | (_, None, _, _) -> print_string "       "
+  | (_, Some (Pawn x), Some c, _) -> print_string "   P   "
+  | (_, Some (Rook x), Some c, _) -> print_string "   R   "
+  | (_, Some (Knight x), Some c, _) -> print_string "   Z   "
+  | (_, Some (Bishop x), Some c, _) -> print_string "   B   "
+  | (_, Some (Queen x), Some c, _) -> print_string "   Q   "
+  | (_, Some (King x), Some c, _) -> print_string "   K   "
 
 let print_line_gaps () (r:int)=
   if r = -1 then 
@@ -60,19 +60,22 @@ let print_letters () =
   ANSITerminal.(print_string [yellow]  
                   "\n    A       B       C       D       E       F       G       H\n\n")
 
-let rec print_row (board: ((Chess.square * Chess.piece option) list) list) (r:int) = 
+let rec print_row 
+    (board: 
+       ((Chess.square * Chess.piece option * Chess.color option * Chess.color)
+           list) list) (r:int) = 
   match board with 
   |[] -> print_line_gaps () r
   |col::t ->  List.nth col r |> print_nth_of_col; print_row t r
 
-let rec board_helper (board: ((Chess.square * Chess.piece option) list) list) (r:int) =
+let rec board_helper (board: ((Chess.square * Chess.piece option * Chess.color option * Chess.color) list) list) (r:int) =
   if r < 0 then () else
     match board with
     |[] -> ()
     |_::_ -> print_line_gaps () (-1); print_row board r; print_border_lines ();
       board_helper board (r-1)
 
-let print_board (board: ((Chess.square * Chess.piece option) list) list) =
+let print_board (board: ((Chess.square * Chess.piece option * Chess.color option * Chess.color) list) list) =
   print_logo ();
   print_border_lines ();
   board_helper board 7;
