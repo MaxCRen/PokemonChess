@@ -4,7 +4,10 @@ open Moves
 open Ptype
 open Command
 open Random
+open Chess
+open ChessGame
 
+let chess_game = ChessGame.new_game
 
 (**[print_logo ()] is used to print the ascii art of the logo for pokemon,
    ascii drawing courtesy of https://www.asciiart.eu/video-games/pokemon*)
@@ -42,7 +45,7 @@ let ember = make_move ("Ember") (fire) (25)
 (** [get_move_names moves] is a list of the names of all moves in [moves], with
     each name in all lowercase. *)
 let get_move_names moves =
-  List.map (fun x -> Moves.get_name x) moves
+  List.map (fun x -> Moves.get_name x |> String.lowercase_ascii) moves
 
 (* placeholder pokemon until we implement battles in full *)
 let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
@@ -88,14 +91,18 @@ let display_status poke =
   | Some Burned -> ANSITerminal.(print_string[red] "[BUR]")
   | Some Frozen _-> ANSITerminal.(print_string[cyan] "[FRZ]")
   | _ -> ()
-(** [printed battle] displays information about the battle [battle] such as
-    the current Pokemon on either side, the current HP of either Pokemon,
+
+(** *)
+let print_chess = true
+
+(** [printed btl] displays information about the battle [btl] such as the
+    current Pokemon on either side, the current HP of both Pokemon,
     and the moveset available to each Pokemon. *)
-let printed bat = 
+let printed btl = 
   print_logo ();
   ANSITerminal.(print_string [yellow] ("|_______________________________________________________________________|\n"));
-  let opponent = Battle.get_opponent bat in
-  let player = Battle.get_player bat in
+  let opponent = Battle.get_opponent btl in
+  let player = Battle.get_player btl in
 
   ANSITerminal.(print_string[red]("\nOpponent's Pokemon: \t\t")); display_status opponent;
   ANSITerminal.(print_string[red](Pokemon.get_name opponent ^ "\n\t\t\tHealth:" ^ 
@@ -195,7 +202,7 @@ let use_move move bat=
 (**[move_first bat str] takes in the battle and the move of the player [str] and
    peforms the move of the pokemon that moves first*)
 let move_turns bat str= 
-  let move_list = bat |> Battle.get_player |> get_moves in
+  let move_list = bat |> Battle.get_player |> Pokemon.get_moves in
   let move = get_move_from_str move_list str in
   let player = Battle.get_player bat in
   let opponent = Battle.get_opponent bat in
@@ -221,9 +228,9 @@ let move_turns bat str=
 (* [pause_bool] is used to check if we are in the enter anything to continue state
    or if we are in parsing the player's move state. last_move is the last move
    used by the player so we can use it if the player moves second *)
-let rec loop bat =
+let rec battle_loop btl =
   let available_moves = get_move_names 
-      (Pokemon.get_moves (Battle.get_player bat)) in
+      (Pokemon.get_moves (Battle.get_player btl)) in
   (* Parses actions that the player may want to take*)
   match read_line () with
   | str -> begin
@@ -231,40 +238,73 @@ let rec loop bat =
       (* Empty then we just deal with a command *)
       | exception Empty -> 
         ANSITerminal.erase Above;
-        print_string "Please enter a valid command\n\n\n"; loop bat 
-      | Help -> print_help (); loop bat
-      | Info str-> print_string "unimplemented\n\n\n"; loop bat
+        print_string "Please enter a valid command\n\n\n"; battle_loop btl 
+      | Help -> print_help (); battle_loop btl
+      | Info str -> print_string "unimplemented\n\n\n"; battle_loop btl
       | Incorrect ->  
-        print_string "Incorrect Command - 
+        print_string "Invalid Command - 
                   Type 'Help' if you need help\n\n\n"; 
-        loop bat
-      | Use str -> 
-        if List.mem str available_moves then
-          let move_list = bat |> Battle.get_player |> get_moves in
-          let move = get_move_from_str move_list str in
-          if Battle.can_move move then
-            (ANSITerminal.erase Screen; move_turns bat str; loop bat;)
+        battle_loop btl
+      | Use str2 -> 
+        if List.mem (String.lowercase_ascii str2) available_moves then
+          let move_list = btl |> Battle.get_player |> Pokemon.get_moves in
+          let poke_move = Battle.get_move_from_str move_list 
+              (String.lowercase_ascii str2) in
+          if Battle.can_move poke_move then
+            (ANSITerminal.erase Screen; move_turns btl str2; battle_loop btl;)
           else(
-            print_string (str ^ " is out of PP!\n\n"); loop bat)
+            print_string (str2 ^ " is out of PP!\n\n"); battle_loop btl)
         else 
-          (print_string (str ^ " is not an available move!\n\n\n"); 
-           loop bat)
+          (print_string (str2 ^ " is not an available move!\n\n\n"); 
+           battle_loop btl)
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
+      | _ -> print_string "Invalid Command - 
+                  Type 'Help' if you need help\n\n\n"; 
     end
 
-
+let rec chess_loop chess_game =
+  match read_line () with
+  | str ->
+    match Command.parse_phrase str with
+    | exception Empty -> 
+      ANSITerminal.erase Above;
+      print_string "Please enter a valid command:\n\n\n"; chess_loop chess_game
+    | Move (cmd1,cmd2) ->
+      if Command.check_coordinate cmd1 && Command.check_coordinate cmd2 
+      then let old_square = 
+             (Char.escaped cmd1.[0], Pervasives.int_of_char cmd1.[1] - 48) in
+        let new_square =
+          (Char.escaped cmd2.[0], Pervasives.int_of_char cmd2.[1] - 48) in
+        let next_move = 
+          (try (ChessGame.move old_square new_square chess_game) with
+           | InvalidMove -> ANSITerminal.erase Above;
+             print_string "Invalid move! Please try again.\n\n\n"; 
+             chess_loop chess_game) in
+        match next_move with
+        | (Some p1, None, None, next_game) -> chess_loop next_game
+        | (Some p1, Some p2, Some new_game, _) -> 
+          let new_btl = Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
+              (Chess.pokemon_from_piece (Some p2)) in
+          battle_loop new_btl;
+          chess_loop new_game;
+        | _ ->
+          ANSITerminal.erase Above;
+          print_string "Invalid move! Please try again.\n\n\n"; 
+          chess_loop chess_game
+      else chess_loop chess_game
+    | _ -> print_string "Invalid Command - 
+                  Type 'Help' if you need help\n\n\n"; 
+      chess_loop chess_game
 
 let play_game () = 
   printed battle;
   print_string "You entered a battle with a pokemon. Fight to stay alive\n";
-  loop battle
+  battle_loop battle
 
 
 let main () =
   ANSITerminal.erase Screen;
   play_game ()
-(*let contestants = Chess.get_contestants in
-  play_game () (Battle.make_battle (fst contestants) (snd contestants))*)
 
 (* Execute the game engine. *)
 let () = main ()

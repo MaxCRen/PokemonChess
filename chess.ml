@@ -15,7 +15,7 @@ type column = (int * (color * game_piece option)) list
 type board = (string * column) list
 
 exception InvalidSquare of square
-exception InvalidMove of (square * game_piece)
+exception InvalidMove
 
 
 (** [colors_match piece1 piece2] is whether two chess pieces with colors [c1]
@@ -273,27 +273,18 @@ module ChessGame : Game = struct
     }
 
 
-  let get_poke piece =
-    match piece with
-    | Pawn poke -> poke
-    | Rook poke -> poke
-    | Knight poke -> poke
-    | Bishop poke -> poke
-    | Queen poke -> poke
-    | King poke -> poke
-
+(*
   let get_contestants piece1 piece2 =
-    (get_poke piece1, get_poke piece2)
+    (get_poke piece1, get_poke piece2)*)
 
   (** [do_battle piece1 piece2] is called when [piece1] is attempting to 
       capture [piece2]. Successful if [piece1] defeats [piece2] in battle *)
-  let do_battle piece1 piece2 =
-    true
+  let do_battle piece1 piece2 = true
 
   let move square1 square2 ({white;black;board;current_player} as current) = 
     let next_col = (if current_player = White then Black else White) in 
     match get_piece board square1 with
-    | None -> failwith "Invalid move"
+    | None -> raise InvalidMove
     | Some ((p1,c,(c1,r1),moved) as piece1) ->
       if current_player = c then
         let possible_moves = get_moves piece1 board in 
@@ -319,8 +310,8 @@ module ChessGame : Game = struct
           | None -> (Some p1, None, None, new_game)
           | Some (p2,_,_,_) ->
             (Some p1, Some p2, Some new_game, current)
-        else failwith "invalid move"
-      else failwith "Wrong player"
+        else raise InvalidMove
+      else raise InvalidMove
 
   let as_list ({white;black;board;current_player} : t) = 
     let rec helper builder = function 
