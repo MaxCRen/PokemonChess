@@ -174,7 +174,7 @@ let deal_with_conditions bat =
 let pause_bet_states battle func move =
   print_string "Enter anything to continue";
   match read_line () with
-  |_ ->  (ANSITerminal.erase Screen; printed battle; func move battle)
+  |_ ->  (ANSITerminal.erase Screen; func move battle)
 
 (**[use_move str bat] takes the string representation of a move [str] and then
    applies it to the battle [bat] by either doing damage or some other effect*)

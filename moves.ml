@@ -53,9 +53,9 @@ let get_pp move = move.pp
 
 let get_description move = move.description
 
-let get_power move = 
-  let ran_num = Random.float 1. in
-  if ran_num <= move.crit_rate then move.power*.2. else move.power
+let get_power move = move.power
+  (* let ran_num = Random.float 1. in
+  if ran_num <= move.crit_rate then move.power*.2. else move.power *)
 
 let get_acc move = move.acc
 
