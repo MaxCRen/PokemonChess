@@ -119,10 +119,10 @@ let thunder_shock = Moves.make_move "Thunder Shock" electric 30 "" 40. 1. 0.1
     false None
 
 let thunder_wave = Moves.make_move "Thunder Wave" electric 20 
-    "Paralyzes opponent." 0. 1. 0.1 false None
+    "Paralyzes opponent." 0. 1. 0.1 false (Some (Condition (Paralyzed 3, 1.)))
 
 let quick_attack = Moves.make_move "Quick Attack" 
-    normal 30 "" 0. 1. 0.1 true None
+    normal 30 "" 40. 1. 0.1 true None
 
 let hp_grass = Moves.make_move "Hidden Power Grass" 
     grass 15 "" 60. 1. 0.1 false None
@@ -145,7 +145,7 @@ let giga_drain = Moves.make_move "Giga Drain"
     grass 10 "" 75. 1. 0.1 false None
 
 let sleep_powder = Moves.make_move "Sleep Powder"
-    grass 15 "Lulls opponent to sleep." 0. 0. 0. false None
+    grass 15 "Lulls opponent to sleep." 0. 0. 0. false (Some (Condition (Sleep 3, 1.)))
 
 let knock_off = Moves.make_move "Knock Off"
     dark 20 "" 65. 1. 0.1 false None
@@ -182,21 +182,21 @@ let toxic = Moves.make_move "Toxic" poison 10
 let calm_mind = Moves.make_move "Calm Mind" psychic 20 "" 0. 0. 0. false None
 
 (** ALL NECESSARY POKEMON *)
-let get_pawn = make_pokemon "Pikachu" (electric, None) 
+let get_pawn () = make_pokemon "Pikachu" (electric, None) 
     [thunder_shock; thunder_wave; quick_attack; hp_grass] 
     [180.; 103.; 58.; 166.]
 
-let get_rook = make_pokemon "Blastoise" (water, None) 
+let get_rook () = make_pokemon "Blastoise" (water, None) 
     [hydro_pump; work_up; earthquake; dark_pulse] [268.; 153.; 184.; 144.]
 
-let get_bishop = make_pokemon "Venusaur" (grass, Some poison)
+let get_bishop () = make_pokemon "Venusaur" (grass, Some poison)
     [amnesia; sleep_powder; giga_drain; knock_off] [270.; 152.; 153.; 148.]
 
-let get_knight = make_pokemon "Charizard" (fire, Some flying)
+let get_knight () = make_pokemon "Charizard" (fire, Some flying)
     [flare_blitz; dragon_claw; earthquake; roost] [266.; 155.; 144.; 184.]
 
-let get_queen = make_pokemon "Mewtwo" (psychic, None)
+let get_queen () = make_pokemon "Mewtwo" (psychic, None)
     [thunder; fire_blast; blizzard; shadow_ball] [322.; 276.; 166.; 276.]
 
-let get_king = make_pokemon "Mew" (psychic, None)
+let get_king () = make_pokemon "Mew" (psychic, None)
     [will_o_wisp; toxic; giga_drain; calm_mind] [404.; 184.; 256.; 184.]

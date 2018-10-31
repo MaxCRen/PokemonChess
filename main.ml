@@ -48,7 +48,7 @@ let print_line_gaps () (r:int)=
    else
   ANSITerminal.(print_string 
   [yellow] 
-  ("#   "^(string_of_int r)^"\n#       #       #       #       #       #       #       #       #\n"))
+  ("#   "^(string_of_int (r+1))^"\n#       #       #       #       #       #       #       #       #\n"))
 
 let print_border_lines () =
   ANSITerminal.(print_string [yellow]  
@@ -64,16 +64,16 @@ let rec print_row (board: ((Chess.square * Chess.piece option) list) list) (r:in
   |col::t ->  List.nth col r |> print_nth_of_col; print_row t r
 
 let rec board_helper (board: ((Chess.square * Chess.piece option) list) list) (r:int) =
-  if r > 7 then () else
+  if r < 0 then () else
   match board with
   |[] -> ()
   |_::_ -> print_line_gaps () (-1); print_row board r; print_border_lines ();
-  board_helper board (r+1)
+  board_helper board (r-1)
 
 let print_board (board: ((Chess.square * Chess.piece option) list) list) =
   print_logo ();
   print_border_lines ();
-  board_helper board 0;
+  board_helper board 7;
   ANSITerminal.(print_string[yellow] "#\n");
   print_letters ()
 
@@ -103,7 +103,7 @@ let get_move_names moves =
 
 (* placeholder pokemon until we implement battles in full *)
 let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
-    [44.;98.;129.;43.] 
+    [44.;98.;129.;56.] 
 
 let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
     [39.;112.;93.;55.] 
@@ -240,14 +240,14 @@ let use_move move bat=
        print effectiveness -> check if opponent has fainted *)
     Battle.use_move bat move;
 
-    bat |> Battle.other_player |> Battle.change_turn bat;
     printed bat;
-    (if Battle.get_turn bat = Battle.get_opponent bat then (
-        ANSITerminal.(print_string[green] (poke_name^" used "^(Moves.get_name move)^"\n"));
+    (if Battle.get_turn bat == Battle.get_player bat then (
+        ANSITerminal.(print_string[green] ("Your "^ poke_name^" used "^(Moves.get_name move)^"\n"));
         print_eff move (Battle.other_player bat); check_fainted bat;)
      else
        ANSITerminal.(print_string[red] (poke_name^" used "^(Moves.get_name move)^"\n"));
-     print_eff move (Battle.other_player bat); check_fainted bat;)
+     print_eff move (Battle.other_player bat); check_fainted bat;);
+     bat |> Battle.other_player |> Battle.change_turn bat;
   )
   else (printed bat; print_string "Cannot use move\n\n\n\n" )
 
@@ -262,7 +262,7 @@ let move_turns bat str=
   let player = Battle.get_player bat in
   let opponent = Battle.get_opponent bat in
   let opponent_moves = Pokemon.get_moves opponent in
-  let op_move = Random.int (List.length opponent_moves) |> List.nth opponent_moves in 
+  let op_move = 0 |> List.nth opponent_moves in 
   
 
   if (Moves.is_priority move) then (change_turn bat player; use_move move bat;
@@ -270,7 +270,10 @@ let move_turns bat str=
   else
     let faster = compare_speed player opponent in
     change_turn bat (faster); 
-    use_move op_move bat; pause_bet_states bat use_move move
+    if faster == Battle.get_player bat then
+    (use_move move bat; pause_bet_states bat use_move op_move)
+    else (
+    use_move op_move bat; pause_bet_states bat use_move move)
 
 
 (* (**[move_second bat str] takes in the battle and the move of the player [str] and
@@ -324,7 +327,7 @@ let start_battle battle =
   battle_loop battle
 
 let rec chess_loop chess_game =
-  (ChessGame.as_list new_chess_game) |> print_board;
+  (ChessGame.as_list chess_game) |> print_board;
   match read_line () with
   | str -> begin
       match Command.parse_phrase_chess str with
@@ -352,7 +355,8 @@ let rec chess_loop chess_game =
           | (Some p1, Some p2, Some new_game, _) -> 
             let new_btl = Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
                 (Chess.pokemon_from_piece (Some p2)) in
-            printed new_btl;
+            (* As of now the we quit once the opponent faints, so instead we should
+            return the pokemon still alive and move that piece to the new spot *)
             start_battle new_btl;
             chess_loop chess_game;
           | _ ->

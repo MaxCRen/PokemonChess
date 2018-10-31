@@ -216,7 +216,7 @@ module ChessGame : Game = struct
   let rec make_pawns color acc num = 
     let row = (if color = Black then 7 else 2) in 
     if num >= 0 then 
-      make_pawns color ((Pawn (Pokemon.get_pawn), color, 
+      make_pawns color ((Pawn (Pokemon.get_pawn ()), color, 
                          ((letter_of_int num), row), false)::acc)
         (num - 1)
     else acc
@@ -224,26 +224,26 @@ module ChessGame : Game = struct
   let white_pieces = 
     (make_pawns White [] 7 )
     @
-    [(Rook (Pokemon.get_rook),  White, ("A",1), false); 
-     (Knight (Pokemon.get_knight), White, ("B", 1), false); 
-     (Bishop (Pokemon.get_bishop), White, ("C",1), false); 
-     (Queen (Pokemon.get_queen), White, ("D", 1), false);
-     (King (Pokemon.get_king), White, ("E",1), false); 
-     (Bishop (Pokemon.get_bishop), White, ("F",1), false); 
-     (Knight (Pokemon.get_knight), White, ("G",1), false); 
-     (Rook (Pokemon.get_rook), White, ("H",1), false)]
+    [(Rook (Pokemon.get_rook ()),  White, ("A",1), false); 
+     (Knight (Pokemon.get_knight ()), White, ("B", 1), false); 
+     (Bishop (Pokemon.get_bishop ()), White, ("C",1), false); 
+     (Queen (Pokemon.get_queen()), White, ("D", 1), false);
+     (King (Pokemon.get_king()), White, ("E",1), false); 
+     (Bishop (Pokemon.get_bishop()), White, ("F",1), false); 
+     (Knight (Pokemon.get_knight()), White, ("G",1), false); 
+     (Rook (Pokemon.get_rook()), White, ("H",1), false)]
 
   let black_pieces = 
     (make_pawns Black [] 7)
     @
-    [(Rook (Pokemon.get_rook),  Black, ("A",8), false); 
-     (Knight (Pokemon.get_knight), Black, ("B", 8), false); 
-     (Bishop (Pokemon.get_bishop), Black, ("C",8), false); 
-     (Queen (Pokemon.get_queen), Black, ("D", 8), false);
-     (King (Pokemon.get_king), Black, ("E",8), false); 
-     (Bishop (Pokemon.get_bishop), Black, ("F",8), false); 
-     (Knight (Pokemon.get_knight), Black, ("G",8), false); 
-     (Rook (Pokemon.get_rook), Black, ("H",8), false)]
+    [(Rook (Pokemon.get_rook()),  Black, ("A",8), false); 
+     (Knight (Pokemon.get_knight()), Black, ("B", 8), false); 
+     (Bishop (Pokemon.get_bishop()), Black, ("C",8), false); 
+     (Queen (Pokemon.get_queen()), Black, ("D", 8), false);
+     (King (Pokemon.get_king()), Black, ("E",8), false); 
+     (Bishop (Pokemon.get_bishop()), Black, ("F",8), false); 
+     (Knight (Pokemon.get_knight()), Black, ("G",8), false); 
+     (Rook (Pokemon.get_rook()), Black, ("H",8), false)]
 
   let rec make_board board = function
     | [] -> board

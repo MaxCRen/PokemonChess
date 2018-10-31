@@ -62,14 +62,14 @@ val change_confusion: t -> int -> unit
 
 val change_accuracy: t -> float -> unit
 
-val get_pawn: t
+val get_pawn: unit -> t
 
-val get_rook: t
+val get_rook: unit -> t
 
-val get_bishop: t
+val get_bishop: unit -> t
 
-val get_knight: t
+val get_knight: unit -> t
 
-val get_queen: t
+val get_queen: unit -> t
 
-val get_king: t
+val get_king: unit -> t
