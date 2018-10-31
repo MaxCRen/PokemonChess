@@ -1,3 +1,4 @@
+open Pokemon
 (** the OCaml representation of a chess game *)
 
 
@@ -69,6 +70,9 @@ val can_move : game_piece -> board -> square ->  bool
     to [square] on [board] *) 
 val move : game_piece -> board -> square -> board
 
+(** [pokemon_from_piece piece] returns the [Pokemon.t] inside of [piece] *)
+val pokemon_from_piece : piece option -> holder_pokemon
+
 (** [Game] represents an active chess_game *)
 module type Game = sig 
  type t 
@@ -85,7 +89,7 @@ module type Game = sig
 
 (** [move square1 square2 game] returns the game resulting from moving piece
     at [square1] to [square2] *)
- val move : square -> square -> t -> t
+ val move : square -> square -> t -> piece option * piece option * t option * t
 
 (** [as_list game] returns a list representation of [game] *)
  val as_list : t -> (square * piece option) list list

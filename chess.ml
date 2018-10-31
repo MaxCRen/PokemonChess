@@ -1,3 +1,5 @@
+open Pokemon
+open Battle
 type color = Black | White
 type holder_pokemon = unit
 type piece = Pawn of holder_pokemon
@@ -187,10 +189,15 @@ let can_move piece board square =
 let move ((p,c,s,b) as piece) board square = 
   board |> remove_piece piece |> add_piece (p,c,square,b)
 
+let pokemon_from_piece = function
+  | None -> failwith "no pokemon"
+  | Some 
+   (Pawn p | Rook p | Knight p | Bishop p | Queen p | King p) -> p
+
 module type Game = sig 
  type t 
  val new_game : t
- val move : square -> square -> t -> t
+ val move : square -> square -> t -> piece option * piece option * t option * t
  val as_list : t -> (square * piece option) list list
 end 
 
@@ -285,10 +292,9 @@ module ChessGame : Game = struct
                  current_player = next_col
                } in 
              match get_piece board square2 with
-             | None -> new_game
+             | None -> (Some p1, None, None, new_game)
              | Some (p2,_,_,_) ->
-               if (do_battle p1 p2) then new_game
-               else current
+               (Some p1, Some p2, Some new_game, current)
            else failwith "invalid move"
          else failwith "Wrong player"
 
