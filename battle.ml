@@ -41,16 +41,13 @@ let other_player bat =
 
 let rec get_move_from_str move_lst move_str =
   match move_lst with 
-  |[] -> raise IllegalMove
-  |h::t when Moves.get_name h = move_str -> h
-  |h::t -> get_move_from_str t move_str
+  | [] -> raise IllegalMove
+  | h::t when Moves.get_name h |> String.lowercase_ascii = move_str -> h
+  | h::t -> get_move_from_str t move_str
 
 (** [can_move move] returns true if the pp for move [move] > 0 *)
 let can_move move=
   if Moves.get_pp move = 0  then false else true
-
-
-
 
 (**[hit poke move] determines whether the pokemon [poke] hits or misses with the
    move [move]. It is 0 if it misses, and 1 if it hits*)

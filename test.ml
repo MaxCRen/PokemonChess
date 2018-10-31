@@ -4,24 +4,28 @@ open Command
 open Pokemon
 open Moves
 open Ptype
-open FileRead
 
 
-let water = Ptype.makeType "water" [("water", 0.5);("fire", 2.)]
-let fire = Ptype.makeType "fire" [("fire", 0.5);("water", 2.)]
+(************************ PType test Functions ********************************)
 
-let bubble = Moves.make_move ("bubble") (water) (25) 
-                              ("doesdamage") (30.) (1.) (0.10) ([])
+(*Function that creates tests for get_effectives*)           
+let ptype_get_effectives
+(name: string) 
+(type1: Ptype.t) 
+(type2: Ptype.t) 
+(expected: float) = 
+  name >:: (fun _ -> 
+                assert_equal expected (Ptype.get_effective type1 type2))
 
-let ember = Moves.make_move ("ember") (fire) (25) 
-                              ("doesdamage") (30.) (1.) (0.10) ([])
+(*Testing on types water and fire*)
+let water = make_type "water" [("water", 0.5);("fire", 2.)]
+let fire = make_type "fire" [("fire", 0.5);("water", 0.5)]
 
-
-let squritle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble] 
-                                        [22.;30.;40.;10.] (None)
-
-let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
-                                        [22.;30.;40.;10.] (None)
+let ptype_tests = [
+  ptype_get_effectives "Water on Fire" water fire 2.;
+  ptype_get_effectives "Fire on Water" fire water 0.5;
+  ptype_get_effectives "Fire on Fire" fire fire 0.5 
+]  
 
 
 let pokemon_tests = []

@@ -36,8 +36,8 @@ type board = (string * column) list
     [snd] is < "A" or > "H" *)
 exception InvalidSquare of square
 
-(** [exception] raised if there is an attempt at an invalid move *)
-exception InvalidMove of (square * game_piece)
+(** [exception] raised if an invalid move is attempted to be made. *)
+exception InvalidMove
 
 (** [colors_match piece1 piece2] returns true if the color of piece1
     is the same as the color of piece2. False otherwise *)

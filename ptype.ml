@@ -4,6 +4,9 @@ type t = {
   effectives: (string*float) list
 }
 
+(**[getVal pair poke]  is the effectiveness float value of poke in the pair list
+   [pair]. If it is standard effectiveness then it is 1, otherwise it the 
+   effectiveness found inthe pair list.*)
 let rec get_val (pair: (string*float) list) (poke:string)= 
   match pair with
   |[] -> 1.

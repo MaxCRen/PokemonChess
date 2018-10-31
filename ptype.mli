@@ -4,10 +4,6 @@
    value represents how effective this type is against the other.  *)
 type t
 
-(**[getVal pair poke]  is the effectiveness float value of poke in the pair list
-   [pair]. If it is standard effectiveness then it is 1, otherwise it the 
-   effectiveness found inthe pair list.*)
-val get_val: (string*float) list -> string -> float
 
 (**[getEffectives t1 t2] gets the float effective value of type [t1] 
    on type [t2]*)
