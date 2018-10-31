@@ -30,17 +30,22 @@ let print_logo () =
 |                                `'                            '-._|    |
 _________________________________________________________________________\n\n")
 
+let print_str_color str (color:Chess.color) =
+  match color with 
+  |White -> ANSITerminal.(print_string [green] str)
+  |Black -> ANSITerminal.(print_string [red] str)
 
 let print_nth_of_col (square: Chess.square * Chess.piece option * Chess.color option * Chess.color) =
   ANSITerminal.(print_string [yellow]  "#");
   match square with 
   | (_, None, _, _) -> print_string "       "
-  | (_, Some (Pawn x), Some c, _) -> print_string "   P   "
-  | (_, Some (Rook x), Some c, _) -> print_string "   R   "
-  | (_, Some (Knight x), Some c, _) -> print_string "   Z   "
-  | (_, Some (Bishop x), Some c, _) -> print_string "   B   "
-  | (_, Some (Queen x), Some c, _) -> print_string "   Q   "
-  | (_, Some (King x), Some c, _) -> print_string "   K   "
+  | (_, Some (Pawn x), Some c, _) -> print_str_color "   P   " c
+  | (_, Some (Rook x), Some c, _) -> print_str_color "   R   " c
+  | (_, Some (Knight x), Some c, _) -> print_str_color "   Z   " c
+  | (_, Some (Bishop x), Some c, _) -> print_str_color "   B   " c
+  | (_, Some (Queen x), Some c, _) -> print_str_color "   Q   " c
+  | (_, Some (King x), Some c, _) -> print_str_color "   K   " c
+  | _ -> print_string "error, all pieces should have a color"
 
 let print_line_gaps () (r:int)=
   if r = -1 then 
