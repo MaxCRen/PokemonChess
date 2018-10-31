@@ -40,7 +40,8 @@ let is_valid_square (c, r) =
     is any. None, otherwise. Raises [InvalidSquare] if no such square *)
 let get_piece board square = 
   if is_valid_square square then
-    snd (snd((List.assoc (fst square) board |> List.nth) ((snd square) - 1 )))
+    snd (snd((List.assoc ((fst square) |> String.uppercase_ascii) board 
+              |> List.nth) ((snd square) - 1 )))
   else raise (InvalidSquare square)
 
 let change_board_at_piece_square (p,c,(cs,rs),b) piece_opt board = 
@@ -282,7 +283,7 @@ module ChessGame : Game = struct
   let do_battle piece1 piece2 = true
 
   let move square1 square2 ({white;black;board;current_player} as current) = 
-    let next_col = (if current_player = White then Black else White) in 
+    let next_col = (if current_player = White then Black else White) in
     match get_piece board square1 with
     | None -> raise InvalidMove
     | Some ((p1,c,(c1,r1),moved) as piece1) ->

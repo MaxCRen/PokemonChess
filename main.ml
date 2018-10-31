@@ -7,7 +7,7 @@ open Random
 open Chess
 open ChessGame
 
-let chess_game = ChessGame.new_game
+let new_chess_game = ChessGame.new_game
 
 (**[print_logo ()] is used to print the ascii art of the logo for pokemon,
    ascii drawing courtesy of https://www.asciiart.eu/video-games/pokemon*)
@@ -258,48 +258,62 @@ let rec battle_loop btl =
           (print_string (str2 ^ " is not an available move!\n\n\n"); 
            battle_loop btl)
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
-      | _ -> print_string "Invalid Command - 
+      | _ -> ANSITerminal.erase Above;
+        print_string "Invalid Command - 
                   Type 'Help' if you need help\n\n\n"; 
     end
 
 let rec chess_loop chess_game =
   match read_line () with
-  | str ->
-    match Command.parse_phrase str with
-    | exception Empty -> 
-      ANSITerminal.erase Above;
-      print_string "Please enter a valid command:\n\n\n"; chess_loop chess_game
-    | Move (cmd1,cmd2) ->
-      if Command.check_coordinate cmd1 && Command.check_coordinate cmd2 
-      then let old_square = 
-             (Char.escaped cmd1.[0], Pervasives.int_of_char cmd1.[1] - 48) in
-        let new_square =
-          (Char.escaped cmd2.[0], Pervasives.int_of_char cmd2.[1] - 48) in
-        let next_move = 
-          (try (ChessGame.move old_square new_square chess_game) with
-           | InvalidMove -> ANSITerminal.erase Above;
-             print_string "Invalid move! Please try again.\n\n\n"; 
-             chess_loop chess_game) in
-        match next_move with
-        | (Some p1, None, None, next_game) -> chess_loop next_game
-        | (Some p1, Some p2, Some new_game, _) -> 
-          let new_btl = Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
-              (Chess.pokemon_from_piece (Some p2)) in
-          battle_loop new_btl;
-          chess_loop new_game;
-        | _ ->
-          ANSITerminal.erase Above;
-          print_string "Invalid move! Please try again.\n\n\n"; 
-          chess_loop chess_game
-      else chess_loop chess_game
-    | _ -> print_string "Invalid Command - 
-                  Type 'Help' if you need help\n\n\n"; 
-      chess_loop chess_game
+  | str -> begin
+      match Command.parse_phrase str with
+      | exception Empty -> 
+        ANSITerminal.erase Above;
+        print_string "Please enter a valid command:\n\n\n";
+        chess_loop chess_game;
+      | Move (cmd1,cmd2) ->
+        if Command.check_coordinate cmd1 && Command.check_coordinate cmd2 
+        then let old_square = 
+               ((Char.escaped cmd1.[0]) |> String.uppercase_ascii, 
+                Pervasives.int_of_char cmd1.[1] - 48) in
+          let new_square =
+            ((Char.escaped cmd2.[0]) |> String.uppercase_ascii, 
+             Pervasives.int_of_char cmd2.[1] - 48) in
+          let next_move = 
+            (try (ChessGame.move old_square new_square chess_game) with
+             | InvalidMove -> ANSITerminal.erase Above;
+               print_string "Invalid moveee! Please try again.\n\n\n";
+               chess_loop chess_game;
+               (None, None, None, chess_game)) in
+          match next_move with
+          | (Some p1, None, None, next_game) -> print_string "Next\n";
+            chess_loop next_game;
+          | (Some p1, Some p2, Some new_game, _) -> 
+            let new_btl = Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
+                (Chess.pokemon_from_piece (Some p2)) in
+            printed new_btl;
+            battle_loop new_btl;
+            chess_loop chess_game;
+          | _ ->
+            ANSITerminal.erase Above;
+            print_string "Invalid move! Please try again.\n\n\n";
+            chess_loop chess_game;
+        else ANSITerminal.erase Above;
+        print_string "Invalid move! Please try again.\n\n\n"; 
+        chess_loop chess_game;
+      | Quit -> print_string "Quitting ...\n\n\n"; exit 0
+      | _ -> ANSITerminal.erase Above;
+        print_string "Invalid Command - 
+                  Type 'Help' if you need help\n\n\n";
+        chess_loop chess_game;
+    end
+
 
 let play_game () = 
-  printed battle;
+  chess_loop new_chess_game
+(*printed battle;
   print_string "You entered a battle with a pokemon. Fight to stay alive\n";
-  battle_loop battle
+  battle_loop battle*)
 
 
 let main () =
