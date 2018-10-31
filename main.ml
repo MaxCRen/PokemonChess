@@ -11,6 +11,29 @@ let new_chess_game = ChessGame.new_game
 
 (**[print_logo ()] is used to print the ascii art of the logo for pokemon,
    ascii drawing courtesy of https://www.asciiart.eu/video-games/pokemon*)
+let print_nth_of_col (square: Chess.square * Chess.piece option) =
+  match square with 
+  | (_, None) -> print_string "|__|"
+  | (_, Some (Pawn x)) -> print_string "| P |"
+  | (_, Some (Rook x)) -> print_string "| R |"
+  | (_, Some (Knight x)) -> print_string "| Z |"
+  | (_, Some (Bishop x)) -> print_string "| B |"
+  | (_, Some (Queen x)) -> print_string "| Q |"
+  | (_, Some (King x)) -> print_string "| K |"
+
+
+let rec print_chess_row (row: (Chess.square * Chess.piece option) list) = 
+  match row with 
+  |[] -> ()
+  |h::t ->  print_nth_of_col h; print_chess_row t 
+
+let rec print_chess_board (column: ((Chess.square * Chess.piece option) list) list)  = 
+  match column with 
+  |[] -> ()
+  |h::t -> print_chess_row h ; print_string "\n"; print_chess_board t
+
+  
+
 let print_logo () = 
   ANSITerminal.(print_string [yellow]
                   "_________________________________________________________________________                                  
@@ -310,6 +333,7 @@ let rec chess_loop chess_game =
 
 
 let play_game () = 
+  (ChessGame.as_list new_chess_game) |> print_chess_board;
   chess_loop new_chess_game
 (*printed battle;
   print_string "You entered a battle with a pokemon. Fight to stay alive\n";

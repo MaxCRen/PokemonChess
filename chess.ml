@@ -231,7 +231,7 @@ module ChessGame : Game = struct
      (King (Pokemon.get_king), White, ("E",1), false); 
      (Bishop (Pokemon.get_bishop), White, ("F",1), false); 
      (Knight (Pokemon.get_knight), White, ("G",1), false); 
-     (Rook (Pokemon.get_rook), White, ("G",1), false)]
+     (Rook (Pokemon.get_rook), White, ("H",1), false)]
 
   let black_pieces = 
     (make_pawns Black [] 7)
@@ -243,7 +243,7 @@ module ChessGame : Game = struct
      (King (Pokemon.get_king), Black, ("E",8), false); 
      (Bishop (Pokemon.get_bishop), Black, ("F",8), false); 
      (Knight (Pokemon.get_knight), Black, ("G",8), false); 
-     (Rook (Pokemon.get_rook), Black, ("G",8), false)]
+     (Rook (Pokemon.get_rook), Black, ("H",8), false)]
 
   let rec make_board board = function
     | [] -> board
@@ -273,6 +273,7 @@ module ChessGame : Game = struct
       current_player = White;
     }
 
+  let get_current_board chess = chess.board
 
 (*
   let get_contestants piece1 piece2 =
