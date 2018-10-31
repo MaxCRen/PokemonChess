@@ -200,7 +200,7 @@ module type Game = sig
   type t 
   val new_game : t
   val move : square -> square -> t -> piece option * piece option * t option * t
-  val as_list : t -> (square * piece option) list list
+  val as_list : t -> (square * piece option * color option * color) list list
 end 
 
 module ChessGame : Game = struct
@@ -336,8 +336,8 @@ module ChessGame : Game = struct
             List.map (
               fun (num, (color, piece)) ->
                 match piece with
-                | None -> ((s,num),None)
-                | Some (p,c,sq,b) -> (sq, Some p)
+                | None -> ((s,num),None, None, color)
+                | Some (p,c,sq,b) -> (sq, Some p, Some c, color)
             ) c 
           )
             :: builder) t in 
