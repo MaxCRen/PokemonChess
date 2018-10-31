@@ -76,5 +76,127 @@ let change_confusion poke length= poke.confused <- length
 
 let change_accuracy poke amount = poke.accuracy <- poke.accuracy -. amount
 
+(** ALL NECESSARY POKEMON TYPES *)
+let electric = Ptype.make_type "Electric" 
+    [("Water", 2.0); ("Flying", 2.0); ("Electric", 0.5); ("Grass", 0.5)]
 
+let water = Ptype.make_type "Water" 
+    [("Fire", 2.0); ("Water", 0.5); ("Grass", 0.5)]
 
+let grass = Ptype.make_type "Grass" 
+    [("Water", 2.0); ("Fire", 0.5); ("Flying", 0.5); ("Grass", 0.5); 
+     ("Poison", 0.5)]
+
+let poison = Ptype.make_type "Poison" [("Grass", 2.0); ("Poison", 0.5)]
+
+let fire = Ptype.make_type "Fire" 
+    [("Grass", 2.0); ("Fire", 0.5); ("Water", 0.5)]
+
+let flying = Ptype.make_type "Flying" [("Grass", 2.0); ("Electric", 0.5)]
+
+let psychic = Ptype.make_type "Psychic" [("Poison", 2.0); ("Psychic", 0.5)]
+
+let normal = Ptype.make_type "Normal" []
+
+let fighting = Ptype.make_type "Fighting" 
+    [("Flying", 0.5); ("Psychic", 0.5); ("Poison", 0.5)]
+
+let ground = Ptype.make_type "Ground"
+    [("Electric", 2.0); ("Fire", 2.0); ("Poison", 2.0); ("Grass", 0.5)]
+
+let dark = Ptype.make_type "Dark" [("Psychic", 2.0)]
+
+let dragon = Ptype.make_type "Dragon" []
+
+let ice = Ptype.make_type "Ice" 
+    [("Grass", 2.0); ("Flying", 2.0); ("Fire", 0.5); ("Water", 0.5)]
+
+let ghost = Ptype.make_type "Ghost" ["Psychic", 2.0]
+
+(** ALL NECESSARY POKEMON MOVES *)
+
+let thunder_shock = Moves.make_move "Thunder Shock" electric 30 "" 40. 1. 0.1 
+    false None
+
+let thunder_wave = Moves.make_move "Thunder Wave" electric 20 
+    "Paralyzes opponent." 0. 1. 0.1 false None
+
+let quick_attack = Moves.make_move "Quick Attack" 
+    normal 30 "" 0. 1. 0.1 true None
+
+let hp_grass = Moves.make_move "Hidden Power Grass" 
+    grass 15 "" 60. 1. 0.1 false None
+
+let hydro_pump = Moves.make_move "Hydro Pump" 
+    water 5 "" 110. 0.8 0.1 false None
+
+let work_up = Moves.make_move "Work Up" 
+    normal 30 "" 0. 0. 0. false None
+
+let earthquake = Moves.make_move "Earthquake" 
+    ground 10 "" 100. 1. 0.1 false None
+
+let dark_pulse = Moves.make_move "Dark Pulse"
+    dark 15 "" 80. 1. 0.1 false None
+
+let amnesia = Moves.make_move "Amnesia" psychic 20 "" 0. 0. 0. false None
+
+let giga_drain = Moves.make_move "Giga Drain" 
+    grass 10 "" 75. 1. 0.1 false None
+
+let sleep_powder = Moves.make_move "Sleep Powder"
+    grass 15 "Lulls opponent to sleep." 0. 0. 0. false None
+
+let knock_off = Moves.make_move "Knock Off"
+    dark 20 "" 65. 1. 0.1 false None
+
+let flare_blitz = Moves.make_move "Flare Blitz"
+    fire 15 "" 120. 1. 0.1 false None
+
+let dragon_claw = Moves.make_move "Dragon Claw" 
+    dragon 15 "" 80. 1. 0.1 false None
+
+let roost = Moves.make_move "Roost"
+    flying 10 "Restores half of user's HP" 0. 0. 0. false None
+
+let thunder = Moves.make_move "Thunder"
+    electric 10 "" 110. 0.7 0.1 false None
+
+let fire_blast = Moves.make_move "Fire Blast"
+    fire 5 "" 110. 0.85 0.1 false None
+
+let blizzard = Moves.make_move "Blizzard"
+    ice 5 "" 110. 0.7 0.1 false None
+
+let shadow_ball = Moves.make_move "Shadow Ball"
+    ghost 15 "" 80. 1. 0.1 false None
+
+let will_o_wisp = Moves.make_move "Will-o-Wisp" fire 15 
+    "Burns the opponent. Burnt Pokemon have their Attack stats cut in half." 
+    0. 0.85 0. false None
+
+let toxic = Moves.make_move "Toxic" poison 10 
+    "Poisons the opponent. Poisoned Pokemon lose 1/8 of their HP every turn." 
+    0. 0.9 0. false None
+
+let calm_mind = Moves.make_move "Calm Mind" psychic 20 "" 0. 0. 0. false None
+
+(** ALL NECESSARY POKEMON *)
+let get_pawn = make_pokemon "Pikachu" (electric, None) 
+    [thunder_shock; thunder_wave; quick_attack; hp_grass] 
+    [180.; 103.; 58.; 166.]
+
+let get_rook = make_pokemon "Blastoise" (water, None) 
+    [hydro_pump; work_up; earthquake; dark_pulse] [268.; 153.; 184.; 144.]
+
+let get_bishop = make_pokemon "Venusaur" (grass, Some poison)
+    [amnesia; sleep_powder; giga_drain; knock_off] [270.; 152.; 153.; 148.]
+
+let get_knight = make_pokemon "Charizard" (fire, Some flying)
+    [flare_blitz; dragon_claw; earthquake; roost] [266.; 155.; 144.; 184.]
+
+let get_queen = make_pokemon "Mewtwo" (psychic, None)
+    [thunder; fire_blast; blizzard; shadow_ball] [322.; 276.; 166.; 276.]
+
+let get_king = make_pokemon "Mew" (psychic, None)
+    [will_o_wisp; toxic; giga_drain; calm_mind] [404.; 184.; 256.; 184.]

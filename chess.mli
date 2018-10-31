@@ -4,7 +4,7 @@
 (** [color] is the color of a piece or square, either black or white *)
 type color = Black | White
 
-type holder_pokemon = unit
+type holder_pokemon = Pokemon.t
 
 (** representation of a chess piece *)
 type piece = Pawn of holder_pokemon
@@ -19,7 +19,7 @@ type piece = Pawn of holder_pokemon
 type square = string * int
 
 (** [game_piece] represents a piece in a game of chess, having the attributes
-   of a certain type of piece, a color, a square to indicate where it is, 
+    of a certain type of piece, a color, a square to indicate where it is, 
     and a bool to determine if the piece has moved yet *)
 type game_piece = piece * color * square * bool
 
@@ -57,6 +57,10 @@ val add_piece : game_piece -> board -> board
 (** [can_capture piece1 piece2] returns true if piece1 can capture piece2 *)
 val can_capture : game_piece -> game_piece -> bool
 
+(*
+val get_contestants : piece -> piece -> (holder_pokemon * holder_pokemon)
+*)
+
 (** [get_moves piece board] returns a list of possible locations on [board]
     to which [piece] can move *)
 val get_moves : game_piece -> board -> square list
@@ -71,24 +75,24 @@ val move : game_piece -> board -> square -> board
 
 (** [Game] represents an active chess_game *)
 module type Game = sig 
- type t 
+  type t 
 
- (* 
+  (* 
 (** [check game] returns true if a king is under check *)
  val check :  t -> bool
 
 (** [mate game] returns true if a king has been mated *) 
  val mate : t -> bool *)
 
-(**[new_game] returns a new game *)
- val new_game : t
+  (**[new_game] returns a new game *)
+  val new_game : t
 
-(** [move square1 square2 game] returns the game resulting from moving piece
-    at [square1] to [square2] *)
- val move : square -> square -> t -> t
+  (** [move square1 square2 game] returns the game resulting from moving piece
+      at [square1] to [square2] *)
+  val move : square -> square -> t -> t
 
-(** [as_list game] returns a list representation of [game] *)
- val as_list : t -> (square * piece option) list list
+  (** [as_list game] returns a list representation of [game] *)
+  val as_list : t -> (square * piece option) list list
 
 end 
 

@@ -1,11 +1,14 @@
+open Pokemon
+
 type color = Black | White
-type holder_pokemon = unit
-type piece = Pawn of holder_pokemon
-           | Rook of holder_pokemon
-           | Knight of holder_pokemon
-           | Bishop of holder_pokemon
-           | Queen of holder_pokemon
-           | King of holder_pokemon
+type holder_pokemon = Pokemon.t
+type piece = 
+  | Pawn of holder_pokemon
+  | Rook of holder_pokemon
+  | Knight of holder_pokemon
+  | Bishop of holder_pokemon
+  | Queen of holder_pokemon
+  | King of holder_pokemon
 type square = string * int
 type game_piece = piece * color * square * bool 
 type column = (int * (color * game_piece option)) list
@@ -14,20 +17,22 @@ type board = (string * column) list
 exception InvalidSquare of square
 exception InvalidMove of (square * game_piece)
 
+
+(** [colors_match piece1 piece2] is whether two chess pieces with colors [c1]
+    and [c2], respectively, share the same color. *)
 let colors_match (_,c1,_,_) (_,c2,_,_) = c1 = c2
 
-
-(** [int_of_letter letter] returns the nth place of the upper-case ASCII
+(** [int_of_letter letter] is the nth place of the upper-case ASCII
     interpretation of letter after 65 *)
-let int_of_letter letter = 
-  (String.get letter 0 |> Char.uppercase_ascii |> Char.code) - 65
+let int_of_letter ltr = 
+  (String.get ltr 0 |> Char.uppercase_ascii |> Char.code) - 65
 
 (** [letter_of_int col] returns the reverse operation of [int_of_letter] *)
 let letter_of_int col = 
   65 |> (+) col |>  Char.chr |> Char.escaped
 
 (** [is_valid_square square] returns true if [square] is valid, false 
-   otherwise *)
+    otherwise. *)
 let is_valid_square (c, r) = 
   (r >= 1 && r <= 8) && ((int_of_letter c) >= 0 && (int_of_letter c) <= 7)
 
@@ -39,24 +44,22 @@ let get_piece board square =
   else raise (InvalidSquare square)
 
 let change_board_at_piece_square (p,c,(cs,rs),b) piece_opt board = 
-  List.map (fun (letter, column) -> 
-      if letter = cs then 
+  List.map (fun (ltr, column) -> 
+      if ltr = cs then 
         (
-          letter, 
+          ltr, 
           List.map (fun (row, (color, pieceopt)) -> 
-                     if(row = rs) then (row, (color, piece_opt))
-                     else (row, (color, pieceopt))
-                   ) column
+              if(row = rs) then (row, (color, piece_opt))
+              else (row, (color, pieceopt))
+            ) column
         )
-      else (letter, column)) board
+      else (ltr, column)) board
 
 
 let add_piece piece board = 
   change_board_at_piece_square piece (Some piece) board
 
 let remove_piece piece board = change_board_at_piece_square piece None board
-
-
 
 (** [update_piece piece square b] returns an updated game piece 
     based on piece *)
@@ -66,8 +69,8 @@ let is_free board (c, r)  =
   if r >= 1 && r <= 8 then 
     begin
       match List.assoc_opt c board with
-       | None -> raise (InvalidSquare (c,r))
-       | Some column -> (snd (snd(List.nth column (r - 1)))) = None
+      | None -> raise (InvalidSquare (c,r))
+      | Some column -> (snd (snd(List.nth column (r - 1)))) = None
     end 
   else raise (InvalidSquare (c,r))
 
@@ -85,18 +88,18 @@ let is_king = function King _  -> true | _ -> false
     alleyway. [color] is used to determine on what kind of piece to stop *)
 let rec get_next_square color (c,r) acc square board = 
   let next_square = ((square |> fst |> int_of_letter |> (+) c |> letter_of_int),
-         r + (snd square)) in 
-    if not (is_valid_square next_square) then acc
-    else match get_piece board next_square with
-      | None -> get_next_square color (c,r) (next_square :: acc) next_square
-        board (* if there are no pieces in the way, we add
-                 the square onto our list and forge onward *)
-      | Some (p,col,_,_) -> 
-        if (color = col) then acc (* we shouldn't like to add
-                                                   a square as viable, which
-                                                   holds a king or a piece
-                                                   with the same color *)
-        else next_square :: acc
+                     r + (snd square)) in 
+  if not (is_valid_square next_square) then acc
+  else match get_piece board next_square with
+    | None -> get_next_square color (c,r) (next_square :: acc) next_square
+                board (* if there are no pieces in the way, we add
+                         the square onto our list and forge onward *)
+    | Some (p,col,_,_) -> 
+      if (color = col) then acc (* we shouldn't like to add
+                                                 a square as viable, which
+                                                 holds a king or a piece
+                                                 with the same color *)
+      else next_square :: acc
 
 (** [get_open_diagonals board square] returns the diagonals centered at 
     [square] on [board], up to and including any pieces in the path *)
@@ -140,27 +143,27 @@ let piece_move (piece, color, (cl, r), moved) board (cx, ry) strict =
       if strict then []
       else [(letter_of_int (c + cx)), r + ry] 
     | Some (p, color2, _, _) -> 
-        if color = color2 then []
-        else [(letter_of_int (c + cx)), r + ry]
+      if color = color2 then []
+      else [(letter_of_int (c + cx)), r + ry]
   with InvalidSquare sq -> []
 
 let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board = 
   match piece with 
   | Pawn _ -> begin
-    let multiplier = if color = White then 1 else -1 in
-    let corners = 
-      piece_move gamepiece board (1,(multiplier * 1)) true
-      @
-      piece_move gamepiece board (-1,(multiplier * 1)) true in 
-    if moved then 
-      piece_move gamepiece board (0,(multiplier * 1)) false @ corners
-    else  
-      piece_move gamepiece board (0,(multiplier * 1)) false
-      @
-      piece_move gamepiece board (0,(multiplier * 2)) false
-      @
-      corners
-  end 
+      let multiplier = if color = White then 1 else -1 in
+      let corners = 
+        piece_move gamepiece board (1,(multiplier * 1)) true
+        @
+        piece_move gamepiece board (-1,(multiplier * 1)) true in 
+      if moved then 
+        piece_move gamepiece board (0,(multiplier * 1)) false @ corners
+      else  
+        piece_move gamepiece board (0,(multiplier * 1)) false
+        @
+        piece_move gamepiece board (0,(multiplier * 2)) false
+        @
+        corners
+    end 
   | Rook _ -> get_open_horizontals_and_verticals board (cl,r) color
   | Knight _ -> 
     piece_move gamepiece board (1,2) false @
@@ -176,10 +179,10 @@ let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board =
     get_open_diagonals board (cl, r) color @
     get_open_horizontals_and_verticals board (cl, r) color
   | King _ -> 
-     let too_many = 
-       get_open_diagonals board (cl, r) color @
-       get_open_horizontals_and_verticals board (cl, r) color in 
-       List.filter (x_away (cl, r) (1,1)) too_many 
+    let too_many = 
+      get_open_diagonals board (cl, r) color @
+      get_open_horizontals_and_verticals board (cl, r) color in 
+    List.filter (x_away (cl, r) (1,1)) too_many 
 
 let can_move piece board square = 
   List.mem square (get_moves piece board)
@@ -188,10 +191,10 @@ let move ((p,c,s,b) as piece) board square =
   board |> remove_piece piece |> add_piece (p,c,square,b)
 
 module type Game = sig 
- type t 
- val new_game : t
- val move : square -> square -> t -> t
- val as_list : t -> (square * piece option) list list
+  type t 
+  val new_game : t
+  val move : square -> square -> t -> t
+  val as_list : t -> (square * piece option) list list
 end 
 
 module ChessGame : Game = struct
@@ -207,25 +210,34 @@ module ChessGame : Game = struct
   let rec make_pawns color acc num = 
     let row = (if color = Black then 7 else 2) in 
     if num >= 0 then 
-      make_pawns color ((Pawn(), color, ((letter_of_int num), row), false)::acc)
-      (num - 1)
+      make_pawns color ((Pawn (Pokemon.get_pawn), color, 
+                         ((letter_of_int num), row), false)::acc)
+        (num - 1)
     else acc
 
   let white_pieces = 
     (make_pawns White [] 7 )
     @
-    [(Rook(),  White, ("A",1), false); (Knight(), White, ("B", 1), false); 
-     (Bishop(), White, ("C",1), false); (Queen(), White, ("D", 1), false);
-     (King(), White, ("E",1), false); (Bishop(), White, ("F",1), false); 
-     (Knight(), White, ("G",1), false); (Rook(), White, ("G",1), false)]
+    [(Rook (Pokemon.get_rook),  White, ("A",1), false); 
+     (Knight (Pokemon.get_knight), White, ("B", 1), false); 
+     (Bishop (Pokemon.get_bishop), White, ("C",1), false); 
+     (Queen (Pokemon.get_queen), White, ("D", 1), false);
+     (King (Pokemon.get_king), White, ("E",1), false); 
+     (Bishop (Pokemon.get_bishop), White, ("F",1), false); 
+     (Knight (Pokemon.get_knight), White, ("G",1), false); 
+     (Rook (Pokemon.get_rook), White, ("G",1), false)]
 
   let black_pieces = 
     (make_pawns Black [] 7)
     @
-    [(Rook(),  Black, ("A",8), false); (Knight(), Black, ("B", 8), false); 
-     (Bishop(), Black, ("C",8), false); (Queen(), Black, ("D", 8), false);
-     (King(), Black, ("E",8), false); (Bishop(), Black, ("F",8), false); 
-     (Knight(), Black, ("G",8), false); (Rook(), Black, ("G",8), false)]
+    [(Rook (Pokemon.get_rook),  Black, ("A",8), false); 
+     (Knight (Pokemon.get_knight), Black, ("B", 8), false); 
+     (Bishop (Pokemon.get_bishop), Black, ("C",8), false); 
+     (Queen (Pokemon.get_queen), Black, ("D", 8), false);
+     (King (Pokemon.get_king), Black, ("E",8), false); 
+     (Bishop (Pokemon.get_bishop), Black, ("F",8), false); 
+     (Knight (Pokemon.get_knight), Black, ("G",8), false); 
+     (Rook (Pokemon.get_rook), Black, ("G",8), false)]
 
   let rec make_board board = function
     | [] -> board
@@ -246,7 +258,7 @@ module ChessGame : Game = struct
      ("E",column_type_one); ("F", column_type_two); 
      ("G", column_type_one); ("H", column_type_two)]
 
-(** [new_game] returns a new instance of a chess game *)
+  (** [new_game] returns a new instance of a chess game *)
   let new_game = 
     {
       white = ("E",1);
@@ -255,55 +267,69 @@ module ChessGame : Game = struct
       current_player = White;
     }
 
-(** [do_battle piece1 piece2] is called when [piece1] is attempting to 
-    capture [piece2]. Successful if [piece1] defeats [piece2] in battle *)
-  let do_battle piece1 piece2 = true
+
+  let get_poke piece =
+    match piece with
+    | Pawn poke -> poke
+    | Rook poke -> poke
+    | Knight poke -> poke
+    | Bishop poke -> poke
+    | Queen poke -> poke
+    | King poke -> poke
+
+  let get_contestants piece1 piece2 =
+    (get_poke piece1, get_poke piece2)
+
+  (** [do_battle piece1 piece2] is called when [piece1] is attempting to 
+      capture [piece2]. Successful if [piece1] defeats [piece2] in battle *)
+  let do_battle piece1 piece2 =
+    true
 
   let move square1 square2 ({white;black;board;current_player} as current) = 
     let next_col = (if current_player = White then Black else White) in 
-     match get_piece board square1 with
-     | None -> failwith "Invalid move"
-     | Some ((p1,c,(c1,r1),moved) as piece1) ->
-       if current_player = c then
-         let possible_moves = get_moves piece1 board in 
-           if List.mem square2 possible_moves then 
-             let change_moved = if not moved then not moved else moved in 
-               let new_board = 
-                 (board |> remove_piece piece1 
-                  |> add_piece (p1,c,square2,change_moved))
-               in
-               let new_game = { 
-                 white = 
-                   if current_player = White then
-                     (if not (is_king p1) then white else square2)
-                   else white; 
-                 black = 
-                   if current_player = Black then
-                     (if not (is_king p1) then black else square2)
-                   else black;
-                 board = new_board;
-                 current_player = next_col
-               } in 
-             match get_piece board square2 with
-             | None -> new_game
-             | Some (p2,_,_,_) ->
-               if (do_battle p1 p2) then new_game
-               else current
-           else failwith "invalid move"
-         else failwith "Wrong player"
+    match get_piece board square1 with
+    | None -> failwith "Invalid move"
+    | Some ((p1,c,(c1,r1),moved) as piece1) ->
+      if current_player = c then
+        let possible_moves = get_moves piece1 board in 
+        if List.mem square2 possible_moves then 
+          let change_moved = if not moved then not moved else moved in 
+          let new_board = 
+            (board |> remove_piece piece1 
+             |> add_piece (p1,c,square2,change_moved))
+          in
+          let new_game = { 
+            white = 
+              if current_player = White then
+                (if not (is_king p1) then white else square2)
+              else white; 
+            black = 
+              if current_player = Black then
+                (if not (is_king p1) then black else square2)
+              else black;
+            board = new_board;
+            current_player = next_col
+          } in 
+          match get_piece board square2 with
+          | None -> new_game
+          | Some (p2,_,_,_) ->
+            if (do_battle p1 p2) then new_game
+            else current
+        else failwith "invalid move"
+      else failwith "Wrong player"
 
   let as_list ({white;black;board;current_player} : t) = 
     let rec helper builder = function 
-    | [] -> builder
-    | (s,c) :: t -> 
+      | [] -> builder
+      | (s,c) :: t -> 
         helper ((
-                 List.map (
-                  fun (num, (color, piece)) ->
-                   match piece with
-                   | None -> ((s,num),None)
-                   | Some (p,c,sq,b) -> (sq, Some p)
-                 ) c 
-              )
-       :: builder) t in 
+            List.map (
+              fun (num, (color, piece)) ->
+                match piece with
+                | None -> ((s,num),None)
+                | Some (p,c,sq,b) -> (sq, Some p)
+            ) c 
+          )
+            :: builder) t in 
     (helper [] board) |> List.rev
 end 

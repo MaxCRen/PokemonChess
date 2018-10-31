@@ -4,12 +4,12 @@ open Moves
 type t
 
 (*[make_pokemon name poketype moveset attributes status] creates a our representation
-of a pokmon type using the given arguments*)
+  of a pokmon type using the given arguments*)
 val make_pokemon: string -> (Ptype.t * Ptype.t option) -> 
-                            Moves.t list -> float list -> t
+  Moves.t list -> float list -> t
 
 (** [get_moves pokemon] returns a list of type [Moves.t] that the pokemon
-   [pokemon] has available to it *)
+    [pokemon] has available to it *)
 val get_moves: t -> Moves.t list
 
 (** [get_name poke] returns the name of pokemon [poke] *)
@@ -19,7 +19,7 @@ val get_name: t -> string
 val get_type: t -> Ptype.t * Ptype.t option
 
 (** [can_raise_stats poke num] returns true if the pokemon [poke] can 
-   raise its stats by [num] *)
+    raise its stats by [num] *)
 val can_raise_stats: t -> int -> bool
 
 (** [get_attr poke] returns the stats of pokemon [poke] as a significantly-
@@ -50,8 +50,8 @@ val get_confused: t -> int
 val get_accuracy: t -> float
 
 (**[change_health poke health] changes the pokemon's hp by [health] if the new
-hp is greater than the max health, then they gain up to max health, if it is
-less then zero then the pokemon's health becomes 0*)
+   hp is greater than the max health, then they gain up to max health, if it is
+   less then zero then the pokemon's health becomes 0*)
 val change_health: t -> int -> unit
 
 val change_attr_mult: t -> float list -> unit
@@ -62,4 +62,14 @@ val change_confusion: t -> int -> unit
 
 val change_accuracy: t -> float -> unit
 
+val get_pawn: t
 
+val get_rook: t
+
+val get_bishop: t
+
+val get_knight: t
+
+val get_queen: t
+
+val get_king: t

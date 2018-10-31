@@ -4,19 +4,19 @@ type t = {
   effectives: (string*float) list
 }
 
-let rec getVal (pair: (string*float) list) (poke:string)= 
+let rec get_val (pair: (string*float) list) (poke:string)= 
   match pair with
   |[] -> 1.
-  |(name, eff)::t -> if name = poke then eff else getVal t poke
+  |(name, eff)::t -> if name = poke then eff else get_val t poke
 
-let makeType (n:string) (eff:(string*float) list)=
-{
-  name = n;
-  effectives = eff
-}
+let make_type (n:string) (eff:(string*float) list)=
+  {
+    name = n;
+    effectives = eff
+  }
 
-let getEffective (t1: t) (t2: t) = 
-  t2.name |> getVal t1.effectives
+let get_effective (t1: t) (t2: t) = 
+  t2.name |> get_val t1.effectives
 
 
 
