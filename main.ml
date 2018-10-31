@@ -255,8 +255,8 @@ let use_move move btl =
         ANSITerminal.(print_string[green] ("Your "^ poke_name^" used "^(Moves.get_name move)^"\n"));
         print_eff move (Battle.other_player btl); check_fainted btl;)
      else
-       ANSITerminal.(print_string[red] (poke_name^" used "^(Moves.get_name move)^"\n"));
-     print_eff move (Battle.other_player btl); check_fainted btl;);
+      ( ANSITerminal.(print_string[red] (poke_name^" used "^(Moves.get_name move)^"\n"));
+     print_eff move (Battle.other_player btl); check_fainted btl;));
     btl |> Battle.other_player |> Battle.change_turn btl;
   )
   else (printed btl; print_string "Cannot use move\n\n\n\n" )
