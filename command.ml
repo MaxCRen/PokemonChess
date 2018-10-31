@@ -2,14 +2,17 @@
 
 type command_phrase = string
 
-type command = 
+type battle_command = 
   | Use of command_phrase
-  | Move of command_phrase * command_phrase
   | Help
   | Info of command_phrase
   | Quit
   | Incorrect
 
+type chess_command = 
+  | Move of command_phrase * command_phrase
+  | Incorrect
+  | Quit
 
 exception Empty
 
@@ -19,24 +22,28 @@ let break_string str =
   str |> String.split_on_char ' '
 
 
-let parse_phrase str = 
+let parse_phrase_battle str = 
   match break_string str with 
   | [] -> raise Empty
   | "use"::t when List.length t >= 1 ->
     let init_str = List.fold_left (fun acc rt -> acc ^ " " ^ rt) "" t in
     Use(String.sub init_str 1 ((String.length init_str) - 1))
-  | h::t when h = "use" -> Use("")
-  | h::t when h = "move" ->
-    let init_str = List.fold_left (fun acc rt -> acc ^ " " ^ rt) "" t in
+  | "info"::t -> 
+    Info(List.fold_left (fun acc rt -> acc ^ "" ^ rt) "" t)
+  | "help"::t  -> Help
+  | "quit"::t -> Quit
+  | _::_ -> Incorrect
+
+let parse_phrase_chess str = 
+  match break_string str with
+  | [] -> raise Empty
+  | "move"::t -> let init_str = List.fold_left (fun acc rt -> acc ^ " " ^ rt) "" t in
     let cmd = break_string init_str in
     (match cmd with
      | h :: x1 :: x2 :: [] -> Move (x1,x2)
      | _ -> Incorrect)
-  | h::t when h = "info" -> 
-    Info(List.fold_left (fun acc rt -> acc ^ "" ^ rt) "" t)
-  | h::t when h = "help" -> Help
-  | h::t when h = "quit" -> Quit
-  | _::_ -> Incorrect
+  |"quit"::t -> Quit
+  |_::_ -> Incorrect
 
 (** [check_coordinate coord] is whether ot not [coord] is a valid coordinate
     corresponding to a square on a chess board, in which columns are labeled

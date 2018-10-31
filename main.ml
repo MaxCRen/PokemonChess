@@ -11,29 +11,6 @@ let new_chess_game = ChessGame.new_game
 
 (**[print_logo ()] is used to print the ascii art of the logo for pokemon,
    ascii drawing courtesy of https://www.asciiart.eu/video-games/pokemon*)
-let print_nth_of_col (square: Chess.square * Chess.piece option) =
-  match square with 
-  | (_, None) -> print_string "|__|"
-  | (_, Some (Pawn x)) -> print_string "| P |"
-  | (_, Some (Rook x)) -> print_string "| R |"
-  | (_, Some (Knight x)) -> print_string "| Z |"
-  | (_, Some (Bishop x)) -> print_string "| B |"
-  | (_, Some (Queen x)) -> print_string "| Q |"
-  | (_, Some (King x)) -> print_string "| K |"
-
-
-let rec print_chess_row (row: (Chess.square * Chess.piece option) list) = 
-  match row with 
-  |[] -> ()
-  |h::t ->  print_nth_of_col h; print_chess_row t 
-
-let rec print_chess_board (column: ((Chess.square * Chess.piece option) list) list)  = 
-  match column with 
-  |[] -> ()
-  |h::t -> print_chess_row h ; print_string "\n"; print_chess_board t
-
-  
-
 let print_logo () = 
   ANSITerminal.(print_string [yellow]
                   "_________________________________________________________________________                                  
@@ -48,7 +25,61 @@ let print_logo () =
 |      \\    \\ \\      /       `-.`.___,-' |  |\\  /| \\      /  | |   |    |
 |       \\    \\ `.__,'|  |`-._    `|      |__| \\/ |  `.__,'|  | |   |    |
 |        \\_.-'       |__|    `-._ |              '-.|     '-.| |   |    |
-|                                `'                            '-._|    |\n")
+|                                `'                            '-._|    |
+_________________________________________________________________________\n\n")
+
+
+let print_nth_of_col (square: Chess.square * Chess.piece option) =
+  ANSITerminal.(print_string [yellow]  "#");
+  match square with 
+  | (_, None) -> print_string "       "
+  | (_, Some (Pawn x)) -> print_string "   P   "
+  | (_, Some (Rook x)) -> print_string "   R   "
+  | (_, Some (Knight x)) -> print_string "   Z   "
+  | (_, Some (Bishop x)) -> print_string "   B   "
+  | (_, Some (Queen x)) -> print_string "   Q   "
+  | (_, Some (King x)) -> print_string "   K   "
+
+let print_line_gaps () (r:int)=
+  if r = -1 then 
+  ANSITerminal.(print_string 
+  [yellow] 
+  ("#\n#       #       #       #       #       #       #       #       #\n"))
+   else
+  ANSITerminal.(print_string 
+  [yellow] 
+  ("#   "^(string_of_int r)^"\n#       #       #       #       #       #       #       #       #\n"))
+
+let print_border_lines () =
+  ANSITerminal.(print_string [yellow]  
+  "################################################################")
+
+let print_letters () =
+  ANSITerminal.(print_string [yellow]  
+  "\n    A       B       C       D       E       F       G       H\n\n")
+
+let rec print_row (board: ((Chess.square * Chess.piece option) list) list) (r:int) = 
+  match board with 
+  |[] -> print_line_gaps () r
+  |col::t ->  List.nth col r |> print_nth_of_col; print_row t r
+
+let rec board_helper (board: ((Chess.square * Chess.piece option) list) list) (r:int) =
+  if r > 7 then () else
+  match board with
+  |[] -> ()
+  |_::_ -> print_line_gaps () (-1); print_row board r; print_border_lines ();
+  board_helper board (r+1)
+
+let print_board (board: ((Chess.square * Chess.piece option) list) list) =
+  print_logo ();
+  print_border_lines ();
+  board_helper board 0;
+  ANSITerminal.(print_string[yellow] "#\n");
+  print_letters ()
+
+  
+
+
 
 let rand = Random.self_init
 
@@ -68,7 +99,7 @@ let ember = make_move ("Ember") (fire) (25)
 (** [get_move_names moves] is a list of the names of all moves in [moves], with
     each name in all lowercase. *)
 let get_move_names moves =
-  List.map (fun x -> Moves.get_name x |> String.lowercase_ascii) moves
+  List.map (fun x -> Moves.get_name x) moves
 
 (* placeholder pokemon until we implement battles in full *)
 let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
@@ -122,8 +153,7 @@ let print_chess = true
     current Pokemon on either side, the current HP of both Pokemon,
     and the moveset available to each Pokemon. *)
 let printed btl = 
-  print_logo ();
-  ANSITerminal.(print_string [yellow] ("|_______________________________________________________________________|\n"));
+  print_string ("_______________________________________________________________________\n");
   let opponent = Battle.get_opponent btl in
   let player = Battle.get_player btl in
 
@@ -202,13 +232,13 @@ let pause_bet_states battle func move =
 (**[use_move str bat] takes the string representation of a move [str] and then
    applies it to the battle [bat] by either doing damage or some other effect*)
 let use_move move bat= 
+
   if Battle.can_move move then (
     let poke_name = bat |> Battle.get_turn |> Pokemon.get_name in
 
     (* Sequence of events: use move -> print the new state -> print action ->
        print effectiveness -> check if opponent has fainted *)
     Battle.use_move bat move;
-
 
     bat |> Battle.other_player |> Battle.change_turn bat;
     printed bat;
@@ -225,12 +255,15 @@ let use_move move bat=
 (**[move_first bat str] takes in the battle and the move of the player [str] and
    peforms the move of the pokemon that moves first*)
 let move_turns bat str= 
+  
+
   let move_list = bat |> Battle.get_player |> Pokemon.get_moves in
   let move = get_move_from_str move_list str in
   let player = Battle.get_player bat in
   let opponent = Battle.get_opponent bat in
   let opponent_moves = Pokemon.get_moves opponent in
   let op_move = Random.int (List.length opponent_moves) |> List.nth opponent_moves in 
+  
 
   if (Moves.is_priority move) then (change_turn bat player; use_move move bat;
                                     pause_bet_states bat use_move move)
@@ -257,41 +290,46 @@ let rec battle_loop btl =
   (* Parses actions that the player may want to take*)
   match read_line () with
   | str -> begin
-      match Command.parse_phrase str with
+      match Command.parse_phrase_battle str with
       (* Empty then we just deal with a command *)
       | exception Empty -> 
         ANSITerminal.erase Above;
         print_string "Please enter a valid command\n\n\n"; battle_loop btl 
       | Help -> print_help (); battle_loop btl
-      | Info str -> print_string "unimplemented\n\n\n"; battle_loop btl
+      | Info str2-> print_string "unimplemented\n\n\n"; battle_loop btl
       | Incorrect ->  
         print_string "Invalid Command - 
                   Type 'Help' if you need help\n\n\n"; 
         battle_loop btl
       | Use str2 -> 
-        if List.mem (String.lowercase_ascii str2) available_moves then
+        if List.mem str2 available_moves then
           let move_list = btl |> Battle.get_player |> Pokemon.get_moves in
-          let poke_move = Battle.get_move_from_str move_list 
-              (String.lowercase_ascii str2) in
-          if Battle.can_move poke_move then
-            (ANSITerminal.erase Screen; move_turns btl str2; battle_loop btl;)
+          let move = get_move_from_str move_list str2 in
+          if Battle.can_move move then
+          (ANSITerminal.erase Screen; move_turns btl str2; battle_loop btl;)
           else(
             print_string (str2 ^ " is out of PP!\n\n"); battle_loop btl)
         else 
           (print_string (str2 ^ " is not an available move!\n\n\n"); 
-           battle_loop btl)
+            battle_loop btl)
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
-      | _ -> ANSITerminal.erase Above;
-        print_string "Invalid Command - 
-                  Type 'Help' if you need help\n\n\n"; 
     end
 
+(*[start_battle battle] starts the battle [battle] and plays through until one
+pokemon faints. (basically this was our play game() before we added the chess 
+functionanility, and we call this when one piece tries to caputer another*)
+let start_battle battle =
+  printed battle;
+  print_string "You entered a battle with a pokemon. Fight to stay alive\n";
+  battle_loop battle
+
 let rec chess_loop chess_game =
+  (ChessGame.as_list new_chess_game) |> print_board;
   match read_line () with
   | str -> begin
-      match Command.parse_phrase str with
+      match Command.parse_phrase_chess str with
       | exception Empty -> 
-        ANSITerminal.erase Above;
+        
         print_string "Please enter a valid command:\n\n\n";
         chess_loop chess_game;
       | Move (cmd1,cmd2) ->
@@ -304,7 +342,7 @@ let rec chess_loop chess_game =
              Pervasives.int_of_char cmd2.[1] - 48) in
           let next_move = 
             (try (ChessGame.move old_square new_square chess_game) with
-             | InvalidMove -> ANSITerminal.erase Above;
+             | InvalidMove -> 
                print_string "Invalid moveee! Please try again.\n\n\n";
                chess_loop chess_game;
                (None, None, None, chess_game)) in
@@ -315,29 +353,27 @@ let rec chess_loop chess_game =
             let new_btl = Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
                 (Chess.pokemon_from_piece (Some p2)) in
             printed new_btl;
-            battle_loop new_btl;
+            start_battle new_btl;
             chess_loop chess_game;
           | _ ->
-            ANSITerminal.erase Above;
+            
             print_string "Invalid move! Please try again.\n\n\n";
             chess_loop chess_game;
-        else ANSITerminal.erase Above;
+        else 
         print_string "Invalid move! Please try again.\n\n\n"; 
         chess_loop chess_game;
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
-      | _ -> ANSITerminal.erase Above;
+      | _ -> 
         print_string "Invalid Command - 
                   Type 'Help' if you need help\n\n\n";
         chess_loop chess_game;
     end
 
 
+
 let play_game () = 
-  (ChessGame.as_list new_chess_game) |> print_chess_board;
   chess_loop new_chess_game
-(*printed battle;
-  print_string "You entered a battle with a pokemon. Fight to stay alive\n";
-  battle_loop battle*)
+
 
 
 let main () =
