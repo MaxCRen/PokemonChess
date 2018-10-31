@@ -54,8 +54,7 @@ let print_line_gaps () (r:int)=
                     ("#\n#       #       #       #       #       #       #       #       #\n"))
   else
     ANSITerminal.(print_string 
-                    [yellow] 
-                    ("#   "^(string_of_int (r+1))^"\n#       #       #       #       #       #       #       #       #\n"))
+          [yellow]           ("#   "^(string_of_int (r+1))^"\n#       #       #       #       #       #       #       #       #\n"))
 
 let print_border_lines () =
   ANSITerminal.(print_string [yellow]  
@@ -90,8 +89,8 @@ let print_board (board: ((Chess.square * Chess.piece option * Chess.color option
 
 
 
-
-let rand = Random.self_init
+(* Some Tests *)
+(* let rand = Random.self_init
 
 let water = make_type "water" [("water", 0.5);("fire", 2.)]
 
@@ -116,10 +115,10 @@ let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2]
     [44.;98.;129.;56.] 
 
 let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
-    [39.;112.;93.;55.] 
+    [39.;112.;93.;55.]  *)
 
 
-let battle = Battle.make_battle squirtle charmander
+(* let battle = Battle.make_battle squirtle charmander *)
 
 let print_eff move poke = 
   match Battle.calc_effective move poke with
