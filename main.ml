@@ -8,6 +8,8 @@ open Chess
 open ChessGame
 
 let new_chess_game = ChessGame.new_game
+let player_fainted = ref false
+let opp_fainted = ref false
 
 (**[print_logo ()] is used to print the ascii art of the logo for pokemon,
    ascii drawing courtesy of https://www.asciiart.eu/video-games/pokemon*)
@@ -177,9 +179,9 @@ let printed btl =
    and then performs the correct action accordingly.*)
 let check_fainted bat = 
   if Pokemon.get_curr_hp (Battle.get_opponent bat) <= 0 then 
-    (print_string("Your opponent has fainted!\n\n\n"); exit 0)
+    (print_string("Your opponent has fainted!\n\n\n"); opp_fainted:=true)
   else if Pokemon.get_curr_hp (Battle.get_player bat) <= 0 then
-    (print_string ("You have fainted!\n\n\n"); exit 0)
+    (print_string ("You have fainted!\n\n\n"); player_fainted:=true)
   else (print_string "")
 
 
@@ -291,6 +293,7 @@ let rec battle_loop btl =
   let available_moves = get_move_names 
       (Pokemon.get_moves (Battle.get_player btl)) in
   (* Parses actions that the player may want to take*)
+  if not (!player_fainted || !opp_fainted) then
   match read_line () with
   | str -> begin
       match Command.parse_phrase_battle str with
@@ -317,6 +320,7 @@ let rec battle_loop btl =
             battle_loop btl)
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
     end
+  else ()
 
 (*[start_battle battle] starts the battle [battle] and plays through until one
 pokemon faints. (basically this was our play game() before we added the chess 
@@ -327,6 +331,8 @@ let start_battle battle =
   battle_loop battle
 
 let rec chess_loop chess_game =
+  player_fainted:=false;
+  opp_fainted:=false;
   (ChessGame.as_list chess_game) |> print_board;
   match read_line () with
   | str -> begin
@@ -352,13 +358,17 @@ let rec chess_loop chess_game =
           match next_move with
           | (Some p1, None, None, next_game) -> print_string "Next\n";
             chess_loop next_game;
-          | (Some p1, Some p2, Some new_game, _) -> 
+          | (Some p1, Some p2, Some new_game, loss_game) -> 
             let new_btl = Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
                 (Chess.pokemon_from_piece (Some p2)) in
             (* As of now the we quit once the opponent faints, so instead we should
             return the pokemon still alive and move that piece to the new spot *)
             start_battle new_btl;
-            chess_loop chess_game;
+            (if (!opp_fainted) then
+               chess_loop new_game
+             else 
+              chess_loop loss_game
+            )
           | _ ->
             
             print_string "Invalid move! Please try again.\n\n\n";

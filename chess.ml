@@ -296,6 +296,7 @@ module ChessGame : Game = struct
             (board |> remove_piece piece1 
              |> add_piece (p1,c,square2,change_moved))
           in
+          let loss_board = remove_piece piece1 board in
           let new_game = { 
             white = 
               if current_player = White then
@@ -308,10 +309,22 @@ module ChessGame : Game = struct
             board = new_board;
             current_player = next_col
           } in 
+          let loss = {
+            white = 
+              if current_player = White then
+                (if not (is_king p1) then white else square2)
+              else white;
+            black = 
+              if current_player = Black then
+                (if not (is_king p1) then black else square2)
+              else black;
+            board = loss_board;
+            current_player = next_col
+          } in 
           match get_piece board square2 with
           | None -> (Some p1, None, None, new_game)
           | Some (p2,_,_,_) ->
-            (Some p1, Some p2, Some new_game, current)
+            (Some p1, Some p2, Some new_game, loss)
         else raise InvalidMove
       else raise InvalidMove
 
