@@ -372,7 +372,9 @@ let rec chess_loop chess_game =
                return the pokemon still alive and move that piece to the new spot *)
             start_battle new_btl;
             (if (!opp_fainted) then
-               chess_loop new_game
+               match p2 with
+               | King _ -> print_string "You have won the game!"; exit 0
+               | _ -> chess_loop new_game
              else 
                chess_loop loss_game
             )
