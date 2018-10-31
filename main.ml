@@ -63,7 +63,7 @@ let print_letters () =
 let rec print_row 
     (board: 
        ((Chess.square * Chess.piece option * Chess.color option * Chess.color)
-           list) list) (r:int) = 
+          list) list) (r:int) = 
   match board with 
   |[] -> print_line_gaps () r
   |col::t ->  List.nth col r |> print_nth_of_col; print_row t r
@@ -247,24 +247,14 @@ let use_move move btl =
 
     printed btl;
     (if Battle.get_turn btl == Battle.get_player btl then (
-        ANSITerminal.(print_string[green] 
-                        ("Your " ^ poke_name ^ " used "
-                         ^ (Moves.get_name move) ^ "\n"));
-        print_eff move (Battle.other_player btl);)
-     else (
-       ANSITerminal.(print_string[red] 
-                       ("The opposing " ^ poke_name ^ " used " ^ 
-                        (Moves.get_name move) ^ "\n"));
-       print_eff move (Battle.other_player btl);));
-    let faint_check = check_fainted btl in
-    match faint_check with
-    | None -> btl |> Battle.other_player |> Battle.change_turn btl; None
-    | Some x -> Some x
+        ANSITerminal.(print_string[green] ("Your "^ poke_name^" used "^(Moves.get_name move)^"\n"));
+        print_eff move (Battle.other_player btl); check_fainted btl;)
+     else
+       ANSITerminal.(print_string[red] (poke_name^" used "^(Moves.get_name move)^"\n"));
+     print_eff move (Battle.other_player btl); check_fainted btl;);
+    btl |> Battle.other_player |> Battle.change_turn btl;
   )
-  else (
-    printed btl; 
-    print_string "Cannot use move\n\n\n\n";
-    None )
+  else (printed btl; print_string "Cannot use move\n\n\n\n" )
 
 (*Likely refactor these two methods later, but for now Leave as is.*)
 (**[move_first bat str] takes in the battle and the move of the player [str] and
@@ -280,25 +270,15 @@ let move_turns btl str=
   let op_move = 0 |> List.nth opponent_moves in 
 
 
-  if (Moves.is_priority move) then 
-    (change_turn btl player;
-     let move_result = use_move move btl in
-     match move_result with
-     | None -> pause_bet_states btl use_move move;
-     | Some x -> Some x)
+  if (Moves.is_priority move) then (change_turn btl player; use_move move btl;
+                                    pause_bet_states btl use_move move)
   else
     let faster = compare_speed player opponent in
     change_turn btl (faster); 
     if faster == Battle.get_player btl then
-      ( let move_result2 = use_move move btl in
-        match move_result2 with
-        | None -> pause_bet_states btl use_move op_move;
-        | Some x -> Some x)
+      (use_move move btl; pause_bet_states btl use_move op_move)
     else (
-      let move_result3 = use_move op_move btl in
-      match move_result3 with
-      | None -> pause_bet_states btl use_move move;
-      | Some x -> Some x)
+      use_move op_move btl; pause_bet_states btl use_move move)
 
 
 (* (**[move_second bat str] takes in the battle and the move of the player [str] and
@@ -325,27 +305,23 @@ let rec battle_loop btl =
           ANSITerminal.erase Above;
           print_string "Please enter a valid command\n\n\n"; battle_loop btl 
         | Help -> print_help (); battle_loop btl
-        | Info str2 -> print_string "unimplemented\n\n\n"; battle_loop btl
+        | Info str2-> print_string "unimplemented\n\n\n"; battle_loop btl
         | Incorrect ->  
           print_string "Invalid Command - 
-                  Type 'Help' if you need help\n\n\n"; 
+                   Type 'Help' if you need help\n\n\n"; 
           battle_loop btl
         | Use str2 -> 
           if List.mem str2 available_moves then
             let move_list = btl |> Battle.get_player |> Pokemon.get_moves in
             let move = get_move_from_str move_list str2 in
             if Battle.can_move move then
-              (ANSITerminal.erase Screen; 
-               let move_result = move_turns btl str2 in
-               match move_result with
-               | None -> battle_loop btl
-               | Some x -> Some x)
+              (ANSITerminal.erase Screen; move_turns btl str2; battle_loop btl;)
             else(
               print_string (str2 ^ " is out of PP!\n\n"); battle_loop btl)
           else 
             (print_string (str2 ^ " is not an available move!\n\n\n"); 
              battle_loop btl)
-        | Quit -> print_string "Quitting ...\n\n\n"; exit 0; None
+        | Quit -> print_string "Quitting ...\n\n\n"; exit 0
       end
   else ()
 
