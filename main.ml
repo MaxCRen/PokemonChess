@@ -87,7 +87,10 @@ let print_board (board: ((Chess.square * Chess.piece option * Chess.color option
   print_letters ()
 
 
-
+(** [get_move_names moves] is a list of the names of all moves in [moves], with
+    each name in all lowercase. *)
+let get_move_names moves =
+  List.map (fun x -> Moves.get_name x) moves
 
 (* Some Tests *)
 (* let rand = Random.self_init
@@ -104,11 +107,6 @@ let random2 = make_move ("Sleep") (water) (25)
 
 let ember = make_move ("Ember") (fire) (25) 
     ("Does damage") (30.) (1.) (0.10) false None
-
-(** [get_move_names moves] is a list of the names of all moves in [moves], with
-    each name in all lowercase. *)
-let get_move_names moves =
-  List.map (fun x -> Moves.get_name x) moves
 
 (* placeholder pokemon until we implement battles in full *)
 let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
