@@ -40,6 +40,10 @@ let make_move n typ p desc pow acc crit pri side =
     side_effect = side
 
   }
+let has_condition move = 
+  match move.side_effect with
+  |Some Condition x-> true
+  | _ -> false
 
 let can_use move = if move.pp = 0 then false else true
 

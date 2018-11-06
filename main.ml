@@ -87,36 +87,39 @@ let print_board (board: ((Chess.square * Chess.piece option * Chess.color option
   print_letters ()
 
 
+
 (** [get_move_names moves] is a list of the names of all moves in [moves], with
     each name in all lowercase. *)
 let get_move_names moves =
   List.map (fun x -> Moves.get_name x) moves
 
 (* Some Tests *)
-(* let rand = Random.self_init
+let rand = Random.self_init
 
 let water = make_type "water" [("water", 0.5);("fire", 2.)]
 
 let fire = make_type "fire" [("fire", 0.5);("water", 0.5)]
 
 let bubble = make_move ("Bubble") (water) (25) 
-    ("Does damage") (30.) (1.) (0.10) false None
+    ("Does damage") (5.) (1.) (0.10) false None
 
-let random2 = make_move ("Sleep") (water) (25) 
-    ("Does damage") (0.) (1.) (0.) false (Some (Condition (Sleep (1), 1.)))
+let random2 = make_move ("Paralyze") (water) (25) 
+    ("Does damage") (0.) (1.) (0.) false (Some (Condition (Paralyzed (5), 1.)))
 
+let poison = make_move ("Poison") (water) (25) 
+    ("Poisons the pokemon") (0.) (1.) (0.) false (Some (Condition (Poison , 1.)))
 let ember = make_move ("Ember") (fire) (25) 
     ("Does damage") (30.) (1.) (0.10) false None
 
 (* placeholder pokemon until we implement battles in full *)
-let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
+let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2; poison] 
     [44.;98.;129.;56.] 
 
-let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
-    [39.;112.;93.;55.]  *)
+let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [random2; ember]
+    [39.;112.;93.;55.] 
 
 
-(* let battle = Battle.make_battle squirtle charmander *)
+let battle = Battle.make_battle squirtle charmander
 
 let print_eff move poke = 
   match Battle.calc_effective move poke with
@@ -138,16 +141,16 @@ let rec display_moves moves =
   match moves with
   | [] -> print_string("\n")
   | h::t when ((List.length t) mod 2 = 0) -> 
-    ANSITerminal.(print_string[green]("\n\t"^Moves.get_name h)); 
+    ANSITerminal.(print_string[green]("\n\t"^(Moves.get_name h)^": "^(h |> Moves.get_pp |> Pervasives.string_of_int)^"pp")); 
     (display_moves t);
-  | h::t ->  ANSITerminal.(print_string[green]("\t"^Moves.get_name h)); 
+  | h::t ->  ANSITerminal.(print_string[green]("\t"^(Moves.get_name h)^": "^(h |> Moves.get_pp |> Pervasives.string_of_int)^"pp")); 
     (display_moves t)
 
 
 let display_status poke = 
   match (Pokemon.get_status poke) with
   | Some Poison -> ANSITerminal.(print_string[green] "[PSN]")
-  | Some Paralyzed _ -> ANSITerminal.(print_string[green] "[PAR]")
+  | Some Paralyzed _ -> ANSITerminal.(print_string[yellow] "[PAR]")
   | Some Sleep _-> ANSITerminal.(print_string[yellow] "[SLP]")
   | Some Burned -> ANSITerminal.(print_string[red] "[BUR]")
   | Some Frozen _-> ANSITerminal.(print_string[cyan] "[FRZ]")
@@ -202,13 +205,13 @@ let print_help ()=
 (*[conditions_helper poke status] matches the correct condition effect with 
   what it does to the pokemon. (i.e.) poison hurts the pokemon and sleep puts
   the pokemon to sleep*)
-let conditions_helper poke status =
+let conditions_helper bat poke status =
   let max_health = Pokemon.get_max_health poke |> Pervasives.float_of_int in
   match status with 
   | Poison ->  Battle.deal_damage (Pervasives.int_of_float (0.06*.max_health)) poke;
     print_string ((Pokemon.get_name poke)^" was hurt by poison\n")
-  | Paralyzed x-> if x - 1 = 0 then (print_string "Paralysis wore off\n";
-                                     Pokemon.change_status poke None)
+  | Paralyzed x-> if x - 1 = 0 then (Pokemon.change_status poke None; ANSITerminal.erase Screen; 
+                                      printed bat; print_string ((Pokemon.get_name poke)^"'s Paralysis wore off\n"))
     else Pokemon.change_status poke (Some (Paralyzed (x-1)))
   | Sleep x -> if x - 1 = 0 then 
       (print_string ((Pokemon.get_name poke)^" woke up!\n");
@@ -225,10 +228,10 @@ let deal_with_conditions bat =
   let opponent = Battle.get_opponent bat in
   match (Pokemon.get_status player), (Pokemon.get_status opponent) with
   | None, None -> ()
-  | Some stat, None -> conditions_helper player stat
-  | None, Some stat -> conditions_helper opponent stat
-  | Some stat1, Some stat2 -> conditions_helper player stat1; 
-    conditions_helper opponent stat2
+  | Some stat, None -> conditions_helper bat player stat
+  | None, Some stat -> conditions_helper bat opponent stat
+  | Some stat1, Some stat2 -> conditions_helper bat player stat1; 
+    conditions_helper bat opponent stat2
 
 
 let pause_bet_states battle func move =
@@ -236,16 +239,14 @@ let pause_bet_states battle func move =
   match read_line () with
   |_ ->  (ANSITerminal.erase Screen; func move battle)
 
-(**[use_move str bat] takes the string representation of a move [str] and then
-   applies it to the battle [bat] by either doing damage or some other effect*)
-let use_move move btl = 
+(**[chances_of float] is true [float]% of the time, and false otherwise*)
+let chances_of float =
+  let ran_float = Random.float 1. in
+  if ran_float <= float then true else false
 
-  if Battle.can_move move then (
-    let poke_name = btl |> Battle.get_turn |> Pokemon.get_name in
-
-    (* Sequence of events: use move -> print the new state -> print action ->
-       print effectiveness -> check if opponent has fainted *)
-    Battle.use_move btl move;
+let use_move_helper btl move poke_name =
+  
+  Battle.use_move btl move;
 
     printed btl;
     (if Battle.get_turn btl == Battle.get_player btl then (
@@ -254,9 +255,33 @@ let use_move move btl =
      else
       ( ANSITerminal.(print_string[red] (poke_name^" used "^(Moves.get_name move)^"\n"));
      print_eff move (Battle.other_player btl); check_fainted btl;));
-    btl |> Battle.other_player |> Battle.change_turn btl;
+    btl |> Battle.other_player |> Battle.change_turn btl
+
+(**[use_move str bat] takes the string representation of a move [str] and then
+   applies it to the battle [bat] by either doing damage or some other effect*)
+let use_move move btl = 
+
+  if Battle.can_move move then (
+    let pokemon = btl |> Battle.get_turn in
+    let poke_name = pokemon |> Pokemon.get_name in
+    let op_pokemon = Battle.other_player btl in
+
+    if (Pokemon.get_status op_pokemon) = None then
+      (match Pokemon.get_status pokemon with
+      | Some Paralyzed x-> if chances_of 0.50 then (
+                printed btl;
+                print_string (poke_name^" is paralyzed and can not move!\n");
+                btl |> Battle.other_player |> Battle.change_turn btl)
+                else use_move_helper btl move poke_name
+      | _ -> use_move_helper btl move poke_name)
+    else if (Moves.get_power move = 0. && Moves.has_condition move) 
+    then 
+      (printed battle; print_string (poke_name^" used "^(Moves.get_name) move^"\n");print_string "It failed.\n\n";
+                      btl |> Battle.other_player |> Battle.change_turn btl)
+
+    
   )
-  else (printed btl; print_string "Cannot use move\n\n\n\n" )
+  else (printed btl; print_string "Cannot use move\n\n\n\n";btl |> Battle.other_player |> Battle.change_turn btl)
 
 (*Likely refactor these two methods later, but for now Leave as is.*)
 (**[move_first bat str] takes in the battle and the move of the player [str] and
@@ -295,6 +320,8 @@ let move_turns btl str=
    or if we are in parsing the player's move state. last_move is the last move
    used by the player so we can use it if the player moves second *)
 let rec battle_loop btl =
+  deal_with_conditions btl;
+  print_string "Player Move: ";
   let available_moves = get_move_names 
       (Pokemon.get_moves (Battle.get_player btl)) in
   (* Parses actions that the player may want to take*)
@@ -397,7 +424,8 @@ let play_game () =
 
 let main () =
   ANSITerminal.erase Screen;
-  play_game ()
+  (* play_game () *)
+  start_battle battle
 
 (* Execute the game engine. *)
 let () = main ()
