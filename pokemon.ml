@@ -143,7 +143,7 @@ let work_up ()= Moves.make_move "Work Up"
     normal 30 "" 0. 1. 0. false (Some (Stats ([0.;0.5;0.5;0.], true)))
 
 let earthquake ()= Moves.make_move "Earthquake" 
-    ground 10 "" 100. 0.75 0.05 false None
+    ground 10 "" 100. 1. 0.05 false None
 
 let dark_pulse ()= Moves.make_move "Dark Pulse"
     dark 15 "" 80. 1. 0.1 false None
@@ -193,16 +193,16 @@ let calm_mind ()= Moves.make_move "Calm Mind" psychic 20 "" 0. 1. 0. false
     (Some (Stats ([0.;1.0;0.;0.], true)))
 
 let thunder_bolt() = Moves.make_move "Thunder Bolt" electric 15 
-"Hurts the opponent, chance of paralyzing" 100. 0.9 0.1 false (Some (Condition (Paralyzed (4), 0.35)))
+    "Hurts the opponent, chance of paralyzing" 100. 0.9 0.1 false (Some (Condition (Paralyzed (4), 0.35)))
 
 let surf() = Moves.make_move "Surf" water 15 "Damages opponent" 80. 0.9 0.1 false
-None
+    None
 
 let hyper_beam() = Moves.make_move "Hyper Beam" normal 5 "Damages Opponent" 
-100. 0.9 0.1 false None
+    100. 0.9 0.1 false None
 
 let focus_blast() = Moves.make_move "Focus Blast" normal 10 "Damages Opponent"
-30. 0.9 0.1 false None
+    30. 0.9 0.1 false None
 
 (** ALL NECESSARY POKEMON *)
 let get_promoted_pawn() = make_pokemon "Raichu" (electric, None) 
