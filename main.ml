@@ -105,7 +105,7 @@ let water = make_type "water" [("water", 0.5);("fire", 2.)]
 let fire = make_type "fire" [("fire", 0.5);("water", 0.5)]
 
 let bubble = make_move ("Bubble") (water) (25) 
-    ("Does damage") (5.) (1.) (0.10) false (Some (Heal(-0.1, true)))
+    ("Does damage") (0.) (1.) (0.10) false (Some (Heal(-0.1, true)))
 
 let random2 = make_move ("Sleep") (water) (25) 
     ("Does damage") (0.) (1.) (0.) false (Some (Condition (Sleep (5), 1.)))
@@ -115,8 +115,9 @@ let inc_stats = make_move ("incr") (water) (25) ("stuff") (0.)
 
 let poison = make_move ("Poison") (water) (25) 
     ("Poisons the pokemon") (0.) (1.) (0.) false (Some (Condition (Burned , 1.)))
+
 let ember = make_move ("Ember") (fire) (25) 
-    ("Does damage") (30.) (1.) (0.10) false None
+    ("Does damage") (1.) (1.) (0.10) false None
 
 (** [get_move_names moves] is a list of the names of all moves in [moves], with
     each name in all lowercase. *)
@@ -127,7 +128,7 @@ let get_move_names moves =
 let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
 [44.;98.;129.;56.] 
 
-let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
+let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember;ember;ember;ember]
 [39.;112.;93.;55.] 
 
 
@@ -173,14 +174,14 @@ let display_mults bat poke =
 
 (** display_moves[moves] displays all of the moves available to the player's
     pokemon *)
-let rec display_moves moves =
+let rec display_moves btl pokemon moves =
   match moves with
   | [] -> print_string("\n")
-  | h::t when ((List.length t) mod 2 = 0) -> 
-    ANSITerminal.(print_string[green]("\t\t\t"^(Moves.get_name h)^": "^(h |> Moves.get_pp |> Pervasives.string_of_int)^"pp")); 
-    (display_moves t);
-  | h::t ->  ANSITerminal.(print_string[green]("\n\t"^(Moves.get_name h)^": "^(h |> Moves.get_pp |> Pervasives.string_of_int)^"pp")); 
-    (display_moves t)
+  | h::t when ((List.length t) mod 2 = 0) -> (
+    print_colored btl ("\t\t\t\t["^(Moves.get_name h)^": "^(h |> Moves.get_pp |> Pervasives.string_of_int)^"pp]") pokemon; 
+    display_moves btl pokemon t)
+  | h::t ->  print_colored btl ("\n\n["^(Moves.get_name h)^": "^(h |> Moves.get_pp |> Pervasives.string_of_int)^"pp]") pokemon; 
+    (display_moves btl pokemon t)
 
 let display_status poke = 
   match (Pokemon.get_status poke) with
@@ -191,31 +192,52 @@ let display_status poke =
   | Some Frozen _-> ANSITerminal.(print_string[cyan] "[FRZ]")
   | _ -> ()
 
-(** [printed btl] displays information about the battle [btl] such as the
-    current Pokemon on either side, the current HP of both Pokemon,
-    and the moveset available to each Pokemon. *)
+let print_poke_stats btl opponent = 
+  display_status opponent;
+  ANSITerminal.(print_colored btl (Pokemon.get_name opponent ^ "\n\t\t\tHealth:" ^ 
+                                  (hp_display 35. opponent) ^ "\n\t\t\t") opponent);
+  let opp_health = get_curr_hp opponent |> Pervasives.string_of_int in
+  let opp_max_health = get_max_health opponent |> Pervasives.string_of_int in
+  ANSITerminal.(print_colored btl (opp_health^"/"^opp_max_health^" hp\t") opponent);
+  display_mults btl opponent
+
 let printed btl = 
   print_string ("_______________________________________________________________________\n");
   let opponent = Battle.get_opponent btl in
   let player = Battle.get_player btl in
+  ANSITerminal.(print_colored btl ("\nFIRE RED: \t\t") opponent); 
+  print_poke_stats btl opponent;
+  print_string "\n\n";
+  ANSITerminal.(print_colored btl ("\nLEAF GREEN: \t\t") player); 
+  print_poke_stats btl player; 
+  print_string "\n";
 
-  ANSITerminal.(print_string[red]("\nOpponent's Pokemon: \t\t")); display_status opponent;
-  ANSITerminal.(print_string[red](Pokemon.get_name opponent ^ "\n\t\t\tHealth:" ^ 
-                                  (hp_display 35. opponent) ^ "\n\t\t\t"));
-  let opp_health = get_curr_hp opponent |> Pervasives.string_of_int in
-  let opp_max_health = get_max_health opponent |> Pervasives.string_of_int in
-  ANSITerminal.(print_string[red](opp_health^"/"^opp_max_health^" hp\t"));
-  display_mults btl opponent;
-  ANSITerminal.(print_string[green]("\n\n\n\nPlayer's Pokemon:\t\t"));display_status player;
-  ANSITerminal.(print_string [green] 
-                  (Pokemon.get_name player ^ "\n\t\t\tHealth:" 
-                   ^ (hp_display 35. player) ^ "\n\t\t\t"));
-  let curr_health = get_curr_hp player |> Pervasives.string_of_int in
-  let max_health = get_max_health player |> Pervasives.string_of_int in
-  ANSITerminal.(print_string[green](curr_health^"/"^max_health^" hp\t"));
-  display_mults btl player; print_string "\n";
-  Pokemon.get_moves player |> display_moves;
-  print_string("_________________________________________________________________________\n")
+  print_string("_______________________________________________________________________\n")
+
+(** [printed btl] displays information about the battle [btl] such as the
+    current Pokemon on either side, the current HP of both Pokemon,
+    and the moveset available to each Pokemon. *)
+let printed_leaf btl = 
+  let player = Battle.get_player btl in
+  printed btl;
+  ANSITerminal.(print_string [green] "\t\t\t   Moves");
+  Pokemon.get_moves player |> display_moves btl player;
+  print_string "\n\n"
+
+let printed_fire btl = 
+  print_string ("_______________________________________________________________________\n");
+  let opponent = Battle.get_opponent btl in
+  let player = Battle.get_player btl in
+  ANSITerminal.(print_colored btl ("\nLEAF GREEN: \t\t") player); 
+  print_poke_stats btl player;
+  print_string "\n\n";
+  ANSITerminal.(print_colored btl ("\nFIRE RED: \t\t") opponent); 
+  print_poke_stats btl opponent; 
+  print_string "\n";
+  print_string("_______________________________________________________________________\n");
+  ANSITerminal.(print_string [red] "\t\t\t   Moves");
+  Pokemon.get_moves opponent |> display_moves btl opponent;
+  print_string "\n"
 
 let pause_bet_states battle func (move: Moves.t option) =
   if not (!player_fainted || !opp_fainted) then
@@ -318,6 +340,7 @@ let chances_of float =
   if ran_float <= float then true else false
 
 let use_move_helper btl move poke_name =
+  ANSITerminal.erase Screen;
   Battle.use_move btl move;
   printed btl;
   print_colored btl (poke_name^" used "^(Moves.get_name move)^"\n") (Battle.get_turn btl);
@@ -332,6 +355,7 @@ let use_move move btl =
     let pokemon = btl |> Battle.get_turn in
     let poke_name = pokemon |> Pokemon.get_name in
     let op_pokemon = Battle.other_player btl in
+    (* let acc_perc = Moves.get_acc move in *)
 
     if (Pokemon.get_status op_pokemon) = None then
       (match Pokemon.get_status pokemon with
@@ -355,90 +379,99 @@ let use_move move btl =
   )
   else (printed btl; print_string "Cannot use move\n\n\n\n";btl |> Battle.other_player |> Battle.change_turn btl)
 
+
+let goes_first player opponent pl_move op_move = 
+  if(Moves.is_priority op_move && Moves.is_priority pl_move) then
+    (compare_speed player opponent)
+  else 
+  (if (Moves.is_priority op_move) then opponent 
+  else if (Moves.is_priority pl_move) then player 
+  else (compare_speed player opponent))
+
 (*Likely refactor these two methods later, but for now Leave as is.*)
 (**[move_first bat str] takes in the battle and the move of the player [str] and
    peforms the move of the pokemon that moves first*)
-let move_turns btl str= 
+let move_turns btl str1 str2= 
   let move_list = btl |> Battle.get_player |> Pokemon.get_moves in
-  let move = get_move_from_str move_list str in
+  let move = get_move_from_str move_list str1 in
   let player = Battle.get_player btl in
   let opponent = Battle.get_opponent btl in
   let opponent_moves = Pokemon.get_moves opponent in
-  let op_move = 0 |> List.nth opponent_moves in 
+  let op_move = get_move_from_str opponent_moves str2 in 
 
-  if (Moves.is_priority move) 
-  then (change_turn btl player; use_move move btl; pause_bet_states btl use_move (Some op_move);
-        if not (!player_fainted || !opp_fainted) then pause_bet_states btl use_move None else ())
-  else
-    let faster = compare_speed player opponent in
-    change_turn btl (faster); 
-    if faster == Battle.get_player btl then
-      (use_move move btl; pause_bet_states btl use_move (Some op_move);
-       if not (!player_fainted || !opp_fainted) then
-         pause_bet_states btl use_move None
-       else ())
-    else (
-      use_move op_move btl; pause_bet_states btl use_move (Some move);
+
+  let faster = goes_first player opponent move op_move in
+  change_turn btl (faster); 
+  if faster == Battle.get_player btl then
+    (use_move move btl; pause_bet_states btl use_move (Some op_move);
       if not (!player_fainted || !opp_fainted) then
-        pause_bet_states btl use_move None else ())
+        pause_bet_states btl use_move None
+      else ())
+  else (
+    use_move op_move btl; pause_bet_states btl use_move (Some move);
+    if not (!player_fainted || !opp_fainted) then
+      pause_bet_states btl use_move None else ())
 
 
-(* (**[move_second bat str] takes in the battle and the move of the player [str] and
-   peforms the move of the pokemon that moves second*)
-   let move_second bat str = 
-   let move_list = bat |> Battle.get_player |> get_moves in
-   let move = get_move_from_str move_list str in
-   let player = Battle.get_player bat in
-   if player = Battle.get_turn bat then use_move move bat else opponent_move bat *)
+let rec get_move btl pokemon= 
+  let available_moves = get_move_names (Pokemon.get_moves pokemon) in
 
-(* [pause_bool] is used to check if we are in the enter anything to continue state
-   or if we are in parsing the player's move state. last_move is the last move
-   used by the player so we can use it if the player moves second *)
-let rec battle_loop btl =
-  if not (!player_fainted || !opp_fainted) then
-    (print_string "Player Move: ";
-     let available_moves = get_move_names 
-         (Pokemon.get_moves (Battle.get_player btl)) in
-     (* Parses actions that the player may want to take*)
-
-     match read_line () with
+  match read_line () with
      | str -> begin
          match Command.parse_phrase_battle str with
          (* Empty then we just deal with a command *)
          | exception Empty -> 
            ANSITerminal.erase Above;
-           print_string "Please enter a valid command\n\n\n"; battle_loop btl 
-         | Help -> print_help (); battle_loop btl
-         | Info str2-> print_string "unimplemented\n\n\n"; battle_loop btl
+           print_string "Please enter a valid command\n\n\n"; get_move btl pokemon
+         | Help -> print_help (); get_move btl pokemon
+         | Info str2-> print_string "unimplemented\n\n\n"; get_move btl pokemon
          | Incorrect ->  
            print_string "Invalid Command - 
                    Type 'Help' if you need help\n\n\n"; 
-           battle_loop btl
+           get_move btl pokemon
          | Use str2 -> 
            let lc_str = String.lowercase_ascii str2 in
            if List.mem lc_str available_moves then
-             let move_list = btl |> Battle.get_player |> Pokemon.get_moves in
+             let move_list = pokemon |> Pokemon.get_moves in
              let move = Battle.get_move_from_str move_list lc_str in
-             if Battle.can_move move then
-               (ANSITerminal.erase Screen; move_turns btl lc_str; deal_with_conditions btl;
-                battle_loop btl;)
+             if Battle.can_move move then (lc_str)
              else(
-               print_string (str2 ^ " is out of PP!\n\n"); battle_loop btl)
+               print_string (str2 ^ " is out of PP!\n\n"); get_move btl pokemon)
            else 
              (print_string (str2 ^ " is not an available move!\n\n\n"); 
-              battle_loop btl)
+              get_move btl pokemon)
          | Quit -> print_string "Quitting ...\n\n\n"; exit 0
-       end)
-  else ()
+      end
+
+(* [pause_bool] is used to check if we are in the enter anything to continue state
+   or if we are in parsing the player's move state. last_move is the last move
+   used by the player so we can use it if the player moves second *)
+
+let rec battle_loop btl = 
+  ANSITerminal.erase Screen;
+  printed_leaf btl;
+  ANSITerminal.(print_string [green] "Leaf Green Move: ";);
+  let first_move = btl |> Battle.get_player |> get_move btl in
+  ANSITerminal.erase Screen;
+  printed_fire btl;
+  ANSITerminal.(print_string [red] "Fire Red Move: ";);
+  let second_move = btl |> Battle.get_opponent |> get_move btl in
+  move_turns btl first_move second_move;
+    if not (!player_fainted || !opp_fainted) then(
+      deal_with_conditions btl;
+      battle_loop btl)
+    else ()
+
+
 
 (*[start_battle battle] starts the battle [battle] and plays through until one
   pokemon faints. (basically this was our play game() before we added the chess 
   functionanility, and we call this when one piece tries to caputer another*)
 let start_battle battle =
-  let opp_poke = Battle.get_opponent battle |> Pokemon.get_name in
+  (* let opp_poke = Battle.get_opponent battle |> Pokemon.get_name in
   printed battle;
   print_string ("A wild " ^ opp_poke ^
-                " has appeared! Fight to stay alive! \n\n\n");
+                " has appeared! Fight to stay alive! \n\n\n"); *)
   battle_loop battle
 
 let rec chess_loop chess_game =

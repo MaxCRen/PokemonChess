@@ -115,8 +115,8 @@ let ghost = Ptype.make_type "Ghost" ["Psychic", 2.0]
 
 (** ALL NECESSARY POKEMON MOVES *)
 
-let thunder_shock ()= Moves.make_move "Thunder Shock" electric 30 "" 40. 1. 0.1 
-    false (Some (Condition (Paralyzed (5), 0.05)))
+let thunder_shock ()= Moves.make_move "Thunder Shock" electric 30 "" 70. 1. 0.1 
+    false (Some (Condition (Paralyzed (5), 0.35)))
 
 let thunder_wave ()= Moves.make_move "Thunder Wave" electric 20 
     "Paralyzes opponent." 0. 1. 0.1 false (Some (Condition (Paralyzed 5, 1.)))
@@ -195,7 +195,7 @@ let get_bishop () = make_pokemon "Venusaur" (grass, Some poison)
     [amnesia(); sleep_powder(); giga_drain(); knock_off()] [270.; 152.; 153.; 148.]
 
 let get_knight () = make_pokemon "Charizard" (fire, Some flying)
-    [flare_blitz(); dragon_claw(); earthquake(); roost()] [266.; 155.; 144.; 184.]
+    [flare_blitz(); dragon_claw(); fire_blast(); roost()] [266.; 155.; 144.; 184.]
 
 let get_queen () = make_pokemon "Mewtwo" (psychic, None)
     [thunder(); fire_blast(); blizzard(); shadow_ball()] [322.; 276.; 166.; 276.]
