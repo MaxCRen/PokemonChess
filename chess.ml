@@ -215,19 +215,19 @@ let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board =
         @
         piece_move gamepiece board (-1,(multiplier * 1)) true in 
       (if moved then 
-        if is_free board (cl, r+(multiplier *1)) then
-          piece_move gamepiece board (0,(multiplier * 1)) false 
-        else []
-      else  
-        if is_free board (cl, r+(multiplier *1)) 
-        && is_free board (cl, r+(multiplier *2)) then 
-          piece_move gamepiece board (0,(multiplier * 1)) false
-          @
-          piece_move gamepiece board (0,(multiplier * 2)) false
-        else []
-       )
-       @
-       corners
+         if is_free board (cl, r+(multiplier *1)) then
+           piece_move gamepiece board (0,(multiplier * 1)) false 
+         else []
+       else  
+       if is_free board (cl, r+(multiplier *1)) 
+       && is_free board (cl, r+(multiplier *2)) then 
+         piece_move gamepiece board (0,(multiplier * 1)) false
+         @
+         piece_move gamepiece board (0,(multiplier * 2)) false
+       else []
+      )
+      @
+      corners
     end 
   | Rook _ -> get_open_horizontals_and_verticals board (cl,r) color
   | Knight _ -> 
@@ -269,7 +269,7 @@ let move (((p,c,s,b) as piece):game_piece)
     match get_piece board square with
     | None -> board
     | Some ((p,_,_,_)) when (is_fake_pawn p) -> 
-        board |> remove_piece (p,c,(nc, (nr + ~-multiplier)),b)
+      board |> remove_piece (p,c,(nc, (nr + ~-multiplier)),b)
     | _ -> board
   end in 
   let default = fixed_board 
@@ -294,9 +294,9 @@ let move (((p,c,s,b) as piece):game_piece)
     | _ -> default
   else if not b && (is_pawn p) && (nc, nr + (~-multiplier * 2)) = s then 
     (print_endline "adding fake pawn";
-    default |> add_piece 
-      ((FakePawn (pokemon_from_piece (Some p)),
-      c,(nc, nr + (~-multiplier)),false)) )
+     default |> add_piece 
+       ((FakePawn (pokemon_from_piece (Some p)),
+         c,(nc, nr + (~-multiplier)),false)) )
 
   else (print_endline ("is_pawn := "^ (string_of_bool (is_pawn p)) ^ "\n not b := " ^(string_of_bool (not b)) ^ "\n"^(nc) ^ (string_of_int (nr + (~-multiplier * 2)))); default)
 
@@ -314,6 +314,7 @@ module type Game = sig
   val move : square -> square -> t -> piece option * piece option * t option * t
   val get_moves : t -> square -> square list
   val is_player_square : t -> square -> bool
+  val get_poke : t -> square -> holder_pokemon
   val as_list : t -> (square * piece option * color option * color) list list
 end 
 
@@ -450,6 +451,15 @@ module ChessGame : Game = struct
     | None -> false
     | Some (_,c,_,_) -> c = current_player
 
+  (** [get_poke t square] returns the Pokemon at the given [square], or [None]
+      if there is no Pokemon present.
+      Raises: [InvalidSquare square] if [square] is not a valid square. *)
+  let get_poke {white; black; board; current_player} square =
+    let curr_piece = (match get_piece board square with
+        | None -> raise (InvalidSquare square)
+        | Some (piece,_,_,_) -> Some piece) in
+    curr_piece |> pokemon_from_piece
+
   let as_list ({white;black;board;current_player} : t) = 
     let rec helper builder = function 
       | [] -> builder
@@ -460,7 +470,7 @@ module ChessGame : Game = struct
                 match piece with
                 | None -> ((s,num),None, None, color)
                 | Some (p,c,sq,b) when not (is_fake_pawn p) ->
-                    (sq, Some p, Some c, color)
+                  (sq, Some p, Some c, color)
                 | _ -> ((s,num), None, None, color)
             ) c 
           )
