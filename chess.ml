@@ -384,7 +384,9 @@ module ChessGame : Game = struct
       the pieces belonging to the current player of [t]. If there is no piece on 
       [sq], [false] is returned. *)
   let is_player_square {white;black;board;current_player} square =
-    match get_piece board square with
+    let curr_piece = (try (get_piece board square) with
+        | InvalidSquare _ -> None) in
+    match curr_piece with
     | None -> false
     | Some (_,c,_,_) -> c = current_player
 

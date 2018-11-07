@@ -597,10 +597,12 @@ let rec chess_loop chess_game curr_square blue_squares =
       | Square (sq) ->
         if (!first_square) then (
           let sq_pair = Chess.get_sq_pair sq in
-          let potential_squares = ChessGame.get_moves chess_game sq_pair in
+          let potential_squares = 
+            (try (ChessGame.get_moves chess_game sq_pair) with
+             | InvalidSquare _ -> []) in
           if (Command.check_coordinate sq 
               && ChessGame.is_player_square chess_game sq_pair
-              && List.length potential_squares <> 0) then (
+              && List.length (potential_squares) <> 0) then (
             first_square:= not(!first_square);
             chess_loop chess_game sq_pair potential_squares)
           else (
