@@ -340,7 +340,7 @@ module ChessGame : Game = struct
         if List.mem square2 possible_moves then 
           let change_moved = if not moved then not moved else moved in 
           let new_board = 
-            move piece1 board square2
+            move (p1,c,(c1,r1),change_moved) board square2
           in
           let loss_board = remove_piece piece1 board in
           let new_game = { 
