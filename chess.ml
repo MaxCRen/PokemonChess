@@ -279,7 +279,7 @@ let move (((p,c,s,b) as piece):game_piece)
     match get_piece board square with
     | None -> board
     | Some ((p,_,_,_)) when (is_fake_pawn p) -> 
-        board |> remove_piece (p,c,(nc, (nr + ~-multiplier)),b)
+      board |> remove_piece (p,c,(nc, (nr + ~-multiplier)),b)
     | _ -> board
   end in 
   let default = fixed_board 
@@ -303,16 +303,16 @@ let move (((p,c,s,b) as piece):game_piece)
     | _ -> default
   else if (is_pawn p) then
     let row = if c = White then 8 else 1 in 
-      if not b && (nc, nr + (~-multiplier * 2)) = s then 
-        (default |> add_piece 
-          ((FakePawn (pokemon_from_piece (Some p)),
-          c,(nc, nr + (~-multiplier)),false)))
-      else if (nc,row) = square then
-        fixed_board
-         |> remove_fake_pawns
-         |> remove_piece piece
-         |> add_piece (Queen (Pokemon.get_promoted_pawn ()),c,square,true)
-      else default
+    if not b && (nc, nr + (~-multiplier * 2)) = s then 
+      (default |> add_piece 
+         ((FakePawn (pokemon_from_piece (Some p)),
+           c,(nc, nr + (~-multiplier)),false)))
+    else if (nc,row) = square then
+      fixed_board
+      |> remove_fake_pawns
+      |> remove_piece piece
+      |> add_piece (Queen (Pokemon.get_promoted_pawn ()),c,square,true)
+    else default
 
   else  default
 
@@ -330,6 +330,7 @@ module type Game = sig
   val move : square -> square -> t -> piece option * piece option * t option * t
   val get_moves : t -> square -> square list
   val is_player_square : t -> square -> bool
+  val get_poke : t -> square -> holder_pokemon
   val as_list : t -> (square * piece option * color option * color) list list
 end 
 
@@ -466,6 +467,15 @@ module ChessGame : Game = struct
     | None -> false
     | Some (_,c,_,_) -> c = current_player
 
+  (** [get_poke t square] returns the Pokemon at the given [square], or [None]
+      if there is no Pokemon present.
+      Raises: [InvalidSquare square] if [square] is not a valid square. *)
+  let get_poke {white; black; board; current_player} square =
+    let curr_piece = (match get_piece board square with
+        | None -> raise (InvalidSquare square)
+        | Some (piece,_,_,_) -> Some piece) in
+    curr_piece |> pokemon_from_piece
+
   let as_list ({white;black;board;current_player} : t) = 
     let rec helper builder = function 
       | [] -> builder
@@ -476,7 +486,7 @@ module ChessGame : Game = struct
                 match piece with
                 | None -> ((s,num),None, None, color)
                 | Some (p,c,sq,b) when not (is_fake_pawn p) ->
-                    (sq, Some p, Some c, color)
+                  (sq, Some p, Some c, color)
                 | _ -> ((s,num), None, None, color)
             ) c 
           )

@@ -29,8 +29,17 @@ let make_pokemon n typ mset attr = {
   confused = 0;
   accuracy =  1.
 }
-
 let get_moves poke = poke.moveSet
+
+let out_of_pp poke =
+
+  let rec helper acc = function
+  | [] -> acc
+  | h::t -> helper (acc+(Moves.get_pp h)) t in
+
+  (helper 0  poke.moveSet) = 0
+
+
 
 let get_name poke = poke.name
 
@@ -42,10 +51,10 @@ let can_raise_stats poke int =
 let get_attr poke = 
   let rec get_attr' acc mult attr= 
     match mult, attr with
-    |[], [] -> acc
-    |multiplier::t1, attribute::t2 -> get_attr' (multiplier*.(attribute)::acc) t1 t2
+    | [], [] -> acc
+    | multiplier::t1, attribute::t2 -> 
+      get_attr' (multiplier*.(attribute)::acc) t1 t2
     | _, _ -> raise NotDefinedCorrectly in
-
   List.rev (get_attr' [] poke.attr_mult poke.attributes)
 
 let get_mult poke = poke.attr_mult
@@ -140,7 +149,7 @@ let dark_pulse ()= Moves.make_move "Dark Pulse"
     dark 15 "" 80. 1. 0.1 false None
 
 let amnesia ()= Moves.make_move "Amnesia" psychic 20 "" 0. 1. 0. false 
-(Some (Stats ([0.;1.;1.;0.], true)))
+    (Some (Stats ([0.;1.;1.;0.], true)))
 
 let giga_drain ()= Moves.make_move "Giga Drain" 
     grass 10 "" 75. 1. 0.15 false (Some (Heal(0.3, false)))
@@ -181,7 +190,7 @@ let toxic ()= Moves.make_move "Toxic" poison 10
     0. 0.8 0. false (Some (Condition (Poison , 1.)))
 
 let calm_mind ()= Moves.make_move "Calm Mind" psychic 20 "" 0. 1. 0. false 
-                      (Some (Stats ([0.;1.0;0.;0.], true)))
+    (Some (Stats ([0.;1.0;0.;0.], true)))
 
 let thunder_bolt() = Moves.make_move "Thunder Bolt" electric 15 
 "Hurts the opponent, chance of paralyzing" 100. 0.9 0.1 false (Some (Condition (Paralyzed (4), 0.35)))
@@ -197,11 +206,11 @@ let focus_blast() = Moves.make_move "Focus Blast" normal 10 "Damages Opponent"
 
 (** ALL NECESSARY POKEMON *)
 let get_promoted_pawn() = make_pokemon "Raichu" (electric, None) 
-    [thunder_bolt (); thunder_wave(); quick_attack(); hp_grass()] 
+    [thunder_bolt (); surf(); hyper_beam(); focus_blast()] 
     [230.; 177.; 103.; 190.]
 
 let get_pawn () = make_pokemon "Pikachu" (electric, None) 
-    [thunder_shock (); surf(); hyper_beam(); focus_blast()] 
+    [thunder_shock (); thunder_wave(); quick_attack(); hp_grass()] 
     [180.; 103.; 58.; 166.]
 
 let get_rook () = make_pokemon "Blastoise" (water, None) 

@@ -97,8 +97,8 @@ module type Game = sig
   (**[new_game] returns a new game *)
   val new_game : t
 
-(**[get_current_player game] returns the [color] of the player whose turn it
-   is in [game] *)
+  (**[get_current_player game] returns the [color] of the player whose turn it
+     is in [game] *)
   val get_current_player : t -> color
 
   (** [move square1 square2 game] returns the game resulting from moving piece
@@ -114,6 +114,11 @@ module type Game = sig
       pieces belonging to the current player of [t]. If there is no piece on 
       [sq], [false] is returned. *)
   val is_player_square : t -> square -> bool
+
+  (** [get_poke t square] returns the Pokemon at the given [square], or [None]
+      if there is no Pokemon present.
+      Raises: [InvalidSquare square] if [square] is not a valid square. *)
+  val get_poke : t -> square -> holder_pokemon
 
   (** [as_list game] returns a list representation of [game] *)
   val as_list : t -> (square * piece option * color option * color) list list
