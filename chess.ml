@@ -275,7 +275,7 @@ let move (((p,c,s,b) as piece):game_piece)
   let fixed_board = begin
     match get_piece board square with
     | None -> board
-    | Some ((fp,_,_,_)) when (is_fake_pawn p) && (is_pawn p)-> 
+    | Some ((fp,_,_,_)) when (is_fake_pawn fp) && (is_pawn p)-> 
       board |> remove_piece (fp,c,(nc, (nr + ~-multiplier)),b)
     | _ -> board
   end in 
@@ -286,13 +286,13 @@ let move (((p,c,s,b) as piece):game_piece)
   if not b && is_king p then
     match square with 
     | ("G",row) -> begin
-        match get_piece fixed_board ("H",row) with
+        match get_piece default ("H",row) with
         | None -> default
         | Some ((rp,rc,rs,rb) as rook) ->
           default |> remove_piece rook |> add_piece (rp,rc,("F",row),true)
       end 
     | ("C",row) -> begin
-        match get_piece fixed_board ("A",row) with
+        match get_piece default ("A",row) with
         | None -> default
         | Some ((rp,rc,rs,rb) as rook) -> 
           default |> remove_piece rook |> add_piece (rp,rc,("D",row),true)
