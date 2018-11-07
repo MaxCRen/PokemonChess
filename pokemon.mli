@@ -73,3 +73,5 @@ val get_knight: unit -> t
 val get_queen: unit -> t
 
 val get_king: unit -> t
+
+val out_of_pp: t -> bool
