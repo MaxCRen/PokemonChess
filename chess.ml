@@ -304,7 +304,7 @@ let move (((p,c,s,b) as piece):game_piece)
          |> add_piece (Queen (Pokemon.get_promoted_pawn ()),c,square,true)
       else default
 
-  else (print_endline ("is_pawn := "^ (string_of_bool (is_pawn p)) ^ "\n not b := " ^(string_of_bool (not b)) ^ "\n"^(nc) ^ (string_of_int (nr + (~-multiplier * 2)))); default)
+  else  default
 
 (** [get_sq_pair str] is the [square] represented by [str]. 
       Requires: [str] must represent a valid chess board coordinate (ex: ["A2"],
