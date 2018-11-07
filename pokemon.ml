@@ -124,14 +124,14 @@ let ghost = Ptype.make_type "Ghost" ["Psychic", 2.0]
 
 (** ALL NECESSARY POKEMON MOVES *)
 
-let thunder_shock ()= Moves.make_move "Thunder Shock" electric 30 "" 70. 1. 0.25 
+let thunder_shock ()= Moves.make_move "Thunder Shock" electric 30 "" 75. 1. 0.25 
     false (Some (Condition (Paralyzed (5), 0.35)))
 
 let thunder_wave ()= Moves.make_move "Thunder Wave" electric 20 
     "Paralyzes opponent." 0. 1. 0.1 false (Some (Condition (Paralyzed 5, 1.)))
 
 let quick_attack ()= Moves.make_move "Quick Attack" 
-    normal 30 "" 60. 1. 0.2 true None
+    normal 30 "" 70. 1. 0.2 true None
 
 let hp_grass ()= Moves.make_move "Hidden Power Grass" 
     grass 15 "" 60. 1. 0.2 false None
@@ -155,7 +155,7 @@ let giga_drain ()= Moves.make_move "Giga Drain"
     grass 10 "" 75. 1. 0.15 false (Some (Heal(0.3, false)))
 
 let sleep_powder ()= Moves.make_move "Sleep Powder"
-    grass 8 "Lulls opponent to sleep." 0.7 0. 0. false (Some (Condition (Sleep 3, 1.)))
+    grass 5 "Lulls opponent to sleep." 0. 0.6 0. false (Some (Condition (Sleep 3, 1.)))
 
 let knock_off ()= Moves.make_move "Knock Off"
     dark 20 "" 65. 1. 0.1 false None
@@ -167,7 +167,7 @@ let dragon_claw ()= Moves.make_move "Dragon Claw"
     dragon 15 "" 80. 1. 0.1 false (Some (Stats ([0.;0.;0.;1.], true)))
 
 let roost ()= Moves.make_move "Roost"
-    flying 10 "Restores half of user's HP" 0. 1. 0. false (Some (Heal(0.5, true)))
+    flying 8 "Restores half of user's HP" 0. 1. 0. false (Some (Heal(0.4, true)))
 
 let thunder ()= Moves.make_move "Thunder"
     electric 10 "" 110. 0.7 0.1 false (Some (Condition (Paralyzed 5, 1.)))
@@ -207,11 +207,11 @@ let focus_blast() = Moves.make_move "Focus Blast" normal 10 "Damages Opponent"
 (** ALL NECESSARY POKEMON *)
 let get_promoted_pawn() = make_pokemon "Raichu" (electric, None) 
     [thunder_bolt (); surf(); hyper_beam(); focus_blast()] 
-    [230.; 177.; 103.; 190.]
+    [230.; 177.; 203.; 190.]
 
 let get_pawn () = make_pokemon "Pikachu" (electric, None) 
     [thunder_shock (); thunder_wave(); quick_attack(); hp_grass()] 
-    [180.; 103.; 58.; 166.]
+    [180.; 170.; 98.; 166.]
 
 let get_rook () = make_pokemon "Blastoise" (water, None) 
     [hydro_pump(); work_up(); earthquake(); dark_pulse()] [268.; 153.; 184.; 144.]
