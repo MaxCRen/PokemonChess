@@ -4,6 +4,7 @@ open Command
 open Pokemon
 open Moves
 open Ptype
+open Chess
 
 
 (************************ PType test Functions ********************************)
@@ -218,6 +219,7 @@ let test_change_status
   name >:: (fun _ -> 
             assert_equal expected (Pokemon.get_status pokemon))
 
+
 (* Pokemon and other types used for testing *)
 let grass = Ptype.make_type "Grass" 
     [("Water", 2.0); ("Fire", 0.5); ("Flying", 0.5); ("Grass", 0.5); 
@@ -230,6 +232,55 @@ let pikachu = make_pokemon "Pikachu" (electric, None)
     [thunder_shock; thunder_wave; quick_attack; hp_grass] 
     [180.; 103.; 58.; 166.]
 
+(** start chess tests *)
+let test_colors_match
+    (name : string)
+    (piece1 : game_piece)
+    (piece2 : game_piece)
+    (expected : bool) =
+  name >:: (fun _ -> assert_equal expected (Chess.colors_match piece1 piece2))
+
+let test_is_free
+  (name : string)
+  (game_board : board)
+  (sq : square)
+  (expected : bool) = 
+  name >:: (fun _ -> assert_equal expected (Chess.is_free game_board sq))
+
+let get_moves_test
+  (name : string)
+  (piece : game_piece)
+  (board : board) 
+  (expected : square list) = 
+  name >:: (fun _ -> assert_equal expected (Chess.get_moves piece board))
+
+let column_type_one : column =     [(1,(Black, None)); (2,(White, None)); 
+                                    (3,(Black, None)); (4,(White, None));
+                                    (5,(Black, None)); (6,(White, None));
+                                    (7,(Black, None)); (8,(White, None))]
+
+let column_type_two : column = [(1,(White, None)); (2,(Black, None));
+                                (3,(White, None)); (4,(Black, None)); 
+                                (5,(White, None)); (6,(Black, None)); 
+                                (7,(White, None)); (8,(Black, None))]
+let empty : board = 
+    [("A",column_type_one); ("B",column_type_two);
+     ("C", column_type_one); ("D",column_type_two); 
+     ("E",column_type_one); ("F", column_type_two); 
+     ("G", column_type_one); ("H", column_type_two)]
+let pawn = (Pawn (Pokemon.get_pawn ()), Black, ("A", 7), false)
+let antipawn = (Pawn (Pokemon.get_pawn ()), White, ("A", 2), false)
+let rook = (Rook (Pokemon.get_rook ()), Black, ("A", 1), false)
+let test_board = empty |> Chess.add_piece antipawn |> Chess.add_piece rook
+
+let chess_test = [
+  test_colors_match "colors match" pawn rook true;
+  test_colors_match "colors don't match" pawn antipawn false;
+  test_is_free "free square" test_board ("A",3) true;
+  get_moves_test "test pawn's moves" antipawn test_board [("A",3);("A",4)];
+  get_moves_test "test rook's moves" rook test_board [("H",1);("G",1);("F",1);("E",1);
+                                                      ("D",1);("C",1);("B",1);("A",2)]
+]
 let pokemon_test = [
   test_get_moves "pika's moves" pikachu 
                           [thunder_shock; thunder_wave; quick_attack; hp_grass];
@@ -248,7 +299,8 @@ let suite =
   "test suite for midterm project" >::: List.flatten [
     ptype_tests;
     moves_test;
-    pokemon_test
+    pokemon_test;
+    chess_test
   ]
 
 let _ = run_test_tt_main suite

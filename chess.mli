@@ -45,7 +45,7 @@ val colors_match : game_piece -> game_piece -> bool
 
 (** [is_free board square] returns true if there is no [game_piece] on 
     [square] in [board]
-    @raise [InvalidSquare] if [square] is invalid *)
+    Raises [InvalidSquare square] if [square] is invalid *)
 val is_free : board -> square -> bool
 
 (** [get_piece board square] returns the [game_piece] at [square] on [board] *)
@@ -94,6 +94,11 @@ module type Game = sig
   (** [move square1 square2 game] returns the game resulting from moving piece
       at [square1] to [square2] *)
   val move : square -> square -> t -> piece option * piece option * t option * t
+
+(** [get_moves game square] returns a list of possible moves for the piece
+    at [square], if there is any, in [game]. If there is no piece there,
+    it returns the empty list. *)
+  val get_moves : t -> square -> square list
 
   (** [as_list game] returns a list representation of [game] *)
   val as_list : t -> (square * piece option * color option * color) list list

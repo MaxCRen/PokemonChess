@@ -21,10 +21,18 @@ let get_player battle= battle.current_poke
 
 let get_opponent battle = battle.op_poke
 
+(**[calc_chances perc] is randomly true or false. It is true [perc] percent
+   of the time and false all other times*)
+let calc_chances perc =
+  let num = Random.float 1. in
+  if num <= perc then true else false
+
 let compare_speed player opponent =
   let op_speed = List.nth (opponent |> Pokemon.get_attr) 3 in
   let pl_speed = List.nth (player |> Pokemon.get_attr) 3 in
-  if op_speed >= pl_speed then opponent else player
+  if op_speed > pl_speed then opponent 
+  else if op_speed < pl_speed then player
+  else if (calc_chances 0.5) then player else opponent
 
 (* Creates an instance of our battle *)
 let make_battle player opponent = {
@@ -98,16 +106,13 @@ let deal_with_attr poke1 lst =
   let rec attribute_changer acc p_mult lst =
     match p_mult, lst with 
     |[], [] -> acc
-    |atr::poke_lst, mult::changer_lst -> 
-      attribute_changer (atr+.mult::acc) poke_lst changer_lst
+    |atr::poke_lst, mult::changer_lst -> if atr+.mult <= 4. then
+      (attribute_changer (atr+.mult::acc) poke_lst changer_lst) else
+      (attribute_changer (4.::acc) poke_lst changer_lst) 
     |_,_ -> failwith "Can't Happen" in
-  attribute_changer [] poke1_mult lst
+  attribute_changer [] (List.rev poke1_mult) (List.rev lst)
 
-(**[calc_chances perc] is randomly true or false. It is true [perc] percent
-   of the time and false all other times*)
-let calc_chances perc =
-  let num = Random.float 1. in
-  if num <= perc then true else false
+
 
 (**[apply_condition poke1 condition perc] applies the status change of [condition]
    to pokemon [poke1], [perc] a valid percentage in decimal form percent of the time.*)
@@ -135,9 +140,9 @@ let apply_effect effect poke1 poke2 dam=
     applying the change to poke1 otherwise apply to poke2*)
   |Stats (lst,player) when player-> lst |> deal_with_attr poke1 
                                     |> Pokemon.change_attr_mult poke1
-  |Stats (lst, _) -> lst |> deal_with_attr poke2 
-                     |> Pokemon.change_attr_mult poke2
-  |Condition (stat, perc) -> apply_condition poke2 stat perc
+  |Stats (lst, _) -> lst |> deal_with_attr poke2 |>  Pokemon.change_attr_mult poke2  
+  |Condition (stat, perc) -> if Pokemon.get_status poke2 = None then
+  apply_condition poke2 stat perc
 
 (**[parse_side_effects eff_lst bat dam] goes through the list of side effects
    and applies the effects to the battle [bat]*)
@@ -150,7 +155,8 @@ let parse_side_effects eff bat dam=
 let use_move battle move =
   let dam = battle |> calc_damage move |> Pervasives.int_of_float in 
   deal_damage dam (other_player battle);
-  parse_side_effects (Moves.get_eff move) battle dam
+  parse_side_effects (Moves.get_eff move) battle dam;
+  Moves.dec_pp move
 
 let change_turn battle poke = battle.turn <- poke
 
