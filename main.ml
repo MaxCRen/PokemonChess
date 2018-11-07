@@ -544,9 +544,7 @@ let rec get_move btl pokemon=
         if List.mem lc_str available_moves then
           let move_list = pokemon |> Pokemon.get_moves in
           let move = Battle.get_move_from_str move_list lc_str in
-          if Battle.can_move move then
-            (ANSITerminal.erase Screen; move_turns btl lc_str; deal_with_conditions btl;
-             battle_loop btl;)
+          if Battle.can_move move then (lc_str)
           else(
             print_string (str2 ^ " is out of PP!\n\n"); get_move btl pokemon)
         else 
@@ -649,7 +647,7 @@ let play_game () =
 
 let main () =
   ANSITerminal.erase Screen;
-  (* play_game () *)
+  play_game ();
   start_battle battle
 
 (* Execute the game engine. *)
