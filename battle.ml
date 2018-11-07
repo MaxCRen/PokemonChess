@@ -82,7 +82,7 @@ let calc_damage move battle =
   let other_poke = other_player battle in
   let other_poke_def = List.nth (Pokemon.get_attr other_poke) 2  in
   let type_mult = calc_effective move other_poke in
-  type_mult*.(20.*.(Moves.get_power move)*.(curr_poke_atk)/.(other_poke_def))/.50.
+  type_mult*.(20.*.(Moves.get_power move)*.1.5*.(curr_poke_atk)/.((other_poke_def)))/.50.
 
 
 (**[calc_effective move poke dam] calculates the effectiveness of move on pokemon

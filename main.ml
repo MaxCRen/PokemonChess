@@ -599,7 +599,8 @@ let rec battle_loop btl =
   if not (!player_fainted || !opp_fainted) then(
     deal_with_conditions btl;
     battle_loop btl)
-  else ()
+  else if (!player_fainted) then Battle.get_opponent btl
+  else Battle.get_player btl
 
 
 
@@ -705,26 +706,12 @@ let rec chess_loop chess_game curr_square blue_squares =
                 first_square:= not(!first_square);
                 chess_loop next_game curr_square blue_squares;
               | (Some p1, Some p2, Some new_game, loss_game) -> 
-                create_new_battle p1 p2 chess_game;
-                let player_color = (match ChessGame.get_current_player chess_game with
-                    | White -> ANSITerminal.green
-                    | Black -> ANSITerminal.red) in
-                (if (!opp_fainted) then
-                   match p2 with
-                   | King _ -> print_string "You have won the game!"; exit 0
-                   | _ -> if (player_color = ANSITerminal.green) then 
-                       fainted_red_pieces := p2::(!fainted_red_pieces) else
-                       fainted_green_pieces := p2::(!fainted_green_pieces);
-                     first_square:= not(!first_square);
-                     chess_loop new_game curr_square blue_squares
+                let fainted = create_new_battle p1 p2 chess_game in
+                (if (fainted == (Chess.pokemon_from_piece (Some p2))) then
+                   chess_loop loss_game curr_square blue_squares
                  else 
-                   match p1 with
-                   | King _ -> print_string "You have lost the game!"; exit 0
-                   | _ -> if (player_color = ANSITerminal.green) then 
-                       fainted_green_pieces := p1 ::(!fainted_green_pieces) else
-                       fainted_red_pieces := p1 ::(!fainted_red_pieces);
-                     first_square:= not(!first_square);
-                     chess_loop loss_game curr_square blue_squares
+                   first_square:= not(!first_square);
+                 chess_loop new_game curr_square blue_squares
                 )
               | _ ->
                 print_string "Invalid move! Please try again.\n\n\n";
