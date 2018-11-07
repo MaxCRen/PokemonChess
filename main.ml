@@ -704,7 +704,7 @@ let rec chess_loop chess_game curr_square blue_squares =
           (print_string "Invalid command! Please try again.\n\n\n";
            chess_loop chess_game curr_square blue_squares)
         else (
-          print_string "Move cancelled! Please select new starting square:";
+          print_string "Move cancelled! Please select new starting square:\n\n";
           first_square:= not(!first_square);
           chess_loop chess_game curr_square blue_squares)
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
