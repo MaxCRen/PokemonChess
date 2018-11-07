@@ -109,17 +109,17 @@ let ember = make_move ("Ember") (fire) (25)
 (** [get_move_names moves] is a list of the names of all moves in [moves], with
     each name in all lowercase. *)
 let get_move_names moves =
-  List.map (fun x -> Moves.get_name x) moves
+  List.map (fun x -> Moves.get_name x |> String.lowercase_ascii) moves
 
-(* placeholder pokemon until we implement battles in full *)
-let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
+(* placeholder pokemon until we implement battles in full 
+   let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
     [44.;98.;129.;56.] 
 
-let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
+   let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
     [39.;112.;93.;55.] 
 
 
-let battle = Battle.make_battle squirtle charmander
+   let battle = Battle.make_battle squirtle charmander*)
 
 let print_eff move poke = 
   match Battle.calc_effective move poke with
@@ -143,7 +143,7 @@ let rec display_moves moves =
   | h::t when ((List.length t) mod 2 = 0) -> 
     ANSITerminal.(print_string[green]("\n\t"^Moves.get_name h)); 
     (display_moves t);
-  | h::t ->  ANSITerminal.(print_string[green]("\t"^Moves.get_name h)); 
+  | h::t ->  ANSITerminal.(print_string[green]("\n\t"^Moves.get_name h)); 
     (display_moves t)
 
 
@@ -155,9 +155,6 @@ let display_status poke =
   | Some Burned -> ANSITerminal.(print_string[red] "[BUR]")
   | Some Frozen _-> ANSITerminal.(print_string[cyan] "[FRZ]")
   | _ -> ()
-
-(** *)
-let print_chess = true
 
 (** [printed btl] displays information about the battle [btl] such as the
     current Pokemon on either side, the current HP of both Pokemon,
@@ -185,11 +182,15 @@ let printed btl =
 
 (**[check_fainted bat] checks the battle for if either of the pokemon has fainted
    and then performs the correct action accordingly.*)
-let check_fainted bat = 
-  if Pokemon.get_curr_hp (Battle.get_opponent bat) <= 0 then 
-    (print_string("Your opponent has fainted!\n\n\n"); opp_fainted:=true)
-  else if Pokemon.get_curr_hp (Battle.get_player bat) <= 0 then
-    (print_string ("You have fainted!\n\n\n"); player_fainted:=true)
+let check_fainted btl = 
+  let opp_poke = Battle.get_opponent btl in
+  let curr_poke = Battle.get_player btl in
+  if Pokemon.get_curr_hp (Battle.get_opponent btl) <= 0 then 
+    (print_string("The opposing " ^ (Pokemon.get_name opp_poke) 
+                  ^ " has fainted!\n\n\n"); opp_fainted:=true)
+  else if Pokemon.get_curr_hp (Battle.get_player btl) <= 0 then
+    (print_string ("Your " ^ (Pokemon.get_name curr_poke) 
+                   ^ " has fainted!\n\n\n"); player_fainted:=true)
   else (print_string "")
 
 
@@ -252,10 +253,13 @@ let use_move move btl =
 
     printed btl;
     (if Battle.get_turn btl == Battle.get_player btl then (
-        ANSITerminal.(print_string[green] ("Your "^ poke_name^" used "^(Moves.get_name move)^"\n"));
+        ANSITerminal.(print_string[green] (poke_name ^ " used "
+                                           ^ (Moves.get_name move) ^ "!\n\n"));
         print_eff move (Battle.other_player btl); check_fainted btl;)
      else
-       ANSITerminal.(print_string[red] (poke_name^" used "^(Moves.get_name move)^"\n"));
+       ANSITerminal.(print_string[red] 
+                       ("The opposing " ^ poke_name ^ " used " 
+                        ^ (Moves.get_name move) ^ "!\n\n"));
      print_eff move (Battle.other_player btl); check_fainted btl;);
     btl |> Battle.other_player |> Battle.change_turn btl;
   )
@@ -316,11 +320,13 @@ let rec battle_loop btl =
                    Type 'Help' if you need help\n\n\n"; 
           battle_loop btl
         | Use str2 -> 
-          if List.mem str2 available_moves then
+          let lc_str = String.lowercase_ascii str2 in
+          if List.mem lc_str available_moves then
             let move_list = btl |> Battle.get_player |> Pokemon.get_moves in
-            let move = get_move_from_str move_list str2 in
+            let move = Battle.get_move_from_str move_list lc_str in
             if Battle.can_move move then
-              (ANSITerminal.erase Screen; move_turns btl str2; battle_loop btl;)
+              (ANSITerminal.erase Screen; move_turns btl lc_str; 
+               battle_loop btl;)
             else(
               print_string (str2 ^ " is out of PP!\n\n"); battle_loop btl)
           else 
@@ -334,8 +340,10 @@ let rec battle_loop btl =
   pokemon faints. (basically this was our play game() before we added the chess 
   functionanility, and we call this when one piece tries to caputer another*)
 let start_battle battle =
+  let opp_poke = Battle.get_opponent battle |> Pokemon.get_name in
   printed battle;
-  print_string "You entered a battle with a pokemon. Fight to stay alive\n";
+  print_string ("A wild " ^ opp_poke ^
+                " has appeared! Fight to stay alive! \n\n\n");
   battle_loop battle
 
 let rec chess_loop chess_game =
@@ -363,7 +371,7 @@ let rec chess_loop chess_game =
                chess_loop chess_game;
                (None, None, None, chess_game)) in
           match next_move with
-          | (Some p1, None, None, next_game) -> print_string "Next\n";
+          | (Some p1, None, None, next_game) -> print_string "";
             chess_loop next_game;
           | (Some p1, Some p2, Some new_game, loss_game) -> 
             let new_btl = Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
@@ -389,12 +397,8 @@ let rec chess_loop chess_game =
         chess_loop chess_game;
     end
 
-
-
 let play_game () = 
   chess_loop new_chess_game
-
-
 
 let main () =
   ANSITerminal.erase Screen;

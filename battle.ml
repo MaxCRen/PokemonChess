@@ -42,7 +42,7 @@ let other_player bat =
 let rec get_move_from_str move_lst move_str =
   match move_lst with 
   | [] -> raise IllegalMove
-  | h::t when Moves.get_name h = move_str -> h
+  | h::t when Moves.get_name h |> String.lowercase_ascii = move_str -> h
   | h::t -> get_move_from_str t move_str
 
 (** [can_move move] returns true if the pp for move [move] > 0 *)
