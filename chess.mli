@@ -14,6 +14,7 @@ type piece = Pawn of holder_pokemon
            | Bishop of holder_pokemon
            | Queen of holder_pokemon
            | King of holder_pokemon
+           | FakePawn of holder_pokemon
 
 (** [square] represents the square of a chess [board] indexed at the
     square's string and int. Ex: A8, H3, B7 *)
