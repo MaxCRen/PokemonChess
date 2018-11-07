@@ -62,6 +62,8 @@ val change_confusion: t -> int -> unit
 
 val change_accuracy: t -> float -> unit
 
+val get_promoted_pawn : unit -> t
+
 val get_pawn: unit -> t
 
 val get_rook: unit -> t
@@ -73,5 +75,8 @@ val get_knight: unit -> t
 val get_queen: unit -> t
 
 val get_king: unit -> t
+<<<<<<< HEAD
 
 val out_of_pp: t -> bool
+=======
+>>>>>>> 21b494227b50a7b05c4a1fe1083043f979988473
