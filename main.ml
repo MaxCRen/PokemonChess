@@ -55,7 +55,6 @@ let print_nth_of_col
   | (_, Some (Queen x), Some c, _) -> print_str_color "   Q   " c
   | (_, Some (King x), Some c, _) -> print_str_color "   K   " c
   | _ -> print_string "error, all pieces should have a color"
-
 let print_line_gaps () (r:int)=
   if r = -1 then 
     ANSITerminal.(print_string 
@@ -83,13 +82,11 @@ let rec print_row
   | [] -> print_line_gaps () r
   | col::t ->  print_nth_of_col (List.nth col r) blue_squares; 
     print_row t r blue_squares
-
 let rec print_blue_square2 () counter =
   if counter = 0 then ()
   else (ANSITerminal.(print_string [yellow] "#\n#");
         ANSITerminal.(print_string [blue] "*******");
         print_blue_square2 () (counter - 1))
-
 let rec board_helper 
     (board: ((Chess.square * Chess.piece option * 
               Chess.color option * Chess.color) list) list) (r:int)
@@ -597,10 +594,31 @@ let start_battle battle =
                 " has appeared! Fight to stay alive! \n\n\n");
   battle_loop battle
 
+let print_turn chess_game =
+   match ChessGame.get_current_player chess_game with
+  | White -> ANSITerminal.(print_string[green] "Leaf Green: ");
+  | Black -> ANSITerminal.(print_string[red] "Fire Red: ")
+
+let create_new_battle p1 p2 chess_game =
+  if ChessGame.get_current_player chess_game = White then(
+    let new_btl = 
+    Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
+    (Chess.pokemon_from_piece (Some p2)) in
+    start_battle new_btl)
+  else
+    let new_btl = 
+    Battle.make_battle (Chess.pokemon_from_piece (Some p2)) 
+    (Chess.pokemon_from_piece (Some p1)) in
+    start_battle new_btl
+
+
 let rec chess_loop chess_game curr_square blue_squares =
   player_fainted:=false;
   opp_fainted:=false;
+
   print_board (ChessGame.as_list chess_game) blue_squares (not(!first_square));
+  print_turn chess_game;
+  
   match read_line () with
   | str -> begin
       match Command.parse_phrase_chess str with
@@ -634,10 +652,7 @@ let rec chess_loop chess_game curr_square blue_squares =
                 first_square:= not(!first_square);
                 chess_loop next_game curr_square blue_squares;
               | (Some p1, Some p2, Some new_game, loss_game) -> 
-                let new_btl = 
-                  Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
-                    (Chess.pokemon_from_piece (Some p2)) in
-                start_battle new_btl;
+                create_new_battle p1 p2 chess_game;
                 (if (!opp_fainted) then
                    match p2 with
                    | King _ -> print_string "You have won the game!"; exit 0
@@ -670,8 +685,8 @@ let play_game () =
 
 let main () =
   ANSITerminal.erase Screen;
-  play_game ();
-  start_battle battle
+  play_game ()
+  (* start_battle battle *)
 
 (* Execute the game engine. *)
 let () = main ()
