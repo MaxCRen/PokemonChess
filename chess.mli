@@ -77,6 +77,11 @@ val move : game_piece -> board -> square -> board
 (** [pokemon_from_piece piece] returns the [Pokemon.t] inside of [piece] *)
 val pokemon_from_piece : piece option -> holder_pokemon
 
+(** [get_sq_pair str] is the [square] represented by [str]. 
+        Requires: [str] must represent a valid chess board coordinate (ex: ["A2"],
+        ["C8"], etc.) *)
+val get_sq_pair : string -> square
+
 (** [Game] represents an active chess_game *)
 module type Game = sig 
   type t 
@@ -95,10 +100,15 @@ module type Game = sig
       at [square1] to [square2] *)
   val move : square -> square -> t -> piece option * piece option * t option * t
 
-(** [get_moves game square] returns a list of possible moves for the piece
-    at [square], if there is any, in [game]. If there is no piece there,
-    it returns the empty list. *)
+  (** [get_moves game square] returns a list of possible moves for the piece
+      at [square], if there is any, in [game]. If there is no piece there,
+      the empty list is returned. *)
   val get_moves : t -> square -> square list
+
+  (** [is_player_square t sq] returns whether the piece on [sq] is one of the
+      pieces belonging to the current player of [t]. If there is no piece on 
+      [sq], [false] is returned. *)
+  val is_player_square : t -> square -> bool
 
   (** [as_list game] returns a list representation of [game] *)
   val as_list : t -> (square * piece option * color option * color) list list

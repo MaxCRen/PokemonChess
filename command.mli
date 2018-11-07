@@ -10,7 +10,7 @@ type battle_command =
   | Incorrect
   (** [exception] if a command is empty *)
 type chess_command = 
-  | Move of command_phrase * command_phrase
+  | Square of command_phrase
   | Incorrect
   | Quit
 exception Empty

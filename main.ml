@@ -10,6 +10,7 @@ open ChessGame
 let new_chess_game = ChessGame.new_game
 let player_fainted = ref false
 let opp_fainted = ref false
+let first_square = ref true
 
 let print_colored btl str poke=
   if poke == Battle.get_player btl then 
@@ -36,13 +37,17 @@ _________________________________________________________________________\n\n")
 
 let print_str_color str (color:Chess.color) =
   match color with 
-  |White -> ANSITerminal.(print_string [green] str)
-  |Black -> ANSITerminal.(print_string [red] str)
+  | White -> ANSITerminal.(print_string [green] str)
+  | Black -> ANSITerminal.(print_string [red] str)
 
-let print_nth_of_col (square: Chess.square * Chess.piece option * Chess.color option * Chess.color) =
+(*
+let print_nth_of_col 
+    (square: Chess.square * Chess.piece option * Chess.color option * Chess.color) 
+    (blue_squares : Chess.square list) =
   ANSITerminal.(print_string [yellow]  "#");
   match square with 
-  | (_, None, _, _) -> print_string "       "
+  | (sq, None, _, _) ->
+    print_string "       "
   | (_, Some (Pawn x), Some c, _) -> print_str_color "   P   " c
   | (_, Some (Rook x), Some c, _) -> print_str_color "   R   " c
   | (_, Some (Knight x), Some c, _) -> print_str_color "   Z   " c
@@ -58,36 +63,141 @@ let print_line_gaps () (r:int)=
                     ("#\n#       #       #       #       #       #       #       #       #\n"))
   else
     ANSITerminal.(print_string 
-                    [yellow]           ("#   "^(string_of_int (r+1))^"\n#       #       #       #       #       #       #       #       #\n"))
-
+                    [yellow] ("#   "^(string_of_int (r+1))^"\n#       #       #       #       #       #       #       #       #\n"))
+*)
 let print_border_lines () =
   ANSITerminal.(print_string [yellow]  
-                  "################################################################")
+                  "#################################################################\n")
 
 let print_letters () =
   ANSITerminal.(print_string [yellow]  
                   "\n    A       B       C       D       E       F       G       H\n\n")
 
+(*
 let rec print_row 
     (board: 
        ((Chess.square * Chess.piece option * Chess.color option * Chess.color)
-          list) list) (r:int) = 
+          list) list) (r:int)
+    (blue_squares : Chess.square list) = 
   match board with 
-  |[] -> print_line_gaps () r
-  |col::t ->  List.nth col r |> print_nth_of_col; print_row t r
+  | [] -> print_line_gaps () r
+  | col::t ->  print_nth_of_col (List.nth col r) blue_squares; 
+    print_row t r blue_squares
 
-let rec board_helper (board: ((Chess.square * Chess.piece option * Chess.color option * Chess.color) list) list) (r:int) =
+let rec print_blue_square2 () counter =
+  if counter = 0 then ()
+  else (ANSITerminal.(print_string [yellow] "#\n#");
+        ANSITerminal.(print_string [blue] "*******");
+        print_blue_square2 () (counter - 1))
+
+let rec board_helper 
+    (board: ((Chess.square * Chess.piece option * 
+              Chess.color option * Chess.color) list) list) (r:int)
+    (blue_squares : Chess.square list) =
   if r < 0 then () else
     match board with
-    |[] -> ()
-    |_::_ -> print_line_gaps () (-1); print_row board r; print_border_lines ();
-      board_helper board (r-1)
+    | [] -> ()
+    | col::_ -> (match List.nth col r with
+        | (sq, _, _, _) -> if List.mem sq blue_squares 
+          then print_blue_square2 () 3
+          else print_line_gaps () (-1));
+      print_row board r blue_squares; 
+      print_border_lines (); board_helper board (r-1) blue_squares*)
 
-let print_board (board: ((Chess.square * Chess.piece option * Chess.color option * Chess.color) list) list) =
+let print_normal_square (square: Chess.square * Chess.piece option 
+                                 * Chess.color option * Chess.color) =
+  ANSITerminal.(print_string [yellow]  "#");
+  match square with 
+  | (sq, None, _, _) -> print_string "       "
+  | (_, Some (Pawn x), Some c, _) -> print_str_color "   P   " c
+  | (_, Some (Rook x), Some c, _) -> print_str_color "   R   " c
+  | (_, Some (Knight x), Some c, _) -> print_str_color "   Z   " c
+  | (_, Some (Bishop x), Some c, _) -> print_str_color "   B   " c
+  | (_, Some (Queen x), Some c, _) -> print_str_color "   Q   " c
+  | (_, Some (King x), Some c, _) -> print_str_color "   K   " c
+  | _ -> print_string "error, all pieces should have a color"
+
+let print_blue_square (square: Chess.square * Chess.piece option 
+                               * Chess.color option * Chess.color) =
+  ANSITerminal.(print_string [yellow]  "#");
+  match square with
+  | (_, None, _, _) -> ANSITerminal.(print_string [blue] "*******");
+  | (_, Some (Pawn x), Some c, _) -> ANSITerminal.(print_string [blue] "***");
+    print_str_color "P" c;
+    ANSITerminal.(print_string [blue] "***")
+  | (_, Some (Rook x), Some c, _) -> ANSITerminal.(print_string [blue] "***");
+    print_str_color "R" c;
+    ANSITerminal.(print_string [blue] "***")
+  | (_, Some (Knight x), Some c, _) -> ANSITerminal.(print_string [blue] "***");
+    print_str_color "Z" c;
+    ANSITerminal.(print_string [blue] "***")
+  | (_, Some (Bishop x), Some c, _) -> ANSITerminal.(print_string [blue] "***");
+    print_str_color "B" c;
+    ANSITerminal.(print_string [blue] "***")
+  | (_, Some (Queen x), Some c, _) -> ANSITerminal.(print_string [blue] "***");
+    print_str_color "Q" c;
+    ANSITerminal.(print_string [blue] "***")
+  | (_, Some (King x), Some c, _) -> ANSITerminal.(print_string [blue] "***");
+    print_str_color "K" c;
+    ANSITerminal.(print_string [blue] "***")
+  | _ -> print_string "error, all pieces should have a color"
+
+let rec print_row (board: ((Chess.square * Chess.piece option 
+                            * Chess.color option * Chess.color)list) list) 
+    (r:int) (subrow:int) (blue_squares : Chess.square list) 
+    (print_blue : bool) = 
+  match board with
+  | [] -> ()
+  | col :: t -> let curr_sq = List.nth col r in
+    (match curr_sq with
+     | (sq, _, _, _) -> if print_blue && List.mem sq blue_squares 
+       then (match subrow with
+           | 1 | 3 -> ANSITerminal.(print_string [yellow] "#"); 
+             ANSITerminal.(print_string [blue] "*******");
+           | 2 -> print_blue_square curr_sq;
+           | _ -> ())
+       else (match subrow with
+           | 1 | 3 -> ANSITerminal.(print_string [yellow] "#       ");
+           | 2 -> print_normal_square curr_sq
+           | _ -> ()));
+    print_row t r subrow blue_squares print_blue
+
+let rec print_board_helper (board: ((Chess.square * Chess.piece option * 
+                                     Chess.color option * Chess.color) list) 
+                                list) (r:int)
+    (blue_squares : Chess.square list) (print_blue : bool) =
+  if r < 0 then () else (
+    print_row board r 1 blue_squares print_blue;
+    ANSITerminal.(print_string [yellow] "#\n");
+    print_row board r 2 blue_squares print_blue;
+    ANSITerminal.(print_string [yellow] ("#   " ^ (string_of_int (r+1))^ "\n"));
+    print_row board r 3 blue_squares print_blue;
+    ANSITerminal.(print_string [yellow] "#\n");
+    print_border_lines ();
+    print_board_helper board (r - 1) blue_squares print_blue)
+
+(*
+let rec board_helper 
+    (board: ((Chess.square * Chess.piece option * 
+              Chess.color option * Chess.color) list) list) (r:int)
+    (blue_squares : Chess.square list) =
+  if r < 0 then () else
+    match board with
+    | [] -> ()
+    | col::_ -> (match List.nth col r with
+        | (sq, _, _, _) -> if List.mem sq blue_squares 
+          then print_blue_square2 () 3
+          else print_line_gaps () (-1));
+      print_row board r blue_squares; 
+      print_border_lines (); board_helper board (r-1) blue_squares*)
+
+
+let print_board (board: ((Chess.square * Chess.piece option * 
+                          Chess.color option * Chess.color) list) list) 
+    (blue_squares : Chess.square list) (print_blue : bool) =
   print_logo ();
   print_border_lines ();
-  board_helper board 7;
-  ANSITerminal.(print_string[yellow] "#\n");
+  print_board_helper board 7 blue_squares print_blue;
   print_letters ()
 
 
@@ -123,15 +233,15 @@ let ember = make_move ("Ember") (fire) (25)
 let get_move_names moves =
   List.map (fun x -> Moves.get_name x |> String.lowercase_ascii) moves
 
-(* placeholder pokemon until we implement battles in full 
-   let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
+(* placeholder pokemon until we implement battles in full *)
+let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
     [44.;98.;129.;56.] 
 
-   let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
+let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
     [39.;112.;93.;55.] 
 
 
-   let battle = Battle.make_battle squirtle charmander*)
+let battle = Battle.make_battle squirtle charmander
 
 
 let print_eff move poke = 
@@ -221,15 +331,15 @@ let pause_bet_states battle func (move: Moves.t option) =
   if not (!player_fainted || !opp_fainted) then
     (print_string "Enter anything to continue";
      match move with
-     |Some m -> (
+     | Some m -> (
          match read_line () with
          |_ ->  (ANSITerminal.erase Screen; func m battle))
-     |None ->(
+     | None ->(
          match read_line () with
-         |_ -> ANSITerminal.erase Screen; printed battle))
+         | _ -> ANSITerminal.erase Screen; printed battle))
   else (print_string "Enter anything to continue";
         match read_line () with
-        |_ -> ())
+        | _ -> ())
 
 (**[check_fainted bat] checks the battle for if either of the pokemon has fainted
    and then performs the correct action accordingly.*)
@@ -415,7 +525,7 @@ let rec battle_loop btl =
              let move_list = btl |> Battle.get_player |> Pokemon.get_moves in
              let move = Battle.get_move_from_str move_list lc_str in
              if Battle.can_move move then
-               (ANSITerminal.erase Screen; move_turns btl str2; deal_with_conditions btl;
+               (ANSITerminal.erase Screen; move_turns btl lc_str; deal_with_conditions btl;
                 battle_loop btl;)
              else(
                print_string (str2 ^ " is out of PP!\n\n"); battle_loop btl)
@@ -436,61 +546,66 @@ let start_battle battle =
                 " has appeared! Fight to stay alive! \n\n\n");
   battle_loop battle
 
-let rec chess_loop chess_game =
+let rec chess_loop chess_game curr_square blue_squares =
   player_fainted:=false;
   opp_fainted:=false;
-  (ChessGame.as_list chess_game) |> print_board;
+  print_board (ChessGame.as_list chess_game) blue_squares (not(!first_square));
   match read_line () with
   | str -> begin
       match Command.parse_phrase_chess str with
       | exception Empty -> 
         print_string "Please enter a valid command:\n\n\n";
-        chess_loop chess_game;
-      | Move (cmd1,cmd2) ->
-        if Command.check_coordinate cmd1 && Command.check_coordinate cmd2 
-        then let old_square = 
-               ((Char.escaped cmd1.[0]) |> String.uppercase_ascii, 
-                Pervasives.int_of_char cmd1.[1] - 48) in
-          let new_square =
-            ((Char.escaped cmd2.[0]) |> String.uppercase_ascii, 
-             Pervasives.int_of_char cmd2.[1] - 48) in
-          let next_move = 
-            (try (ChessGame.move old_square new_square chess_game) with
-             | InvalidMove -> 
-               print_string "Invalid move! Please try again.\n\n\n";
-               chess_loop chess_game;
-               (None, None, None, chess_game)) in
-          match next_move with
-          | (Some p1, None, None, next_game) -> print_string "";
-            chess_loop next_game;
-          | (Some p1, Some p2, Some new_game, loss_game) -> 
-            let new_btl = Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
-                (Chess.pokemon_from_piece (Some p2)) in
-            (* As of now the we quit once the opponent faints, so instead we should
-               return the pokemon still alive and move that piece to the new spot *)
-            start_battle new_btl;
-            (if (!opp_fainted) then
-               match p2 with
-               | King _ -> print_string "You have won the game!"; exit 0
-               | _ -> chess_loop new_game
-             else 
-               chess_loop loss_game
-            )
-          | _ ->
-            print_string "Invalid move! Please try again.\n\n\n";
-            chess_loop chess_game;
-        else 
-          print_string "Invalid move! Please try again.\n\n\n"; 
-        chess_loop chess_game;
+        chess_loop chess_game curr_square blue_squares;
+      | Square (sq) ->
+        if (!first_square) then (
+          let sq_pair = Chess.get_sq_pair sq in
+          let potential_squares = ChessGame.get_moves chess_game sq_pair in
+          if (Command.check_coordinate sq 
+              && ChessGame.is_player_square chess_game sq_pair
+              && List.length potential_squares <> 0) then (
+            first_square:= not(!first_square);
+            chess_loop chess_game sq_pair potential_squares)
+          else (
+            print_string "Invalid square! Please try again.\n\n\n"; 
+            chess_loop chess_game curr_square blue_squares;))
+        else (let new_square =
+                Chess.get_sq_pair sq in
+              let next_move = 
+                (try (ChessGame.move curr_square new_square chess_game) with
+                 | InvalidMove -> 
+                   print_string "Invalid move! Please try again.\n\n\n";
+                   chess_loop chess_game curr_square blue_squares;
+                   (None, None, None, chess_game)) in
+              match next_move with
+              | (Some p1, None, None, next_game) -> print_string "";
+                first_square:= not(!first_square);
+                chess_loop next_game curr_square blue_squares;
+              | (Some p1, Some p2, Some new_game, loss_game) -> 
+                let new_btl = 
+                  Battle.make_battle (Chess.pokemon_from_piece (Some p1)) 
+                    (Chess.pokemon_from_piece (Some p2)) in
+                start_battle new_btl;
+                (if (!opp_fainted) then
+                   match p2 with
+                   | King _ -> print_string "You have won the game!"; exit 0
+                   | _ -> first_square:= not(!first_square);
+                     chess_loop new_game curr_square blue_squares
+                 else 
+                   first_square:= not(!first_square);
+                 chess_loop loss_game curr_square blue_squares
+                )
+              | _ ->
+                print_string "Invalid move! Please try again.\n\n\n";
+                chess_loop chess_game curr_square blue_squares;)
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
       | _ -> 
         print_string "Invalid Command - 
                   Type 'Help' if you need help\n\n\n";
-        chess_loop chess_game;
+        chess_loop chess_game curr_square blue_squares;
     end
 
 let play_game () = 
-  chess_loop new_chess_game
+  chess_loop new_chess_game ("A", 0) []
 
 let main () =
   ANSITerminal.erase Screen;

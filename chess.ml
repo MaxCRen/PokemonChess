@@ -150,28 +150,28 @@ let piece_move (piece, color, (cl, r), moved) board (cx, ry) strict =
 
 let get_castles board ((p,c,s,b) as king) = 
   let row = if c = White then 1 else 8 in
-    if not b && s = ("E",row) then 
-       (if 
-         is_free board ("D",row) &&
-         is_free board ("C",row) &&
-         is_free board ("B",row) 
-        then (
-          match get_piece board ("A",row) with
-            None -> [] | Some (rp,rc,rs,rb) -> 
-            if not rb then [("C",row)] else []
-        )
-        else [])
-       @
-       (if 
-         is_free board ("F",row) &&
-         is_free board ("G",row) 
-        then (
-          match get_piece board ("H",row) with
-            None -> [] | Some (rp,rc,rs,rb) ->
-            if not rb then [("G",row)] else []
-        )
-        else [])
-    else []
+  if not b && s = ("E",row) then 
+    (if 
+      is_free board ("D",row) &&
+      is_free board ("C",row) &&
+      is_free board ("B",row) 
+     then (
+       match get_piece board ("A",row) with
+         None -> [] | Some (rp,rc,rs,rb) -> 
+         if not rb then [("C",row)] else []
+     )
+     else [])
+    @
+    (if 
+      is_free board ("F",row) &&
+      is_free board ("G",row) 
+     then (
+       match get_piece board ("H",row) with
+         None -> [] | Some (rp,rc,rs,rb) ->
+         if not rb then [("G",row)] else []
+     )
+     else [])
+  else []
 
 let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board = 
   match piece with 
@@ -216,24 +216,24 @@ let can_move piece board square =
   List.mem square (get_moves piece board)
 
 let move (((p,c,s,b) as piece):game_piece) 
-         (board : board) (square : square) = 
-   let default = board |> remove_piece piece |> add_piece (p,c,square,b) in 
+    (board : board) (square : square) = 
+  let default = board |> remove_piece piece |> add_piece (p,c,square,b) in 
   if not b && is_king p then
     let row = if c = White then 1 else 8 in 
-      match square with 
-      | ("G",row) -> begin
+    match square with 
+    | ("G",row) -> begin
         match get_piece board ("H",row) with
         | None -> default
         | Some ((rp,rc,rs,rb) as rook) ->
-            default |> remove_piece rook |> add_piece (rp,rc,("F",row),true)
-        end 
-      | ("C",row) -> begin
-          match get_piece board ("A",row) with
-          | None -> default
-          | Some ((rp,rc,rs,rb) as rook) -> 
-             default |> remove_piece rook |> add_piece (rp,rc,("D",row),true)
-        end 
-      | _ -> default
+          default |> remove_piece rook |> add_piece (rp,rc,("F",row),true)
+      end 
+    | ("C",row) -> begin
+        match get_piece board ("A",row) with
+        | None -> default
+        | Some ((rp,rc,rs,rb) as rook) -> 
+          default |> remove_piece rook |> add_piece (rp,rc,("D",row),true)
+      end 
+    | _ -> default
   else default
 
 
@@ -242,11 +242,19 @@ let pokemon_from_piece = function
   | Some 
       (Pawn p | Rook p | Knight p | Bishop p | Queen p | King p) -> p
 
+(** [get_sq_pair str] is the [square] represented by [str]. 
+      Requires: [str] must represent a valid chess board coordinate (ex: ["A2"],
+      ["C8"], etc.) *)
+let get_sq_pair str =
+  (Char.escaped str.[0] |> String.uppercase_ascii, 
+   Pervasives.int_of_char str.[1] - 48)
+
 module type Game = sig 
   type t 
   val new_game : t
   val move : square -> square -> t -> piece option * piece option * t option * t
   val get_moves : t -> square -> square list
+  val is_player_square : t -> square -> bool
   val as_list : t -> (square * piece option * color option * color) list list
 end 
 
@@ -322,14 +330,6 @@ module ChessGame : Game = struct
 
   let get_current_board chess = chess.board
 
-(*
-  let get_contestants piece1 piece2 =
-    (get_poke piece1, get_poke piece2)*)
-
-  (** [do_battle piece1 piece2] is called when [piece1] is attempting to 
-      capture [piece2]. Successful if [piece1] defeats [piece2] in battle *)
-  let do_battle piece1 piece2 = true
-
   let move square1 square2 ({white;black;board;current_player}) = 
     let next_col = (if current_player = White then Black else White) in
     match get_piece board square1 with
@@ -374,11 +374,19 @@ module ChessGame : Game = struct
         else raise InvalidMove
       else raise InvalidMove
 
-  let get_moves ({white;black;board;current_player} as game) square = 
+  let get_moves ({white;black;board;current_player}) square = 
     match get_piece board square with
     | None -> []
     | Some ((p,c,s,b) as piece) -> 
       get_moves piece board
+
+  (** [is_player_square t square] returns whether the piece on [sq] is one of 
+      the pieces belonging to the current player of [t]. If there is no piece on 
+      [sq], [false] is returned. *)
+  let is_player_square {white;black;board;current_player} square =
+    match get_piece board square with
+    | None -> false
+    | Some (_,c,_,_) -> c = current_player
 
   let as_list ({white;black;board;current_player} : t) = 
     let rec helper builder = function 

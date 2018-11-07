@@ -10,7 +10,7 @@ type battle_command =
   | Incorrect
 
 type chess_command = 
-  | Move of command_phrase * command_phrase
+  | Square of command_phrase
   | Incorrect
   | Quit
 
@@ -20,7 +20,6 @@ exception Empty
     component parts *)
 let break_string str =
   str |> String.split_on_char ' '
-
 
 let parse_phrase_battle str = 
   match break_string str with 
@@ -37,19 +36,20 @@ let parse_phrase_battle str =
 let parse_phrase_chess str = 
   match break_string str with
   | [] -> raise Empty
-  | "move"::t -> let init_str = List.fold_left (fun acc rt -> acc ^ " " ^ rt) "" t in
-    let cmd = break_string init_str in
-    (match cmd with
-     | h :: x1 :: x2 :: [] -> Move (x1,x2)
-     | _ -> Incorrect)
-  |"quit"::t -> Quit
-  |_::_ -> Incorrect
+  | "quit" :: t -> Quit
+  | h :: [] -> if String.length h <> 2 then Incorrect else Square(h)
+  | _::_ -> Incorrect
+
+(** [in_range col h t] is whether or not the ASCII code of [col] falls 
+    within the range [h]..[t]. *)
+let in_range h t col =
+  let ascii_code = Char.code col in
+  ascii_code >= h && ascii_code <= t
 
 (** [check_coordinate coord] is whether ot not [coord] is a valid coordinate
     corresponding to a square on a chess board, in which columns are labeled
     A..H and rows are labeled 1..8. *)
 let check_coordinate coord =
   if String.length coord <> 2 then false
-  else let row_num = Pervasives.int_of_char coord.[1] - 48 in
-    List.mem (Char.lowercase_ascii coord.[0]) ['a';'b';'c';'d';'e';'f';'g';'h'] 
-    && row_num >= 1 && row_num <= 8
+  else in_range 97 104 (Char.lowercase_ascii coord.[0]) 
+       && in_range 49 56 coord.[1]
