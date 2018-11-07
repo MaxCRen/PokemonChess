@@ -152,11 +152,17 @@ let parse_side_effects eff bat dam=
   |Some effect -> apply_effect effect bat.turn (other_player bat) dam
 
 (* uses the move on poke*)
-let use_move battle move =
+let use_move battle move bool=
   let dam = battle |> calc_damage move |> Pervasives.int_of_float in 
-  deal_damage dam (other_player battle);
-  parse_side_effects (Moves.get_eff move) battle dam;
-  Moves.dec_pp move
+  if not bool then (
+    deal_damage dam (other_player battle);
+    parse_side_effects (Moves.get_eff move) battle dam;
+    Moves.dec_pp move)
+  else (
+    deal_damage (2*dam) (other_player battle);
+    parse_side_effects (Moves.get_eff move) battle (2*dam);
+    Moves.dec_pp move
+  )
 
 let change_turn battle poke = battle.turn <- poke
 
