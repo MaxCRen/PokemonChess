@@ -148,6 +148,31 @@ let piece_move (piece, color, (cl, r), moved) board (cx, ry) strict =
       else [(letter_of_int (c + cx)), r + ry]
   with InvalidSquare sq -> []
 
+let get_castles board ((p,c,s,b) as king) = 
+  let row = if c = White then 1 else 8 in
+    if not b && s = ("E",row) then 
+       (if 
+         is_free board ("D",row) &&
+         is_free board ("C",row) &&
+         is_free board ("B",row) 
+        then (
+          match get_piece board ("A",row) with
+            None -> [] | Some (rp,rc,rs,rb) -> 
+            if not rb then [("C",row)] else []
+        )
+        else [])
+       @
+       (if 
+         is_free board ("F",row) &&
+         is_free board ("G",row) 
+        then (
+          match get_piece board ("H",row) with
+            None -> [] | Some (rp,rc,rs,rb) ->
+            if not rb then [("G",row)] else []
+        )
+        else [])
+    else []
+
 let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board = 
   match piece with 
   | Pawn _ -> begin
@@ -183,14 +208,34 @@ let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board =
     let too_many = 
       get_open_diagonals board (cl, r) color @
       get_open_horizontals_and_verticals board (cl, r) color in 
-    List.filter (x_away (cl, r) (1,1)) too_many 
+    (List.filter (x_away (cl, r) (1,1)) too_many) @
+    get_castles board gamepiece 
+
 
 let can_move piece board square = 
   List.mem square (get_moves piece board)
 
 let move (((p,c,s,b) as piece):game_piece) 
          (board : board) (square : square) = 
-  board |> remove_piece piece |> add_piece (p,c,square,b)
+   let default = board |> remove_piece piece |> add_piece (p,c,square,b) in 
+  if not b && is_king p then
+    let row = if c = White then 1 else 8 in 
+      match square with 
+      | ("G",row) -> begin
+        match get_piece board ("H",row) with
+        | None -> default
+        | Some ((rp,rc,rs,rb) as rook) ->
+            default |> remove_piece rook |> add_piece (rp,rc,("F",row),true)
+        end 
+      | ("C",row) -> begin
+          match get_piece board ("A",row) with
+          | None -> default
+          | Some ((rp,rc,rs,rb) as rook) -> 
+             default |> remove_piece rook |> add_piece (rp,rc,("D",row),true)
+        end 
+      | _ -> default
+  else default
+
 
 let pokemon_from_piece = function
   | None -> failwith "no pokemon"
@@ -201,6 +246,7 @@ module type Game = sig
   type t 
   val new_game : t
   val move : square -> square -> t -> piece option * piece option * t option * t
+  val get_moves : t -> square -> square list
   val as_list : t -> (square * piece option * color option * color) list list
 end 
 
@@ -294,8 +340,7 @@ module ChessGame : Game = struct
         if List.mem square2 possible_moves then 
           let change_moved = if not moved then not moved else moved in 
           let new_board = 
-            (board |> remove_piece piece1 
-             |> add_piece (p1,c,square2,change_moved))
+            move piece1 board square2
           in
           let loss_board = remove_piece piece1 board in
           let new_game = { 
@@ -328,6 +373,12 @@ module ChessGame : Game = struct
             (Some p1, Some p2, Some new_game, loss)
         else raise InvalidMove
       else raise InvalidMove
+
+  let get_moves ({white;black;board;current_player} as game) square = 
+    match get_piece board square with
+    | None -> []
+    | Some ((p,c,s,b) as piece) -> 
+      get_moves piece board
 
   let as_list ({white;black;board;current_player} : t) = 
     let rec helper builder = function 
