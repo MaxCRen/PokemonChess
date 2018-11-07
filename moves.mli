@@ -48,7 +48,6 @@ val get_eff: t-> effects option
 if it is not a priority move*)
 val is_priority: t -> bool
 
-
 (*[has_condition move] is true if the move has a condition effect, and false
 otherwise.*)
 val has_condition: t -> bool

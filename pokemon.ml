@@ -115,88 +115,90 @@ let ghost = Ptype.make_type "Ghost" ["Psychic", 2.0]
 
 (** ALL NECESSARY POKEMON MOVES *)
 
-let thunder_shock = Moves.make_move "Thunder Shock" electric 30 "" 40. 1. 0.1 
-    false None
+let thunder_shock ()= Moves.make_move "Thunder Shock" electric 30 "" 40. 1. 0.1 
+    false (Some (Condition (Paralyzed (5), 0.05)))
 
-let thunder_wave = Moves.make_move "Thunder Wave" electric 20 
-    "Paralyzes opponent." 0. 1. 0.1 false (Some (Condition (Paralyzed 3, 1.)))
+let thunder_wave ()= Moves.make_move "Thunder Wave" electric 20 
+    "Paralyzes opponent." 0. 1. 0.1 false (Some (Condition (Paralyzed 5, 1.)))
 
-let quick_attack = Moves.make_move "Quick Attack" 
-    normal 30 "" 40. 1. 0.1 true None
+let quick_attack ()= Moves.make_move "Quick Attack" 
+    normal 30 "" 60. 1. 0.1 true None
 
-let hp_grass = Moves.make_move "Hidden Power Grass" 
+let hp_grass ()= Moves.make_move "Hidden Power Grass" 
     grass 15 "" 60. 1. 0.1 false None
 
-let hydro_pump = Moves.make_move "Hydro Pump" 
+let hydro_pump ()= Moves.make_move "Hydro Pump" 
     water 5 "" 110. 0.8 0.1 false None
 
-let work_up = Moves.make_move "Work Up" 
-    normal 30 "" 0. 0. 0. false None
+let work_up ()= Moves.make_move "Work Up" 
+    normal 30 "" 0. 0. 0. false (Some (Stats ([0.;0.5;0.5;0.], true)))
 
-let earthquake = Moves.make_move "Earthquake" 
+let earthquake ()= Moves.make_move "Earthquake" 
     ground 10 "" 100. 1. 0.1 false None
 
-let dark_pulse = Moves.make_move "Dark Pulse"
+let dark_pulse ()= Moves.make_move "Dark Pulse"
     dark 15 "" 80. 1. 0.1 false None
 
-let amnesia = Moves.make_move "Amnesia" psychic 20 "" 0. 0. 0. false None
+let amnesia ()= Moves.make_move "Amnesia" psychic 20 "" 0. 0. 0. false 
+(Some (Stats ([0.;1.;1.;0.], true)))
 
-let giga_drain = Moves.make_move "Giga Drain" 
-    grass 10 "" 75. 1. 0.1 false None
+let giga_drain ()= Moves.make_move "Giga Drain" 
+    grass 10 "" 75. 1. 0.1 false (Some (Heal(0.3, false)))
 
-let sleep_powder = Moves.make_move "Sleep Powder"
-    grass 15 "Lulls opponent to sleep." 0. 0. 0. false (Some (Condition (Sleep 3, 1.)))
+let sleep_powder ()= Moves.make_move "Sleep Powder"
+    grass 15 "Lulls opponent to sleep." 0. 0. 0. false (Some (Condition (Sleep 5, 1.)))
 
-let knock_off = Moves.make_move "Knock Off"
+let knock_off ()= Moves.make_move "Knock Off"
     dark 20 "" 65. 1. 0.1 false None
 
-let flare_blitz = Moves.make_move "Flare Blitz"
-    fire 15 "" 120. 1. 0.1 false None
+let flare_blitz ()= Moves.make_move "Flare Blitz"
+    fire 15 "" 120. 1. 0.1 false (Some (Heal(-0.10, true)))
 
-let dragon_claw = Moves.make_move "Dragon Claw" 
-    dragon 15 "" 80. 1. 0.1 false None
+let dragon_claw ()= Moves.make_move "Dragon Claw" 
+    dragon 15 "" 80. 1. 0.1 false (Some (Stats ([0.;0.;0.;1.], true)))
 
-let roost = Moves.make_move "Roost"
-    flying 10 "Restores half of user's HP" 0. 0. 0. false None
+let roost ()= Moves.make_move "Roost"
+    flying 10 "Restores half of user's HP" 0. 0. 0. false (Some (Heal(0.5, true)))
 
-let thunder = Moves.make_move "Thunder"
-    electric 10 "" 110. 0.7 0.1 false None
+let thunder ()= Moves.make_move "Thunder"
+    electric 10 "" 110. 0.7 0.1 false (Some (Condition (Paralyzed 5, 1.)))
 
-let fire_blast = Moves.make_move "Fire Blast"
-    fire 5 "" 110. 0.85 0.1 false None
+let fire_blast ()= Moves.make_move "Fire Blast"
+    fire 5 "" 110. 0.85 0.1 false (Some (Condition (Burned , 0.05)))
 
-let blizzard = Moves.make_move "Blizzard"
+let blizzard ()= Moves.make_move "Blizzard"
     ice 5 "" 110. 0.7 0.1 false None
 
-let shadow_ball = Moves.make_move "Shadow Ball"
+let shadow_ball ()= Moves.make_move "Shadow Ball"
     ghost 15 "" 80. 1. 0.1 false None
 
-let will_o_wisp = Moves.make_move "Will-o-Wisp" fire 15 
-    "Burns the opponent. Burnt Pokemon have their Attack stats cut in half." 
-    0. 0.85 0. false None
+let will_o_wisp ()= Moves.make_move "Will-o-Wisp" fire 15 
+    "Burns the opponent. Burnt Pokemon lose some HP every turn" 
+    0. 0.85 0. false (Some (Condition (Burned , 1.)))
 
-let toxic = Moves.make_move "Toxic" poison 10 
-    "Poisons the opponent. Poisoned Pokemon lose 1/8 of their HP every turn." 
-    0. 0.9 0. false None
+let toxic ()= Moves.make_move "Toxic" poison 10 
+    "Poisons the opponent. Poisoned Pokemon lose some of their HP every turn." 
+    0. 0.9 0. false (Some (Condition (Poison , 1.)))
 
-let calm_mind = Moves.make_move "Calm Mind" psychic 20 "" 0. 0. 0. false None
+let calm_mind ()= Moves.make_move "Calm Mind" psychic 20 "" 0. 0. 0. false 
+                      (Some (Stats ([0.;1.0;0.;0.], true)))
 
 (** ALL NECESSARY POKEMON *)
 let get_pawn () = make_pokemon "Pikachu" (electric, None) 
-    [thunder_shock; thunder_wave; quick_attack; hp_grass] 
+    [thunder_shock (); thunder_wave(); quick_attack(); hp_grass()] 
     [180.; 103.; 58.; 166.]
 
 let get_rook () = make_pokemon "Blastoise" (water, None) 
-    [hydro_pump; work_up; earthquake; dark_pulse] [268.; 153.; 184.; 144.]
+    [hydro_pump(); work_up(); earthquake(); dark_pulse()] [268.; 153.; 184.; 144.]
 
 let get_bishop () = make_pokemon "Venusaur" (grass, Some poison)
-    [amnesia; sleep_powder; giga_drain; knock_off] [270.; 152.; 153.; 148.]
+    [amnesia(); sleep_powder(); giga_drain(); knock_off()] [270.; 152.; 153.; 148.]
 
 let get_knight () = make_pokemon "Charizard" (fire, Some flying)
-    [flare_blitz; dragon_claw; earthquake; roost] [266.; 155.; 144.; 184.]
+    [flare_blitz(); dragon_claw(); earthquake(); roost()] [266.; 155.; 144.; 184.]
 
 let get_queen () = make_pokemon "Mewtwo" (psychic, None)
-    [thunder; fire_blast; blizzard; shadow_ball] [322.; 276.; 166.; 276.]
+    [thunder(); fire_blast(); blizzard(); shadow_ball()] [322.; 276.; 166.; 276.]
 
 let get_king () = make_pokemon "Mew" (psychic, None)
-    [will_o_wisp; toxic; giga_drain; calm_mind] [404.; 184.; 256.; 184.]
+    [will_o_wisp(); toxic(); giga_drain(); calm_mind()] [404.; 184.; 256.; 184.]
