@@ -706,23 +706,31 @@ let rec chess_loop chess_game curr_square blue_squares =
                 first_square:= not(!first_square);
                 chess_loop next_game curr_square blue_squares;
               | (Some p1, Some p2, Some new_game, loss_game) -> 
+                let player_color = (match ChessGame.get_current_player chess_game with
+                    | White -> ANSITerminal.green
+                    | Black -> ANSITerminal.red) in
                 let survive = create_new_battle p1 p2 chess_game in
-
                 (if (survive == (Chess.pokemon_from_piece (Some p2))) then
-                    if (Chess.pokemon_from_piece (Some p1) |> Pokemon.get_name = "Mew") then
-                    ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Green" else "Red") ^ " has lost the game!")); 
-                    exit 0;)
-                    else 
-                    (first_square:= not(!first_square);
-                     chess_loop loss_game curr_square blue_squares)
+                   if (Chess.pokemon_from_piece (Some p1) |> Pokemon.get_name = "Mew") then
+                     ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Green" else "Red") ^ " has lost the game!")); 
+                      exit 0;)
+                   else (
+                     if (player_color = ANSITerminal.green) then 
+                       fainted_green_pieces := p1 ::(!fainted_green_pieces) else
+                       fainted_red_pieces := p1 ::(!fainted_red_pieces);
+                     (first_square:= not(!first_square);
+                      chess_loop loss_game curr_square blue_squares))
                  else 
-                   if (Chess.pokemon_from_piece (Some p2) |> Pokemon.get_name = "Mew") then
-                    ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Red" else "Green") ^ " has lost game!")); 
+                 if (Chess.pokemon_from_piece (Some p2) |> Pokemon.get_name = "Mew") then
+                   ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Red" else "Green") ^ " has lost game!")); 
                     exit 0;)
-                    else 
-                    (first_square:= not(!first_square);
-                     chess_loop new_game curr_square blue_squares)
-                )
+                 else (
+                   if (player_color = ANSITerminal.green) then 
+                     fainted_red_pieces := p2::(!fainted_red_pieces) else
+                     fainted_green_pieces := p2::(!fainted_green_pieces);
+                   (first_square:= not(!first_square);
+                    chess_loop new_game curr_square blue_squares)
+                 ))
               | _ ->
                 print_string "Invalid move! Please try again.\n\n\n";
                 chess_loop chess_game curr_square blue_squares;)
