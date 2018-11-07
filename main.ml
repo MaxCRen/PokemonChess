@@ -11,6 +11,8 @@ let new_chess_game = ChessGame.new_game
 let player_fainted = ref false
 let opp_fainted = ref false
 let first_square = ref true
+let fainted_green_pieces = ref []
+let fainted_red_pieces = ref []
 
 let print_colored btl str poke=
   if poke == Battle.get_player btl then 
@@ -188,13 +190,30 @@ let rec board_helper
       print_row board r blue_squares; 
       print_border_lines (); board_helper board (r-1) blue_squares*)
 
+let rec print_fainted_pieces piece_lst color =
+  match piece_lst with
+  | [] -> ANSITerminal.(print_string [red] "\n")
+  | h :: t -> (match h with
+      | Pawn _ -> ANSITerminal.(print_string [color] "P   ")
+      | Rook _ -> ANSITerminal.(print_string [color] "R   ")
+      | Knight _ -> ANSITerminal.(print_string [color] "Z   ")
+      | Bishop _ -> ANSITerminal.(print_string [color] "B   ")
+      | Queen _ -> ANSITerminal.(print_string [color] "Q   ")
+      | King _ -> ANSITerminal.(print_string [color] "K   ")
+      | _ -> ANSITerminal.(print_string [color] ""));
+    print_fainted_pieces t color
+
 
 let print_board (board: ((Chess.square * Chess.piece option * 
                           Chess.color option * Chess.color) list) list) 
     (blue_squares : Chess.square list) (print_blue : bool) =
   print_logo ();
+  ANSITerminal.(print_string [red] "Fainted pieces: ");
+  print_fainted_pieces (!fainted_red_pieces) ANSITerminal.red;
   print_border_lines ();
   print_board_helper board 7 blue_squares print_blue;
+  ANSITerminal.(print_string [green] "Fainted pieces: ");
+  print_fainted_pieces (!fainted_green_pieces) ANSITerminal.green;
   print_letters ()
 
 
@@ -687,6 +706,7 @@ let rec chess_loop chess_game curr_square blue_squares =
                 first_square:= not(!first_square);
                 chess_loop next_game curr_square blue_squares;
               | (Some p1, Some p2, Some new_game, loss_game) -> 
+<<<<<<< HEAD
                 let survive = create_new_battle p1 p2 chess_game in
 
                 (if (survive == (Chess.pokemon_from_piece (Some p2))) then
@@ -696,6 +716,11 @@ let rec chess_loop chess_game curr_square blue_squares =
                     else 
                     (first_square:= not(!first_square);
                      chess_loop loss_game curr_square blue_squares)
+=======
+                let fainted = create_new_battle p1 p2 chess_game in
+                (if (fainted == (Chess.pokemon_from_piece (Some p2))) then
+                   chess_loop loss_game curr_square blue_squares
+>>>>>>> d3afe0640e29b4cc586dd2928332317624f5d983
                  else 
                    if (Chess.pokemon_from_piece (Some p2) |> Pokemon.get_name = "Mew") then
                     ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Red" else "Green") ^ " has lost game!")); 
