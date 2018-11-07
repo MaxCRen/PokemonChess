@@ -706,7 +706,6 @@ let rec chess_loop chess_game curr_square blue_squares =
                 first_square:= not(!first_square);
                 chess_loop next_game curr_square blue_squares;
               | (Some p1, Some p2, Some new_game, loss_game) -> 
-<<<<<<< HEAD
                 let survive = create_new_battle p1 p2 chess_game in
 
                 (if (survive == (Chess.pokemon_from_piece (Some p2))) then
@@ -716,11 +715,6 @@ let rec chess_loop chess_game curr_square blue_squares =
                     else 
                     (first_square:= not(!first_square);
                      chess_loop loss_game curr_square blue_squares)
-=======
-                let fainted = create_new_battle p1 p2 chess_game in
-                (if (fainted == (Chess.pokemon_from_piece (Some p2))) then
-                   chess_loop loss_game curr_square blue_squares
->>>>>>> d3afe0640e29b4cc586dd2928332317624f5d983
                  else 
                    if (Chess.pokemon_from_piece (Some p2) |> Pokemon.get_name = "Mew") then
                     ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Red" else "Green") ^ " has lost game!")); 

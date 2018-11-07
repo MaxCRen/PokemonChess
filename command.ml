@@ -5,7 +5,6 @@ type command_phrase = string
 type battle_command = 
   | Use of command_phrase
   | Help
-  | Info of command_phrase
   | Quit
   | Incorrect
 
@@ -28,8 +27,6 @@ let parse_phrase_battle str =
   | "use"::t when List.length t >= 1 ->
     let init_str = List.fold_left (fun acc rt -> acc ^ " " ^ rt) "" t in
     Use(String.sub init_str 1 ((String.length init_str) - 1))
-  | "info"::t -> 
-    Info(List.fold_left (fun acc rt -> acc ^ "" ^ rt) "" t)
   | "help"::t  -> Help
   | "quit"::t -> Quit
   | _::_ -> Incorrect

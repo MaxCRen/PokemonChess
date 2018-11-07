@@ -5,7 +5,6 @@ type command_phrase = string
 type battle_command = 
   | Use of command_phrase
   | Help
-  | Info of command_phrase
   | Quit
   | Incorrect
   (** [exception] if a command is empty *)

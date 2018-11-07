@@ -78,7 +78,7 @@ let remove_fake_pawns board : board=
         List.map (fun (row, ((c, pieceopt)) as bsq) ->
             match pieceopt with
             | None -> bsq
-            | Some ((piece,color,square,moved) as p) -> 
+            | Some ((piece,color,square,moved)) -> 
               if is_fake_pawn piece then (row, (c, None))
               else bsq 
           ) column
@@ -178,7 +178,7 @@ let piece_move (piece, color, (cl, r), moved) board (cx, ry) strict =
       else [(letter_of_int (c + cx)), r + ry]
   with InvalidSquare sq -> []
 
-let get_castles board ((p,c,s,b) as king) = 
+let get_castles board ((p,c,s,b)) = 
   let row = if c = White then 1 else 8 in
   if not b && s = ("E",row) then 
     (if 
