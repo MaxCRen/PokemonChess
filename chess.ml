@@ -277,7 +277,6 @@ let move (((p,c,s,b) as piece):game_piece)
                 |> remove_piece piece 
                 |> add_piece (p,c,square,true) in 
   if not b && is_king p then
-    let row = if c = White then 1 else 8 in 
     match square with 
     | ("G",row) -> begin
         match get_piece fixed_board ("H",row) with
@@ -292,13 +291,20 @@ let move (((p,c,s,b) as piece):game_piece)
           default |> remove_piece rook |> add_piece (rp,rc,("D",row),true)
       end 
     | _ -> default
-  else if not b && (is_pawn p) && (nc, nr + (~-multiplier * 2)) = s then 
-    (print_endline "adding fake pawn";
-     default |> add_piece 
-       ((FakePawn (pokemon_from_piece (Some p)),
-         c,(nc, nr + (~-multiplier)),false)) )
+  else if (is_pawn p) then
+    let row = if c = White then 8 else 1 in 
+    if not b && (nc, nr + (~-multiplier * 2)) = s then 
+      (default |> add_piece 
+         ((FakePawn (pokemon_from_piece (Some p)),
+           c,(nc, nr + (~-multiplier)),false)))
+    else if (nc,row) = square then
+      fixed_board
+      |> remove_fake_pawns
+      |> remove_piece piece
+      |> add_piece (Queen (Pokemon.get_promoted_pawn ()),c,square,true)
+    else default
 
-  else (print_endline ("is_pawn := "^ (string_of_bool (is_pawn p)) ^ "\n not b := " ^(string_of_bool (not b)) ^ "\n"^(nc) ^ (string_of_int (nr + (~-multiplier * 2)))); default)
+  else  default
 
 (** [get_sq_pair str] is the [square] represented by [str]. 
       Requires: [str] must represent a valid chess board coordinate (ex: ["A2"],

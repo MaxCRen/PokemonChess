@@ -183,9 +183,25 @@ let toxic ()= Moves.make_move "Toxic" poison 10
 let calm_mind ()= Moves.make_move "Calm Mind" psychic 20 "" 0. 1. 0. false 
     (Some (Stats ([0.;1.0;0.;0.], true)))
 
+let thunder_bolt() = Moves.make_move "Thunder Bolt" electric 15 
+"Hurts the opponent, chance of paralyzing" 100. 0.9 0.1 false (Some (Condition (Paralyzed (4), 0.35)))
+
+let surf() = Moves.make_move "Surf" water 15 "Damages opponent" 80. 0.9 0.1 false
+None
+
+let hyper_beam() = Moves.make_move "Hyper Beam" normal 5 "Damages Opponent" 
+100. 0.9 0.1 false None
+
+let focus_blast() = Moves.make_move "Focus Blast" normal 10 "Damages Opponent"
+30. 0.9 0.1 false None
+
 (** ALL NECESSARY POKEMON *)
+let get_promoted_pawn() = make_pokemon "Raichu" (electric, None) 
+    [thunder_bolt (); thunder_wave(); quick_attack(); hp_grass()] 
+    [230.; 177.; 103.; 190.]
+
 let get_pawn () = make_pokemon "Pikachu" (electric, None) 
-    [thunder_shock (); thunder_wave(); quick_attack(); hp_grass()] 
+    [thunder_shock (); surf(); hyper_beam(); focus_blast()] 
     [180.; 103.; 58.; 166.]
 
 let get_rook () = make_pokemon "Blastoise" (water, None) 
