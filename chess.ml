@@ -224,20 +224,20 @@ let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board =
            else []
          )
        else [] )
-(*      (if moved then 
-        if is_free board (cl, r+(multiplier *1)) then
-          piece_move gamepiece board (0,(multiplier * 1)) false 
-        else []
-      else  
-        if is_free board (cl, r+(multiplier *1)) 
-        && is_free board (cl, r+(multiplier *2)) then 
-          piece_move gamepiece board (0,(multiplier * 1)) false
-          @
-          piece_move gamepiece board (0,(multiplier * 2)) false
-        else []
-       )*)
-       @
-       corners
+      (*      (if moved then 
+              if is_free board (cl, r+(multiplier *1)) then
+                piece_move gamepiece board (0,(multiplier * 1)) false 
+              else []
+              else  
+              if is_free board (cl, r+(multiplier *1)) 
+              && is_free board (cl, r+(multiplier *2)) then 
+                piece_move gamepiece board (0,(multiplier * 1)) false
+                @
+                piece_move gamepiece board (0,(multiplier * 2)) false
+              else []
+              )*)
+      @
+      corners
     end 
   | Rook _ -> get_open_horizontals_and_verticals board (cl,r) color
   | Knight _ -> 
