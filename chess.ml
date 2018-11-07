@@ -9,6 +9,7 @@ type piece =
   | Bishop of holder_pokemon
   | Queen of holder_pokemon
   | King of holder_pokemon
+  | FakePawn of holder_pokemon
 type square = string * int
 type game_piece = piece * color * square * bool 
 type column = (int * (color * game_piece option)) list
@@ -62,6 +63,27 @@ let add_piece piece board =
 
 let remove_piece piece board = change_board_at_piece_square piece None board
 
+(** [is_king piece] returns [true] if [piece] is a king *)
+let is_king = function King _  -> true | _ -> false 
+
+(** [is_pawn piece] returns [true] if [piece] is a Pawn *)
+let is_pawn = function Pawn _ -> true | _ -> false
+
+(** [is_fake_pawn piece] returns [true] if [piece] is a fake Pawn *)
+let is_fake_pawn = function FakePawn _ -> true | _ -> false
+
+let remove_fake_pawns board : board= 
+  List.map (fun (ltr, column) ->
+      ( ltr,
+        List.map (fun (row, ((c, pieceopt)) as bsq) ->
+            match pieceopt with
+            | None -> bsq
+            | Some ((piece,color,square,moved) as p) -> 
+              if is_fake_pawn piece then (row, (c, None))
+              else bsq 
+          ) column
+      )) board
+
 (** [update_piece piece square b] returns an updated game piece 
     based on piece *)
 let update_piece (p,c,s,b) square bo = (p,c,square,bo)
@@ -80,9 +102,6 @@ let can_capture (piece1, color1, _, _) (piece2, color2, _, _) =
   match piece2 with
   | King _ -> false
   | _ -> color1 <> color2
-
-(** [is_king piece] returns true if [piece] is a king *)
-let is_king = function King _  -> true | _ -> false 
 
 (** [get_next_square slope acc square board] gets the open alleyway in [board]
     with respect to [square] based on [slope]. [acc] stores the resulting
@@ -230,37 +249,56 @@ let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board =
       get_open_horizontals_and_verticals board (cl, r) color in 
     (List.filter (x_away (cl, r) (1,1)) too_many) @
     get_castles board gamepiece 
+  | FakePawn _ -> []
 
 
 let can_move piece board square = 
   List.mem square (get_moves piece board)
 
+let pokemon_from_piece = function
+  | None -> failwith "no pokemon"
+  | Some 
+      (Pawn p | Rook p | Knight p | 
+       Bishop p | Queen p | King p | FakePawn p) -> p
+
+
 let move (((p,c,s,b) as piece):game_piece) 
-    (board : board) (square : square) = 
-  let default = board |> remove_piece piece |> add_piece (p,c,square,b) in 
+    (board : board) (((nc,nr) as square) : square) = 
+  let multiplier = if c = White then 1 else -1 in 
+  let fixed_board = begin
+    match get_piece board square with
+    | None -> board
+    | Some ((p,_,_,_)) when (is_fake_pawn p) -> 
+        board |> remove_piece (p,c,(nc, (nr + ~-multiplier)),b)
+    | _ -> board
+  end in 
+  let default = fixed_board 
+                |> remove_fake_pawns 
+                |> remove_piece piece 
+                |> add_piece (p,c,square,true) in 
   if not b && is_king p then
     let row = if c = White then 1 else 8 in 
     match square with 
     | ("G",row) -> begin
-        match get_piece board ("H",row) with
+        match get_piece fixed_board ("H",row) with
         | None -> default
         | Some ((rp,rc,rs,rb) as rook) ->
           default |> remove_piece rook |> add_piece (rp,rc,("F",row),true)
       end 
     | ("C",row) -> begin
-        match get_piece board ("A",row) with
+        match get_piece fixed_board ("A",row) with
         | None -> default
         | Some ((rp,rc,rs,rb) as rook) -> 
           default |> remove_piece rook |> add_piece (rp,rc,("D",row),true)
       end 
     | _ -> default
-  else default
+  else if not b && (is_pawn p) && (nc, nr + (~-multiplier * 2)) = s then 
+    (print_endline "adding fake pawn";
+    default |> add_piece 
+      ((FakePawn (pokemon_from_piece (Some p)),
+      c,(nc, nr + (~-multiplier)),false)) )
 
-
-let pokemon_from_piece = function
-  | None -> failwith "no pokemon"
-  | Some 
-      (Pawn p | Rook p | Knight p | Bishop p | Queen p | King p) -> p
+  else (print_endline ("is_pawn := "^ (string_of_bool (is_pawn p)) ^ "\n not b := " ^(string_of_bool (not b)) ^ "\n"^(nc) ^ (string_of_int (nr + (~-multiplier * 2)))); default)
 
 (** [get_sq_pair str] is the [square] represented by [str]. 
       Requires: [str] must represent a valid chess board coordinate (ex: ["A2"],
@@ -361,9 +399,8 @@ module ChessGame : Game = struct
       if current_player = c then
         let possible_moves = get_moves piece1 board in 
         if List.mem square2 possible_moves then 
-          let change_moved = if not moved then not moved else moved in 
           let new_board = 
-            move (p1,c,(c1,r1),change_moved) board square2
+            move (p1,c,(c1,r1),moved) board square2
           in
           let loss_board = remove_piece piece1 board in
           let new_game = { 
@@ -422,7 +459,9 @@ module ChessGame : Game = struct
               fun (num, (color, piece)) ->
                 match piece with
                 | None -> ((s,num),None, None, color)
-                | Some (p,c,sq,b) -> (sq, Some p, Some c, color)
+                | Some (p,c,sq,b) when not (is_fake_pawn p) ->
+                    (sq, Some p, Some c, color)
+                | _ -> ((s,num), None, None, color)
             ) c 
           )
             :: builder) t in 
