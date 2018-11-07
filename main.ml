@@ -578,10 +578,10 @@ let rec battle_loop btl =
   pokemon faints. (basically this was our play game() before we added the chess 
   functionanility, and we call this when one piece tries to caputer another*)
 let start_battle battle =
-  (* let opp_poke = Battle.get_opponent battle |> Pokemon.get_name in
-     printed battle;
-     print_string ("A wild " ^ opp_poke ^
-                " has appeared! Fight to stay alive! \n\n\n"); *)
+  let opp_poke = Battle.get_opponent battle |> Pokemon.get_name in
+  (*printed battle;*)
+  print_string ("A wild " ^ opp_poke ^
+                " has appeared! Fight to stay alive! \n\n\n");
   battle_loop battle
 
 let rec chess_loop chess_game curr_square blue_squares =
@@ -637,6 +637,14 @@ let rec chess_loop chess_game curr_square blue_squares =
               | _ ->
                 print_string "Invalid move! Please try again.\n\n\n";
                 chess_loop chess_game curr_square blue_squares;)
+      | Cancel -> 
+        if (!first_square) then 
+          (print_string "Invalid command! Please try again.\n\n\n";
+           chess_loop chess_game curr_square blue_squares)
+        else (
+          print_string "Move cancelled! Please select new starting square:";
+          first_square:= not(!first_square);
+          chess_loop chess_game curr_square blue_squares)
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
       | _ -> 
         print_string "Invalid Command - 

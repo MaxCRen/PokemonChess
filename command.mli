@@ -11,6 +11,7 @@ type battle_command =
   (** [exception] if a command is empty *)
 type chess_command = 
   | Square of command_phrase
+  | Cancel
   | Incorrect
   | Quit
 exception Empty

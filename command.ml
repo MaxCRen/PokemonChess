@@ -11,6 +11,7 @@ type battle_command =
 
 type chess_command = 
   | Square of command_phrase
+  | Cancel
   | Incorrect
   | Quit
 
@@ -36,6 +37,7 @@ let parse_phrase_battle str =
 let parse_phrase_chess str = 
   match break_string str with
   | [] -> raise Empty
+  | "cancel" :: t -> Cancel
   | "quit" :: t -> Quit
   | h :: [] -> if String.length h <> 2 then Incorrect else Square(h)
   | _::_ -> Incorrect
