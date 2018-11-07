@@ -146,7 +146,7 @@ let giga_drain ()= Moves.make_move "Giga Drain"
     grass 10 "" 75. 1. 0.1 false (Some (Heal(0.3, false)))
 
 let sleep_powder ()= Moves.make_move "Sleep Powder"
-    grass 15 "Lulls opponent to sleep." 0. 0. 0. false (Some (Condition (Sleep 5, 1.)))
+    grass 8 "Lulls opponent to sleep." 0. 0. 0. false (Some (Condition (Sleep 3, 1.)))
 
 let knock_off ()= Moves.make_move "Knock Off"
     dark 20 "" 65. 1. 0.1 false None

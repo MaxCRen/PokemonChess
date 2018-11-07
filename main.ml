@@ -107,8 +107,8 @@ let fire = make_type "fire" [("fire", 0.5);("water", 0.5)]
 let bubble = make_move ("Bubble") (water) (25) 
     ("Does damage") (5.) (1.) (0.10) false (Some (Heal(-0.1, true)))
 
-let random2 = make_move ("Paralyze") (water) (25) 
-    ("Does damage") (0.) (1.) (0.) false (Some (Condition (Paralyzed (5), 1.)))
+let random2 = make_move ("Sleep") (water) (25) 
+    ("Does damage") (0.) (1.) (0.) false (Some (Condition (Sleep (5), 1.)))
 
 let inc_stats = make_move ("incr") (water) (25) ("stuff") (0.)
     (1.) (0.) false (Some (Stats ([0.; 0.5; 0.5; 0.5], true)))
@@ -123,15 +123,15 @@ let ember = make_move ("Ember") (fire) (25)
 let get_move_names moves =
   List.map (fun x -> Moves.get_name x |> String.lowercase_ascii) moves
 
-(* placeholder pokemon until we implement battles in full 
-   let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
-    [44.;98.;129.;56.] 
+(* placeholder pokemon until we implement battles in full *)
+let squirtle = Pokemon.make_pokemon "Squirtle" (water, None) [bubble; random2] 
+[44.;98.;129.;56.] 
 
-   let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
-    [39.;112.;93.;55.] 
+let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember]
+[39.;112.;93.;55.] 
 
 
-   let battle = Battle.make_battle squirtle charmander*)
+let battle = Battle.make_battle squirtle charmander 
 
 
 let print_eff move poke = 
@@ -272,7 +272,8 @@ let conditions_helper bat poke status =
    | Sleep x -> if x - 1 = 0 then 
        (print_colored bat ((Pokemon.get_name poke)^" woke up!\n") poke;
         Pokemon.change_status poke None)
-     else Pokemon.change_status poke (Some (Sleep (x-1)))
+     else (Pokemon.change_status poke (Some (Sleep (x-1)));
+     print_colored bat ((Pokemon.get_name poke)^" is fast asleep\n") poke)
    | Burned ->  Battle.deal_damage (Pervasives.int_of_float (0.05*.max_health)) poke;
      ANSITerminal.erase Screen;
      printed bat;
@@ -336,13 +337,17 @@ let use_move move btl =
       (match Pokemon.get_status pokemon with
        | Some Paralyzed x-> if chances_of 0.25 then (
            printed btl;
-           print_string (poke_name^" is paralyzed and can not move!\n");
+           print_colored btl (poke_name^" is paralyzed and can not move!\n") pokemon;
            btl |> Battle.other_player |> Battle.change_turn btl)
          else use_move_helper btl move poke_name
+        | Some Sleep x-> (
+           printed btl;
+           print_colored btl (poke_name^" is asleep and can't move!\n") pokemon;
+           btl |> Battle.other_player |> Battle.change_turn btl)
        | _ -> use_move_helper btl move poke_name; print_side_eff pokemon move op_pokemon)
     else if (Moves.get_power move = 0. && Moves.has_condition move) 
     then 
-      (printed battle; print_colored btl (poke_name^" used "^(Moves.get_name) move^"\n") (Battle.get_turn btl);
+      (printed btl; print_colored btl (poke_name^" used "^(Moves.get_name) move^"\n") (Battle.get_turn btl);
        print_string "It failed.\n\n"; Moves.dec_pp move;btl |> Battle.other_player |> Battle.change_turn btl)
     else use_move_helper btl move poke_name
 
@@ -415,7 +420,7 @@ let rec battle_loop btl =
              let move_list = btl |> Battle.get_player |> Pokemon.get_moves in
              let move = Battle.get_move_from_str move_list lc_str in
              if Battle.can_move move then
-               (ANSITerminal.erase Screen; move_turns btl str2; deal_with_conditions btl;
+               (ANSITerminal.erase Screen; move_turns btl lc_str; deal_with_conditions btl;
                 battle_loop btl;)
              else(
                print_string (str2 ^ " is out of PP!\n\n"); battle_loop btl)
@@ -494,7 +499,7 @@ let play_game () =
 
 let main () =
   ANSITerminal.erase Screen;
-  play_game ();
+  (* play_game () *)
   start_battle battle
 
 (* Execute the game engine. *)
