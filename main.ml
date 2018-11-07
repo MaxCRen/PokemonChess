@@ -544,7 +544,6 @@ let rec get_move btl pokemon=
         ANSITerminal.erase Above;
         print_string "Please enter a valid command\n\n\n"; get_move btl pokemon
       | Help -> print_help (); get_move btl pokemon
-      | Info str2-> print_string "unimplemented\n\n\n"; get_move btl pokemon
       | Incorrect ->  
         print_string "Invalid Command - 
                    Type 'Help' if you need help\n\n\n"; 
@@ -643,6 +642,7 @@ let print_attributes chess_game curr_square =
   print_attributes_helper (Pokemon.get_curr_hp curr_poke) 
     (Pokemon.get_attr curr_poke) text_color 1
 
+
 (** [chess_loop chess_game curr_square blue_squares] controls the main loop
     of the [chess_game] by switching turns, moving pieces, highlighting 
     the squares in [blue_squares] to show where a selected piece is permitted
@@ -687,12 +687,22 @@ let rec chess_loop chess_game curr_square blue_squares =
                 first_square:= not(!first_square);
                 chess_loop next_game curr_square blue_squares;
               | (Some p1, Some p2, Some new_game, loss_game) -> 
-                let fainted = create_new_battle p1 p2 chess_game in
-                (if (fainted == (Chess.pokemon_from_piece (Some p2))) then
-                     chess_loop loss_game curr_square blue_squares
+                let survive = create_new_battle p1 p2 chess_game in
+
+                (if (survive == (Chess.pokemon_from_piece (Some p2))) then
+                    if (Chess.pokemon_from_piece (Some p1) |> Pokemon.get_name = "Mew") then
+                    ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Green" else "Red") ^ " has lost the game!")); 
+                    exit 0;)
+                    else 
+                    (first_square:= not(!first_square);
+                     chess_loop loss_game curr_square blue_squares)
                  else 
-                   first_square:= not(!first_square);
-                 chess_loop new_game curr_square blue_squares
+                   if (Chess.pokemon_from_piece (Some p2) |> Pokemon.get_name = "Mew") then
+                    ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Red" else "Green") ^ " has lost game!")); 
+                    exit 0;)
+                    else 
+                    (first_square:= not(!first_square);
+                     chess_loop new_game curr_square blue_squares)
                 )
               | _ ->
                 print_string "Invalid move! Please try again.\n\n\n";
