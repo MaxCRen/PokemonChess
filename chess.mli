@@ -95,6 +95,11 @@ module type Game = sig
       at [square1] to [square2] *)
   val move : square -> square -> t -> piece option * piece option * t option * t
 
+(** [get_moves game square] returns a list of possible moves for the piece
+    at [square], if there is any, in [game]. If there is no piece there,
+    it returns the empty list. *)
+  val get_moves : t -> square -> square list
+
   (** [as_list game] returns a list representation of [game] *)
   val as_list : t -> (square * piece option * color option * color) list list
 

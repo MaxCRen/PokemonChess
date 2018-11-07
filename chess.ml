@@ -149,12 +149,29 @@ let piece_move (piece, color, (cl, r), moved) board (cx, ry) strict =
   with InvalidSquare sq -> []
 
 let get_castles board ((p,c,s,b) as king) = 
-  if not b then 
-    let row = if c = White then 1 else 8 in
-     (if is_free board ("C",row) then [("C",row)] else [])
-     @
-     (if is_free board ("G",row) then [("G",row)] else [])
-  else []
+  let row = if c = White then 1 else 8 in
+    if not b && s = ("E",row) then 
+       (if 
+         is_free board ("D",row) &&
+         is_free board ("C",row) &&
+         is_free board ("B",row) 
+        then (
+          match get_piece board ("A",row) with
+            None -> [] | Some (rp,rc,rs,rb) -> 
+            if not rb then [("C",row)] else []
+        )
+        else [])
+       @
+       (if 
+         is_free board ("F",row) &&
+         is_free board ("G",row) 
+        then (
+          match get_piece board ("H",row) with
+            None -> [] | Some (rp,rc,rs,rb) ->
+            if not rb then [("G",row)] else []
+        )
+        else [])
+    else []
 
 let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board = 
   match piece with 
@@ -203,28 +220,18 @@ let move (((p,c,s,b) as piece):game_piece)
    let default = board |> remove_piece piece |> add_piece (p,c,square,b) in 
   if not b && is_king p then
     let row = if c = White then 1 else 8 in 
-    print_endline "in here";
       match square with 
       | ("G",row) -> begin
         match get_piece board ("H",row) with
         | None -> default
-        | Some ((rp,rc,rs,rb) as rook) when not rb ->
-          print_endline "in here";
-          if can_move rook board ("G",row) && can_move rook board ("F",row) then 
+        | Some ((rp,rc,rs,rb) as rook) ->
             default |> remove_piece rook |> add_piece (rp,rc,("F",row),true)
-          else default
-        | _ -> default
-      end 
+        end 
       | ("C",row) -> begin
           match get_piece board ("A",row) with
           | None -> default
-          | Some ((rp,rc,rs,rb) as rook) when not rb -> 
-            if can_move rook board ("B",row)
-               && can_move rook board ("C",row)
-               && can_move rook board ("D",row)
-            then default |> remove_piece rook |> add_piece (rp,rc,("D",row),true)
-            else default
-          | _ -> default
+          | Some ((rp,rc,rs,rb) as rook) -> 
+             default |> remove_piece rook |> add_piece (rp,rc,("D",row),true)
         end 
       | _ -> default
   else default
@@ -239,6 +246,7 @@ module type Game = sig
   type t 
   val new_game : t
   val move : square -> square -> t -> piece option * piece option * t option * t
+  val get_moves : t -> square -> square list
   val as_list : t -> (square * piece option * color option * color) list list
 end 
 
@@ -365,6 +373,12 @@ module ChessGame : Game = struct
             (Some p1, Some p2, Some new_game, loss)
         else raise InvalidMove
       else raise InvalidMove
+
+  let get_moves ({white;black;board;current_player} as game) square = 
+    match get_piece board square with
+    | None -> []
+    | Some ((p,c,s,b) as piece) -> 
+      get_moves piece board
 
   let as_list ({white;black;board;current_player} : t) = 
     let rec helper builder = function 
