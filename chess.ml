@@ -113,6 +113,20 @@ let get_open_diagonals board square color =
       (get_next_square color (1, -1) [] square board)
     ] 
 
+let get_open_horizontals board square color = 
+  List.flatten
+    [
+      (get_next_square color (0,1) [] square board);
+      (get_next_square color (0,-1) [] square board)
+    ]
+
+let get_open_verticals board square color = 
+  List.flatten 
+    [
+      (get_next_square color (1,0) [] square board);
+      (get_next_square color (-1,0) [] square board)
+    ]
+
 (** [get_open_horizontals_and_verticals board square color] returns the 
     horizontals and verticals  centered at [square] on [board], up to and
     including any pieces in the path *) 
@@ -181,14 +195,20 @@ let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board =
         piece_move gamepiece board (1,(multiplier * 1)) true
         @
         piece_move gamepiece board (-1,(multiplier * 1)) true in 
-      if moved then 
-        piece_move gamepiece board (0,(multiplier * 1)) false @ corners
+      (if moved then 
+        if is_free board (cl, r+(multiplier *1)) then
+          piece_move gamepiece board (0,(multiplier * 1)) false 
+        else []
       else  
-        piece_move gamepiece board (0,(multiplier * 1)) false
-        @
-        piece_move gamepiece board (0,(multiplier * 2)) false
-        @
-        corners
+        if is_free board (cl, r+(multiplier *1)) 
+        && is_free board (cl, r+(multiplier *2)) then 
+          piece_move gamepiece board (0,(multiplier * 1)) false
+          @
+          piece_move gamepiece board (0,(multiplier * 2)) false
+        else []
+       )
+       @
+       corners
     end 
   | Rook _ -> get_open_horizontals_and_verticals board (cl,r) color
   | Knight _ -> 
@@ -252,6 +272,7 @@ let get_sq_pair str =
 module type Game = sig 
   type t 
   val new_game : t
+  val get_current_player : t -> color
   val move : square -> square -> t -> piece option * piece option * t option * t
   val get_moves : t -> square -> square list
   val is_player_square : t -> square -> bool
@@ -327,6 +348,8 @@ module ChessGame : Game = struct
       board = make_board empty (white_pieces @ black_pieces);
       current_player = White;
     }
+
+  let get_current_player game = game.current_player
 
   let get_current_board chess = chess.board
 

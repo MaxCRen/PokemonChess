@@ -96,6 +96,10 @@ module type Game = sig
   (**[new_game] returns a new game *)
   val new_game : t
 
+(**[get_current_player game] returns the [color] of the player whose turn it
+   is in [game] *)
+  val get_current_player : t -> color
+
   (** [move square1 square2 game] returns the game resulting from moving piece
       at [square1] to [square2] *)
   val move : square -> square -> t -> piece option * piece option * t option * t
