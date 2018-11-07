@@ -214,7 +214,17 @@ let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board =
         piece_move gamepiece board (1,(multiplier * 1)) true
         @
         piece_move gamepiece board (-1,(multiplier * 1)) true in 
-      (if moved then 
+      (if is_free board (cl, r+(multiplier * 1)) then
+         (piece_move gamepiece board (0, (multiplier * 1)) false) @
+         (
+           if not moved then 
+             if is_free board (cl, r + (multiplier * 2)) then 
+               piece_move gamepiece board (0, (multiplier * 2)) false
+             else []
+           else []
+         )
+       else [] )
+(*      (if moved then 
         if is_free board (cl, r+(multiplier *1)) then
           piece_move gamepiece board (0,(multiplier * 1)) false 
         else []
@@ -225,7 +235,7 @@ let get_moves ((piece, color, (cl,r), moved) as gamepiece)  board =
           @
           piece_move gamepiece board (0,(multiplier * 2)) false
         else []
-       )
+       )*)
        @
        corners
     end 
