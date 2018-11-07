@@ -75,8 +75,5 @@ val get_knight: unit -> t
 val get_queen: unit -> t
 
 val get_king: unit -> t
-<<<<<<< HEAD
 
 val out_of_pp: t -> bool
-=======
->>>>>>> 21b494227b50a7b05c4a1fe1083043f979988473
