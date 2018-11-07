@@ -29,8 +29,17 @@ let make_pokemon n typ mset attr = {
   confused = 0;
   accuracy =  1.
 }
-
 let get_moves poke = poke.moveSet
+
+let out_of_pp poke =
+
+  let rec helper acc = function
+  | [] -> acc
+  | h::t -> helper (acc+(Moves.get_pp h)) t in
+
+  (helper 0  poke.moveSet) = 0
+
+
 
 let get_name poke = poke.name
 
@@ -197,11 +206,11 @@ let focus_blast() = Moves.make_move "Focus Blast" normal 10 "Damages Opponent"
 
 (** ALL NECESSARY POKEMON *)
 let get_promoted_pawn() = make_pokemon "Raichu" (electric, None) 
-    [thunder_bolt (); thunder_wave(); quick_attack(); hp_grass()] 
+    [thunder_bolt (); surf(); hyper_beam(); focus_blast()] 
     [230.; 177.; 103.; 190.]
 
 let get_pawn () = make_pokemon "Pikachu" (electric, None) 
-    [thunder_shock (); surf(); hyper_beam(); focus_blast()] 
+    [thunder_shock (); thunder_wave(); quick_attack(); hp_grass()] 
     [180.; 103.; 58.; 166.]
 
 let get_rook () = make_pokemon "Blastoise" (water, None) 
