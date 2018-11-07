@@ -61,6 +61,8 @@ let get_power move = move.power
   (* let ran_num = Random.float 1. in
   if ran_num <= move.crit_rate then move.power*.2. else move.power *)
 
+let get_crit move = move.crit_rate
+
 let get_acc move = move.acc
 
 let get_eff move = move.side_effect

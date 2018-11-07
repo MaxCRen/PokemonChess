@@ -19,7 +19,7 @@ val deal_damage: int -> Pokemon.t -> unit
 
 (**[use_move battle move] gives us a new battle after using
 [move]*)
-val use_move: t -> Moves.t -> unit
+val use_move: t -> Moves.t -> bool -> unit
 
 (** [get_player battle] returns the user's pokemon in the battle [battle] *)
 val get_player: t -> Pokemon.t

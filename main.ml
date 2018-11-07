@@ -215,7 +215,7 @@ let water = make_type "water" [("water", 0.5);("fire", 2.)]
 let fire = make_type "fire" [("fire", 0.5);("water", 0.5)]
 
 let bubble = make_move ("Bubble") (water) (25) 
-    ("Does damage") (0.) (1.) (0.10) false (Some (Heal(-0.1, true)))
+    ("Does damage") (10.) (1.) (0.5) false (Some (Heal(-0.1, true)))
 
 let random2 = make_move ("Sleep") (water) (25) 
     ("Does damage") (0.) (1.) (0.) false (Some (Condition (Sleep (5), 1.)))
@@ -451,12 +451,20 @@ let chances_of float =
 
 let use_move_helper btl move poke_name =
   ANSITerminal.erase Screen;
-  Battle.use_move btl move;
-  printed btl;
-  print_colored btl (poke_name^" used "^(Moves.get_name move)^"\n") (Battle.get_turn btl);
-
-  print_eff move (Battle.other_player btl); check_fainted btl;
-  btl |> Battle.other_player |> Battle.change_turn btl
+  let crit = Moves.get_crit move in
+  if chances_of crit then(
+    Battle.use_move btl move true;
+    printed btl;
+    print_colored btl (poke_name^" used "^(Moves.get_name move)^"\n") (Battle.get_turn btl);
+    print_colored btl ("It was a critical hit!\n") (Battle.get_turn btl);
+    print_eff move (Battle.other_player btl); check_fainted btl;
+    btl |> Battle.other_player |> Battle.change_turn btl)
+  else (
+    Battle.use_move btl move false;
+    printed btl;
+    print_colored btl (poke_name^" used "^(Moves.get_name move)^"\n") (Battle.get_turn btl);
+    print_eff move (Battle.other_player btl); check_fainted btl;
+    btl |> Battle.other_player |> Battle.change_turn btl)
 
 (**[use_move str bat] takes the string representation of a move [str] and then
    applies it to the battle [bat] by either doing damage or some other effect*)
@@ -465,18 +473,23 @@ let use_move move btl =
     let pokemon = btl |> Battle.get_turn in
     let poke_name = pokemon |> Pokemon.get_name in
     let op_pokemon = Battle.other_player btl in
-    (* let acc_perc = Moves.get_acc move in *)
+    let acc_perc = Moves.get_acc move in 
+
 
     if (Pokemon.get_status op_pokemon) = None then
       (match Pokemon.get_status pokemon with
-       | Some Paralyzed x-> if chances_of 0.25 then (
+       | Some Paralyzed x-> if chances_of 0.25 then (ANSITerminal.erase Screen;
            printed btl;
            print_colored btl (poke_name^" is paralyzed and can not move!\n") pokemon;
            btl |> Battle.other_player |> Battle.change_turn btl)
          else use_move_helper btl move poke_name
-       | Some Sleep x-> (
+       | Some Sleep x-> (ANSITerminal.erase Screen;
            printed btl;
            print_colored btl (poke_name^" is asleep and can't move!\n") pokemon;
+           btl |> Battle.other_player |> Battle.change_turn btl)
+        |_ when chances_of (1.-.acc_perc) -> (ANSITerminal.erase Screen;
+            printed btl;
+           print_colored btl (poke_name^" missed!\n") pokemon;
            btl |> Battle.other_player |> Battle.change_turn btl)
        | _ -> use_move_helper btl move poke_name; print_side_eff pokemon move op_pokemon)
     else if (Moves.get_power move = 0. && Moves.has_condition move) 
