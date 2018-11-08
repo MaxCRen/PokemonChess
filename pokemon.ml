@@ -29,13 +29,14 @@ let make_pokemon n typ mset attr = {
   confused = 0;
   accuracy =  1.
 }
+
 let get_moves poke = poke.moveSet
 
 let out_of_pp poke =
 
   let rec helper acc = function
-  | [] -> acc
-  | h::t -> helper (acc+(Moves.get_pp h)) t in
+    | [] -> acc
+    | h::t -> helper (acc+(Moves.get_pp h)) t in
 
   (helper 0  poke.moveSet) = 0
 
@@ -85,7 +86,7 @@ let change_confusion poke length= poke.confused <- length
 
 let change_accuracy poke amount = poke.accuracy <- poke.accuracy -. amount
 
-(** ALL NECESSARY POKEMON TYPES *)
+(* ALL NECESSARY POKEMON TYPES *)
 let electric = Ptype.make_type "Electric" 
     [("Water", 2.0); ("Flying", 2.0); ("Electric", 0.5); ("Grass", 0.5)]
 
@@ -122,7 +123,7 @@ let ice = Ptype.make_type "Ice"
 
 let ghost = Ptype.make_type "Ghost" ["Psychic", 2.0]
 
-(** ALL NECESSARY POKEMON MOVES *)
+(* ALL NECESSARY POKEMON MOVES *)
 
 let thunder_shock ()= Moves.make_move "Thunder Shock" electric 30 "" 75. 1. 0.25 
     false (Some (Condition (Paralyzed (5), 0.35)))
@@ -137,7 +138,7 @@ let hp_grass ()= Moves.make_move "Hidden Power Grass"
     grass 15 "" 60. 1. 0.2 false None
 
 let hydro_pump ()= Moves.make_move "Hydro Pump" 
-    water 5 "" 110. 0.75 0.1 false None
+    water 5 "" 110. 0.8 0.1 false None
 
 let work_up ()= Moves.make_move "Work Up" 
     normal 30 "" 0. 1. 0. false (Some (Stats ([0.;0.5;0.5;0.], true)))
@@ -161,7 +162,7 @@ let knock_off ()= Moves.make_move "Knock Off"
     dark 20 "" 65. 1. 0.1 false None
 
 let flare_blitz ()= Moves.make_move "Flare Blitz"
-    fire 15 "" 120. 0.70 0.1 false (Some (Heal(-0.10, true)))
+    fire 15 "" 120. 1. 0.1 false (Some (Heal(-0.10, true)))
 
 let dragon_claw ()= Moves.make_move "Dragon Claw" 
     dragon 15 "" 80. 1. 0.1 false (Some (Stats ([0.;0.;0.;1.], true)))
@@ -173,38 +174,38 @@ let thunder ()= Moves.make_move "Thunder"
     electric 10 "" 110. 0.7 0.1 false (Some (Condition (Paralyzed 5, 1.)))
 
 let fire_blast ()= Moves.make_move "Fire Blast"
-    fire 5 "" 110. 0.75 0.1 false (Some (Condition (Burned , 0.05)))
+    fire 5 "" 110. 0.85 0.1 false (Some (Condition (Burned , 0.05)))
 
 let blizzard ()= Moves.make_move "Blizzard"
-    ice 5 "" 110. 0.5 0.1 false None
+    ice 5 "" 110. 0.7 0.1 false None
 
 let shadow_ball ()= Moves.make_move "Shadow Ball"
-    ghost 15 "" 80. 0.9 0.1 false None
+    ghost 15 "" 80. 1. 0.1 false None
 
 let will_o_wisp ()= Moves.make_move "Will-o-Wisp" fire 15 
     "Burns the opponent. Burnt Pokemon lose some HP every turn" 
-    0. 0.65 0. false (Some (Condition (Burned , 1.)))
+    0. 0.85 0. false (Some (Condition (Burned , 1.)))
 
 let toxic ()= Moves.make_move "Toxic" poison 10 
     "Poisons the opponent. Poisoned Pokemon lose some of their HP every turn." 
-    0. 0.8 0. false (Some (Condition (Poison , 1.)))
+    0. 0.9 0. false (Some (Condition (Poison , 1.)))
 
 let calm_mind ()= Moves.make_move "Calm Mind" psychic 20 "" 0. 1. 0. false 
     (Some (Stats ([0.;1.0;0.;0.], true)))
 
 let thunder_bolt() = Moves.make_move "Thunder Bolt" electric 15 
-    "Hurts the opponent, chance of paralyzing" 100. 0.9 0.1 false (Some (Condition (Paralyzed (4), 0.35)))
+    "Hurts the opponent, chance of paralyzing" 100. 1. 0.1 false (Some (Condition (Paralyzed (4), 0.35)))
 
-let surf() = Moves.make_move "Surf" water 15 "Damages opponent" 80. 0.9 0.1 false
+let surf() = Moves.make_move "Surf" water 15 "Damages opponent" 80. 1. 0.1 false
     None
 
 let hyper_beam() = Moves.make_move "Hyper Beam" normal 5 "Damages Opponent" 
     100. 0.9 0.1 false None
 
 let focus_blast() = Moves.make_move "Focus Blast" normal 10 "Damages Opponent"
-    30. 0.9 0.1 false None
+    30. 0.7 0.1 false None
 
-(** ALL NECESSARY POKEMON *)
+(* ALL NECESSARY POKEMON *)
 let get_promoted_pawn() = make_pokemon "Raichu" (electric, None) 
     [thunder_bolt (); surf(); hyper_beam(); focus_blast()] 
     [230.; 177.; 203.; 190.]

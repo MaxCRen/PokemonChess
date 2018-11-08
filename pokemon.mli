@@ -8,8 +8,8 @@ type t
 val make_pokemon: string -> (Ptype.t * Ptype.t option) -> 
   Moves.t list -> float list -> t
 
-(** [get_moves pokemon] returns a list of type [Moves.t] that the pokemon
-    [pokemon] has available to it *)
+(** [get_moves poke] returns a list of moves that the pokemon [poke] has
+    available to it. *)
 val get_moves: t -> Moves.t list
 
 (** [get_name poke] returns the name of pokemon [poke] *)

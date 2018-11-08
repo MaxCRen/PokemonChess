@@ -29,10 +29,8 @@ let make_move n typ p desc pow acc crit pri side =
   {
     name = n;
     ptype = typ;
-
     pp = p;
     description = desc;
-
     power = pow;
     acc = acc;
     crit_rate = crit;
@@ -40,14 +38,16 @@ let make_move n typ p desc pow acc crit pri side =
     side_effect = side
 
   }
+
+(** [has_condition move] is whether [move] has a side effect or not. *)
 let has_condition move = 
   match move.side_effect with
-  |Some Condition x-> true
+  | Some Condition x -> true
   | _ -> false
 
 let can_use move = if move.pp = 0 then false else true
 
-let dec_pp move = move.pp <- move.pp -1
+let dec_pp move = if move.pp = 0 then () else move.pp <- move.pp -1
 
 let get_name move = move.name
 
@@ -58,8 +58,6 @@ let get_pp move = move.pp
 let get_description move = move.description
 
 let get_power move = move.power
-  (* let ran_num = Random.float 1. in
-  if ran_num <= move.crit_rate then move.power*.2. else move.power *)
 
 let get_crit move = move.crit_rate
 
