@@ -232,29 +232,6 @@ let pikachu = make_pokemon "Pikachu" (electric, None)
     [thunder_shock; thunder_wave; quick_attack; hp_grass] 
     [180.; 103.; 58.; 166.]
 
-(** start chess tests *)
-let test_colors_match
-    (name : string)
-    (piece1 : game_piece)
-    (piece2 : game_piece)
-    (expected : bool) =
-  name >:: (fun _ -> assert_equal expected (Chess.colors_match piece1 piece2))
-
-let test_is_free
-    (name : string)
-    (game_board : board)
-    (sq : square)
-    (expected : bool) = 
-  name >:: (fun _ -> assert_equal expected (Chess.is_free game_board sq))
-
-let get_moves_test
-    (name : string)
-    (piece : game_piece)
-    (board : board) 
-    (expected : square list) = 
-  name >:: (fun _ -> assert_equal expected (Chess.get_moves piece board))
-
-
 let pokemon_test = [
   test_get_moves "pika's moves" pikachu 
     [thunder_shock; thunder_wave; quick_attack; hp_grass];
@@ -268,6 +245,59 @@ let pokemon_test = [
   test_change_attr_mult "changing mult" pikachu [1.5;1.5;1.;1.];
   test_change_status "changing status" pikachu (Some Poison)
 ]
+
+(************************ tests for [chess.ml] ******************************)
+
+let make_colors_match_test
+    (name : string)
+    (piece1 : game_piece)
+    (piece2 : game_piece)
+    (expected : bool) =
+  name >:: (fun _ -> assert_equal expected (Chess.colors_match piece1 piece2))
+
+let make_is_free_test
+    (name : string)
+    (game_board : board)
+    (sq : square)
+    (expected : bool) = 
+  name >:: (fun _ -> assert_equal expected (Chess.is_free game_board sq))
+
+let make_get_piece_test
+    (name : string)
+    (board : board)
+    (sq : square)
+    (expected_output : game_piece option) =
+  name >:: (fun _ -> 
+      assert_equal expected_output (Chess.get_piece board sq))
+
+let make_can_capture_test
+    (name : string)
+    (piece1 : game_piece)
+    (piece2 : game_piece)
+    (expected_output : bool) =
+  name >:: (fun _ ->
+      assert_equal expected_output (Chess.can_capture piece1 piece2))
+
+let rec same_lst_helper lst1 lst2 =
+  match lst1 with
+  | [] -> true
+  | h :: t -> if not (List.mem h lst2) then false else same_lst_helper t lst2
+
+(** [same_lst lst1 lst2] is whether or not [lst1] and [lst2] contain the same 
+    elements, i.e. all elements that are in [lst1] are also in [lst2], and 
+    vice versa. *)
+let same_lst lst1 lst2 =
+  if List.length lst1 <> List.length lst2 then false else
+    same_lst_helper lst1 lst2
+
+let make_get_moves_test
+    (name : string)
+    (piece : game_piece)
+    (board : board) 
+    (expected_output : square list) = 
+  name >:: (fun _ -> assert_bool "different elements" 
+               (same_lst expected_output (Chess.get_moves piece board)))
+
 
 let column_type_one : column =     [(1,(Black, None)); (2,(White, None)); 
                                     (3,(Black, None)); (4,(White, None));
@@ -284,18 +314,49 @@ let empty : board =
    ("E",column_type_one); ("F", column_type_two); 
    ("G", column_type_one); ("H", column_type_two)]
 
-let pawn = (Pawn (Pokemon.get_pawn ()), Black, ("A", 7), false)
-let antipawn = (Pawn (Pokemon.get_pawn ()), White, ("A", 2), false)
-let rook = (Rook (Pokemon.get_rook ()), Black, ("A", 1), false)
-let test_board = empty |> Chess.add_piece antipawn |> Chess.add_piece rook
+let black_pawn = (Pawn (Pokemon.get_pawn ()), Black, ("A", 7), false)
+let white_pawn = (Pawn (Pokemon.get_pawn ()), White, ("A", 2), false)
+let white_bishop = (Bishop (Pokemon.get_bishop ()), White, ("A", 3), false)
+let black_rook = (Rook (Pokemon.get_rook ()), Black, ("H", 8), false)
+let test_board = empty |> Chess.add_piece white_pawn |> 
+                 Chess.add_piece black_rook |> Chess.add_piece black_pawn
+let test_board_turn2 = 
+  match (ChessGame.move ("A", 2) ("A", 4) ChessGame.new_game) with
+  | (_, _, Some game, _) -> ChessGame.get_current_board game
+  | _ -> []
+(*
+let white_pawn_turn2 = match (Chess.get_piece test_board_turn2 ("A", 4)) with
+  | Some p -> p
+  | None -> (Pawn (Pokemon.get_pawn ()), White, ("A", 4), false)*)
 
 let chess_test = [
-  test_colors_match "colors match" pawn rook true;
-  test_colors_match "colors don't match" pawn antipawn false;
-  test_is_free "free square" test_board ("A",3) true;
-  get_moves_test "test pawn's moves" antipawn test_board [("A",3);("A",4)];
-  get_moves_test "test rook's moves" rook test_board [("H",1);("G",1);("F",1);("E",1);
-                                                      ("D",1);("C",1);("B",1);("A",2)]
+  make_colors_match_test "both pieces black" black_pawn black_rook true;
+  make_colors_match_test "both pieces white" white_pawn white_bishop true;
+  make_colors_match_test "colors don't match" black_pawn white_pawn false;
+
+  make_is_free_test "free square" test_board ("A",3) true;
+  make_is_free_test "occupied square" test_board ("A", 7) false;
+
+  make_get_piece_test "get pawn" test_board ("A", 7) (Some black_pawn);
+  make_get_piece_test "empty square" test_board ("B", 8) None;
+  "check InvalidSquare exception" >:: (fun _ ->
+      assert_raises (InvalidSquare ("X", 2)) (fun () ->
+          Chess.get_piece test_board ("X", 2)));
+
+  make_can_capture_test "colors don't match" black_pawn white_bishop true;
+  make_can_capture_test "both pieces black" black_pawn black_rook false;
+  make_can_capture_test "both pieces white" white_bishop white_pawn false;
+
+  make_get_moves_test 
+    "test pawn's moves when it hasn't moved already (no capture)" 
+    white_pawn test_board [("A",3);("A",4)];
+  (*make_get_moves_test 
+    "test pawn's moves after it has already moved once (no capture)" 
+    white_pawn_turn2 test_board_turn2 [("A",5)];*)
+  make_get_moves_test "test rook's moves" black_rook test_board 
+    [("H", 7);("H", 6);("H", 5);("H", 4);("H", 3);("H", 2);("H", 1);
+     ("G", 8); ("F", 8); ("E", 8); ("D", 8); ("C", 8); ("B", 8); ("A", 8)];
+
 ]
 
 let suite = 

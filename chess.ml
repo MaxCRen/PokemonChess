@@ -111,13 +111,13 @@ let rec get_next_square color (c,r) acc square board =
                      r + (snd square)) in 
   if not (is_valid_square next_square) then acc
   else match get_piece board next_square with
-   | Some (p,col,_,_) when not (is_fake_pawn p) -> 
+    | Some (p,col,_,_) when not (is_fake_pawn p) -> 
       if (color = col) then acc 
       else next_square :: acc
-   | _ -> get_next_square color (c,r) (next_square :: acc) next_square
-                board (* if there are no pieces in the way, we add
-                         the square onto our list and forge onward *)
- 
+    | _ -> get_next_square color (c,r) (next_square :: acc) next_square
+             board (* if there are no pieces in the way, we add
+                      the square onto our list and forge onward *)
+
 (** [get_open_diagonals board square] returns the diagonals centered at 
     [square] on [board], up to and including any pieces in the path *)
 let get_open_diagonals board square color = 
@@ -324,6 +324,7 @@ module type Game = sig
   type t 
   val new_game : t
   val get_current_player : t -> color
+  val get_current_board : t -> board
   val move : square -> square -> t -> piece option * piece option * t option * t
   val get_moves : t -> square -> square list
   val is_player_square : t -> square -> bool
@@ -403,7 +404,7 @@ module ChessGame : Game = struct
 
   let get_current_player game = game.current_player
 
-  let get_current_board chess = chess.board
+  let get_current_board game = game.board
 
   let move square1 square2 ({white;black;board;current_player}) = 
     let next_col = (if current_player = White then Black else White) in
@@ -443,8 +444,8 @@ module ChessGame : Game = struct
           } in 
           match get_piece board square2 with
           | Some (p2,_,_,_) 
-             when (not (is_fake_pawn p2)) || 
-                  (is_pawn p1) ->
+            when (not (is_fake_pawn p2)) || 
+                 (is_pawn p1) ->
             (Some p1, Some p2, Some new_game, loss)
           | _ -> (Some p1, None, None, new_game)
         else raise InvalidMove

@@ -486,12 +486,12 @@ let use_move_helper btl move poke_name =
 (**[use_move str bat] takes the string representation of a move [str] and then
    applies it to the battle [bat] by either doing damage or some other effect*)
 let use_move move btl = 
-    let pokemon = btl |> Battle.get_turn in
-    let poke_name = pokemon |> Pokemon.get_name in
-    let op_pokemon = Battle.other_player btl in
-    let acc_perc = Moves.get_acc move in 
+  let pokemon = btl |> Battle.get_turn in
+  let poke_name = pokemon |> Pokemon.get_name in
+  let op_pokemon = Battle.other_player btl in
+  let acc_perc = Moves.get_acc move in 
   if Battle.can_move move then (
-    
+
 
 
     if (Pokemon.get_status op_pokemon) = None then
@@ -519,12 +519,12 @@ let use_move move btl =
 
   )
   else if (Pokemon.out_of_pp pokemon) then (
-      Battle.use_move btl (Pokemon.struggle()) false;
-      ANSITerminal.erase Screen;
-      printed btl;
-      print_colored btl (poke_name^" used struggle \n") (Battle.get_turn btl);
-      print_eff move (Battle.other_player btl); check_fainted btl;
-      btl |> Battle.other_player |> Battle.change_turn btl)
+    Battle.use_move btl (Pokemon.struggle()) false;
+    ANSITerminal.erase Screen;
+    printed btl;
+    print_colored btl (poke_name^" used struggle \n") (Battle.get_turn btl);
+    print_eff move (Battle.other_player btl); check_fainted btl;
+    btl |> Battle.other_player |> Battle.change_turn btl)
   else (printed btl; print_string "Cannot use move\n\n\n\n";btl |> Battle.other_player |> Battle.change_turn btl)
 
 
@@ -587,10 +587,6 @@ let rec get_move btl pokemon=
            get_move btl pokemon)
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
     end
-
-(* [pause_bool] is used to check if we are in the enter anything to continue state
-   or if we are in parsing the player's move state. last_move is the last move
-   used by the player so we can use it if the player moves second *)
 
 let rec battle_loop btl = 
   ANSITerminal.erase Screen;
@@ -763,7 +759,7 @@ let play_game () =
 let main () =
   ANSITerminal.erase Screen;
   play_game ()
-  (* let x = start_battle battle in () *)
+(* let x = start_battle battle in () *)
 
 (* Execute the game engine. *)
 let () = main ()

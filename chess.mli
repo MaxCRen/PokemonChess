@@ -59,10 +59,6 @@ val add_piece : game_piece -> board -> board
 (** [can_capture piece1 piece2] returns true if piece1 can capture piece2 *)
 val can_capture : game_piece -> game_piece -> bool
 
-(*
-val get_contestants : piece -> piece -> (holder_pokemon * holder_pokemon)
-*)
-
 (** [get_moves piece board] returns a list of possible locations on [board]
     to which [piece] can move *)
 val get_moves : game_piece -> board -> square list
@@ -100,6 +96,9 @@ module type Game = sig
   (**[get_current_player game] returns the [color] of the player whose turn it
      is in [game] *)
   val get_current_player : t -> color
+
+  (** [get_current_board game] returns the current [board]. *)
+  val get_current_board : t -> board
 
   (** [move square1 square2 game] returns the game resulting from moving piece
       at [square1] to [square2] *)
