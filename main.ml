@@ -230,10 +230,10 @@ let water = make_type "water" [("water", 0.5);("fire", 2.)]
 
 let fire = make_type "fire" [("fire", 0.5);("water", 0.5)]
 
-let bubble = make_move ("Bubble") (water) (25) 
+let bubble = make_move ("Bubble") (water) (0) 
     ("Does damage") (10.) (1.) (0.5) false (Some (Heal(-0.1, true)))
 
-let random2 = make_move ("Sleep") (water) (25) 
+let random2 = make_move ("Sleep") (water) (0) 
     ("Does damage") (0.) (1.) (0.) false (Some (Condition (Sleep (5), 1.)))
 
 let inc_stats = make_move ("incr") (water) (25) ("stuff") (0.)
@@ -243,7 +243,8 @@ let poison = make_move ("Poison") (water) (25)
     ("Poisons the pokemon") (0.) (1.) (0.) false (Some (Condition (Burned , 1.)))
 
 let ember = make_move ("Ember") (fire) (25) 
-    ("Does damage") (1.) (1.) (0.10) false None
+    ("Does damage") (50.) (1.) (0.10) false None
+
 
 (** [get_move_names moves] is a list of the names of all moves in [moves], with
     each name in all lowercase. *)
@@ -485,11 +486,12 @@ let use_move_helper btl move poke_name =
 (**[use_move str bat] takes the string representation of a move [str] and then
    applies it to the battle [bat] by either doing damage or some other effect*)
 let use_move move btl = 
-  if Battle.can_move move then (
     let pokemon = btl |> Battle.get_turn in
     let poke_name = pokemon |> Pokemon.get_name in
     let op_pokemon = Battle.other_player btl in
     let acc_perc = Moves.get_acc move in 
+  if Battle.can_move move then (
+    
 
 
     if (Pokemon.get_status op_pokemon) = None then
@@ -516,6 +518,13 @@ let use_move move btl =
 
 
   )
+  else if (Pokemon.out_of_pp pokemon) then (
+      Battle.use_move btl (Pokemon.struggle()) false;
+      ANSITerminal.erase Screen;
+      printed btl;
+      print_colored btl (poke_name^" used struggle \n") (Battle.get_turn btl);
+      print_eff move (Battle.other_player btl); check_fainted btl;
+      btl |> Battle.other_player |> Battle.change_turn btl)
   else (printed btl; print_string "Cannot use move\n\n\n\n";btl |> Battle.other_player |> Battle.change_turn btl)
 
 
@@ -572,9 +581,7 @@ let rec get_move btl pokemon=
         if List.mem lc_str available_moves then
           let move_list = pokemon |> Pokemon.get_moves in
           let move = Battle.get_move_from_str move_list lc_str in
-          if Battle.can_move move then (lc_str)
-          else(
-            print_string (str2 ^ " is out of PP!\n\n"); get_move btl pokemon)
+          lc_str
         else 
           (print_string (str2 ^ " is not an available move!\n\n\n"); 
            get_move btl pokemon)
@@ -595,8 +602,8 @@ let rec battle_loop btl =
   ANSITerminal.(print_string [red] "Fire Red Move: ";);
   let second_move = btl |> Battle.get_opponent |> get_move btl in
   move_turns btl first_move second_move;
+  deal_with_conditions btl;
   if not (!player_fainted || !opp_fainted) then(
-    deal_with_conditions btl;
     battle_loop btl)
   else if (!player_fainted) then Battle.get_opponent btl
   else Battle.get_player btl
@@ -669,6 +676,7 @@ let print_attributes chess_game curr_square =
 let rec chess_loop chess_game curr_square blue_squares =
   player_fainted:=false;
   opp_fainted:=false;
+  ANSITerminal.erase Screen;
   print_board (ChessGame.as_list chess_game) blue_squares (not(!first_square));
   if (not(!first_square)) then print_attributes chess_game curr_square else ();
   print_turn chess_game;
@@ -755,7 +763,7 @@ let play_game () =
 let main () =
   ANSITerminal.erase Screen;
   play_game ()
-(* start_battle battle *)
+  (* let x = start_battle battle in () *)
 
 (* Execute the game engine. *)
 let () = main ()

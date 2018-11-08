@@ -186,6 +186,9 @@ let will_o_wisp ()= Moves.make_move "Will-o-Wisp" fire 15
     "Burns the opponent. Burnt Pokemon lose some HP every turn" 
     0. 0.85 0. false (Some (Condition (Burned , 1.)))
 
+let struggle () = Moves.make_move "Struggle" normal 100000 "Deals Damage to player
+and opponent" 20. 1. 0. false (Some (Heal(-1.0, false)))
+
 let toxic ()= Moves.make_move "Toxic" poison 10 
     "Poisons the opponent. Poisoned Pokemon lose some of their HP every turn." 
     0. 0.9 0. false (Some (Condition (Poison , 1.)))

@@ -76,4 +76,6 @@ val get_queen: unit -> t
 
 val get_king: unit -> t
 
+val struggle: unit -> Moves.t
+
 val out_of_pp: t -> bool
