@@ -71,24 +71,18 @@ val can_move : game_piece -> board -> square ->  bool
     to [square] on [board] *) 
 val move : game_piece -> board -> square -> board
 
-(** [pokemon_from_piece piece] returns the [Pokemon.t] inside of [piece] *)
+(** [pokemon_from_piece piece] returns the [holder_pokemon] 
+    represented by [piece]. *)
 val pokemon_from_piece : piece option -> holder_pokemon
 
 (** [get_sq_pair str] is the [square] represented by [str]. 
-        Requires: [str] must represent a valid chess board coordinate (ex: ["A2"],
-        ["C8"], etc.) *)
+    Requires: [str] must represent a valid chess board coordinate (ex: ["A2"],
+    ["C8"], etc.) *)
 val get_sq_pair : string -> square
 
 (** [Game] represents an active chess_game *)
 module type Game = sig 
   type t 
-
-  (* 
-(** [check game] returns true if a king is under check *)
- val check :  t -> bool
-
-(** [mate game] returns true if a king has been mated *) 
- val mate : t -> bool *)
 
   (**[new_game] returns a new game *)
   val new_game : t

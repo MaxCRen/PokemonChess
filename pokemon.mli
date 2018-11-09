@@ -1,10 +1,11 @@
 open Ptype
 open Moves
-(*Our representaion type of a pokemon*)
+
+(*Our representaion type of a Pokemon*)
 type t
 
-(*[make_pokemon name poketype moveset attributes status] creates a our representation
-  of a pokmon type using the given arguments*)
+(* [make_pokemon name poketype moveset attributes status] creates a our 
+   representation of a pokmon type using the given arguments *)
 val make_pokemon: string -> (Ptype.t * Ptype.t option) -> 
   Moves.t list -> float list -> t
 
@@ -55,7 +56,7 @@ val get_accuracy: t -> float
 val change_health: t -> int -> unit
 
 (**[change_attr_mult poke attr] changes the attribute multiplier of pokemon
-[poke]*)
+   [poke]*)
 val change_attr_mult: t -> float list -> unit
 
 (**[change_status pokemon stats] changes the pokemon [poke]'s status the stats*)
@@ -89,5 +90,5 @@ val get_king: unit -> t
 val struggle: unit -> Moves.t
 
 (**[out_of_pp pokemon] is true if all the moves of [pokemon] are out of pp
-otherwise it is false*)
+   otherwise it is false*)
 val out_of_pp: t -> bool

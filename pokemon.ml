@@ -156,7 +156,8 @@ let giga_drain ()= Moves.make_move "Giga Drain"
     grass 10 "" 75. 1. 0.15 false (Some (Heal(0.3, false)))
 
 let sleep_powder ()= Moves.make_move "Sleep Powder"
-    grass 5 "Lulls opponent to sleep." 0. 0.6 0. false (Some (Condition (Sleep 3, 1.)))
+    grass 5 "Lulls opponent to sleep." 0. 0.6 0. false (Some (Condition 
+                                                                (Sleep 3, 1.)))
 
 let knock_off ()= Moves.make_move "Knock Off"
     dark 20 "" 65. 1. 0.1 false None
@@ -168,7 +169,8 @@ let dragon_claw ()= Moves.make_move "Dragon Claw"
     dragon 15 "" 80. 1. 0.1 false (Some (Stats ([0.;0.;0.;1.], true)))
 
 let roost ()= Moves.make_move "Roost"
-    flying 8 "Restores half of user's HP" 0. 1. 0. false (Some (Heal(0.4, true)))
+    flying 8 "Restores half of user's HP" 0. 1. 0. false 
+    (Some (Heal(0.4, true)))
 
 let thunder ()= Moves.make_move "Thunder"
     electric 10 "" 110. 0.7 0.1 false (Some (Condition (Paralyzed 5, 1.)))
@@ -186,8 +188,8 @@ let will_o_wisp ()= Moves.make_move "Will-o-Wisp" fire 15
     "Burns the opponent. Burnt Pokemon lose some HP every turn" 
     0. 0.85 0. false (Some (Condition (Burned , 1.)))
 
-let struggle () = Moves.make_move "Struggle" normal 100000 "Deals Damage to player
-and opponent" 20. 1. 0. false (Some (Heal(-1.0, false)))
+let struggle () = Moves.make_move "Struggle" normal 100000 "Deals Damage to 
+player and opponent" 20. 1. 0. false (Some (Heal(-1.0, false)))
 
 let toxic ()= Moves.make_move "Toxic" poison 10 
     "Poisons the opponent. Poisoned Pokemon lose some of their HP every turn." 
@@ -197,7 +199,8 @@ let calm_mind ()= Moves.make_move "Calm Mind" psychic 20 "" 0. 1. 0. false
     (Some (Stats ([0.;1.0;0.;0.], true)))
 
 let thunder_bolt() = Moves.make_move "Thunder Bolt" electric 15 
-    "Hurts the opponent, chance of paralyzing" 100. 1. 0.1 false (Some (Condition (Paralyzed (4), 0.35)))
+    "Hurts the opponent, chance of paralyzing" 100. 1. 0.1 false 
+    (Some (Condition (Paralyzed (4), 0.35)))
 
 let surf() = Moves.make_move "Surf" water 15 "Damages opponent" 80. 1. 0.1 false
     None
@@ -218,16 +221,21 @@ let get_pawn () = make_pokemon "Pikachu" (electric, None)
     [180.; 170.; 98.; 166.]
 
 let get_rook () = make_pokemon "Blastoise" (water, None) 
-    [hydro_pump(); work_up(); earthquake(); dark_pulse()] [268.; 153.; 184.; 144.]
+    [hydro_pump(); work_up(); earthquake(); dark_pulse()] 
+    [268.; 153.; 184.; 144.]
 
 let get_bishop () = make_pokemon "Venusaur" (grass, Some poison)
-    [amnesia(); sleep_powder(); giga_drain(); knock_off()] [270.; 152.; 153.; 148.]
+    [amnesia(); sleep_powder(); giga_drain(); knock_off()] 
+    [270.; 152.; 153.; 148.]
 
 let get_knight () = make_pokemon "Charizard" (fire, Some flying)
-    [flare_blitz(); dragon_claw(); fire_blast(); roost()] [266.; 155.; 144.; 184.]
+    [flare_blitz(); dragon_claw(); fire_blast(); roost()] 
+    [266.; 155.; 144.; 184.]
 
 let get_queen () = make_pokemon "Mewtwo" (psychic, None)
-    [thunder(); fire_blast(); blizzard(); shadow_ball()] [322.; 276.; 166.; 276.]
+    [thunder(); fire_blast(); blizzard(); shadow_ball()] 
+    [322.; 276.; 166.; 276.]
 
 let get_king () = make_pokemon "Mew" (psychic, None)
-    [will_o_wisp(); toxic(); giga_drain(); calm_mind()] [404.; 184.; 256.; 184.]
+    [will_o_wisp(); toxic(); giga_drain(); calm_mind()] 
+    [404.; 184.; 256.; 184.]

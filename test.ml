@@ -305,12 +305,26 @@ let make_pieces_equal_test
     (expected_output : bool) =
   name >:: (fun _ -> assert_equal expected_output (piece1 = piece2))
 
+let make_pokemon_from_piece_test
+    (name : string)
+    (poke_piece : piece option)
+    (expected_output : holder_pokemon) =
+  name >:: (fun _ -> assert_equal expected_output 
+               (Chess.pokemon_from_piece poke_piece))
+
+let make_get_sq_pair_test
+    (name : string)
+    (str : string)
+    (expected_output : square) =
+  name >:: (fun _ -> assert_equal expected_output (Chess.get_sq_pair str))
+
 let make_current_player_equal_test
     (name : string)
     (color : color)
     (game : ChessGame.t)
     (expected_output : bool) = 
-  name >:: (fun _ -> assert_equal expected_output (color = ChessGame.get_current_player game))
+  name >:: (fun _ -> assert_equal expected_output (
+      color = ChessGame.get_current_player game))
 
 let int_of_letter ltr = 
   (String.get ltr 0 |> Char.uppercase_ascii |> Char.code) - 65
@@ -462,11 +476,19 @@ let postmove_king =
   | Some p -> p
   | None -> raise (Invalid_argument "")
 
+let pawn_piece = Some (Pawn (Pokemon.get_pawn ()))
+let rook_piece = Some (Rook (Pokemon.get_rook ()))
+let knight_piece = Some (Knight (Pokemon.get_knight ()))
+let bishop_piece = Some (Bishop (Pokemon.get_bishop ()))
+let queen_piece = Some (Queen (Pokemon.get_queen ()))
+let king_piece = Some (King (Pokemon.get_king ()))
 
 
 (* [white_pawn_turn2] represents [white_pawn] after it has moved from
     square [("A", 2)] to square [("A", 4)]. *)
 let white_pawn_turn2 = (Pawn (Pokemon.get_pawn ()), White, ("A", 4), true)
+
+let test_board_turn2 = test_board |> Chess.add_piece white_pawn_turn2
 
 let new_chess_game = Chess.ChessGame.new_game
 
@@ -474,19 +496,23 @@ let opening = [(("D",2),("D",4));(("E",7),("E",5));(("D",4),("E",5))]
 
 let open_chess_game = move_game new_chess_game opening
 
-let knight_play = [(("B",8),("C",6));(("G",1),("F",3));(("C",6),("E",5));(("F",3),("E",5))]
+let knight_play = [(("B",8),("C",6));(("G",1),("F",3));(("C",6),("E",5));
+                   (("F",3),("E",5))]
 
 let knight_game = move_game open_chess_game knight_play
 
-let bishop_play = [(("F",8),("D",6));(("C",1),("F",4));(("D",6),("E",5));(("F",4),("E",5))]
+let bishop_play = [(("F",8),("D",6));(("C",1),("F",4));(("D",6),("E",5));
+                   (("F",4),("E",5))]
 
 let bishop_game = move_game knight_game bishop_play
 
-let queen_play = [(("D",8),("F",6));(("D",1),("D",7));(("C",8),("D",7));(("E",5),("F",6))]
+let queen_play = [(("D",8),("F",6));(("D",1),("D",7));(("C",8),("D",7));
+                  (("E",5),("F",6))]
 
 let no_queens_game = move_game bishop_game queen_play
 
-let castle_queens = [(("G",8),("F",6));(("B",1),("C",3));(("E",8),("G",8));(("E",1),("C",1))]
+let castle_queens = [(("G",8),("F",6));(("B",1),("C",3));(("E",8),("G",8));
+                     (("E",1),("C",1))]
 
 let castled = move_game no_queens_game castle_queens
 
@@ -500,8 +526,6 @@ let upgrade_pieces = [(("H",1),("G",1));(("H",3),("H",2));(("C",6),("C",7));
                       (("C",7),("C",8))]
 
 let promoted_board = move_game en_passant_passes upgrade_pieces
-
-let test_board_turn2 = test_board |> Chess.add_piece white_pawn_turn2
 
 let chess_tests = [
   make_colors_match_test "both pieces black" black_pawn black_rook true;
@@ -521,7 +545,7 @@ let chess_tests = [
   make_can_capture_test "both pieces black" black_pawn black_rook false;
   make_can_capture_test "both pieces white" white_bishop white_pawn false;
 
-  (* testing [get_move] when capturing pieces is not possible *)
+  (* testing [Chess.get_move] when capturing pieces is not possible *)
   make_get_moves_test "test pawn's moves when it hasn't moved already" 
     white_pawn test_board [("A",3);("A",4)];
   make_get_moves_test "test pawn's moves after it has already moved once" 
@@ -540,7 +564,7 @@ let chess_tests = [
   make_get_moves_test "test king's moves" black_king test_board2 
     [("D", 8); ("F", 8); ("E", 7); ("D", 7); ("F", 7)];
 
-  (* testing [get_move] when capturing pieces is possible *)
+  (* testing [Chess.get_move] when capturing pieces is possible *)
   make_get_moves_test "pawn moves when capturing piece is possible" 
     white_pawn test_board3 [("A", 3); ("A", 4); ("B", 3)];
   make_get_moves_test "rook moves when capturing piece is possible" 
@@ -556,7 +580,7 @@ let chess_tests = [
   make_get_moves_test "king moves when capturing piece is possible" 
     black_king test_board3 [("D", 8); ("F", 8); ("E", 7); ("D", 7); ("F", 7)];
 
-  (* testing [get_move] when there are no possible moves *)
+  (* testing [Chess.get_move] when there are no possible moves *)
   make_get_moves_test "pawn can't move" wpawn2 test_board4 [];
   make_get_moves_test "rook can't move" white_rook test_board4 [];
   make_get_moves_test "knight can't move" white_knight test_board4 [];
@@ -573,7 +597,7 @@ let chess_tests = [
   make_pieces_equal_test "rook is in expected position after castling" 
     (Rook (Pokemon.get_rook ()), White, ("D", 1), true) postcastling_rook true;
 
-  (* testing [move] *)
+  (* testing [Chess.move] *)
   make_pieces_equal_test "pawn is in expected position after moving"
     (Pawn (Pokemon.get_pawn ()), White, ("A", 4), true) postmove_pawn true;
   make_pieces_equal_test "knight is in expected position after moving"
@@ -589,6 +613,23 @@ let chess_tests = [
   make_pieces_equal_test "king is in expected position after moving"
     (King (Pokemon.get_king ()), Black, ("D", 8), true) postmove_king true;
 
+  (* testing [Chess.pokemon_from_piece] *)
+  make_pokemon_from_piece_test "get Pokemon represented by pawn" 
+    pawn_piece (Pokemon.get_pawn ());
+  make_pokemon_from_piece_test "get Pokemon represented by rook" 
+    rook_piece (Pokemon.get_rook ());
+  make_pokemon_from_piece_test "get Pokemon represented by pawn" 
+    knight_piece (Pokemon.get_knight ());
+  make_pokemon_from_piece_test "get Pokemon represented by pawn" 
+    bishop_piece (Pokemon.get_bishop ());
+  make_pokemon_from_piece_test "get Pokemon represented by pawn" 
+    queen_piece (Pokemon.get_queen ());
+  make_pokemon_from_piece_test "get Pokemon represented by pawn" 
+    king_piece (Pokemon.get_king ());
+
+  (* testing [Chess.get_sq_pair] *)
+  make_get_sq_pair_test "square with uppercase column letter" "A2" ("A", 2);
+  make_get_sq_pair_test "square with lowercase column letter" "c8" ("C", 8);
 
   (* testing state of ChessGame.t *)
   make_current_player_equal_test "new chess game" White new_chess_game true;
