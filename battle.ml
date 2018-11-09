@@ -53,7 +53,6 @@ let rec get_move_from_str move_lst move_str =
   | h::t when Moves.get_name h |> String.lowercase_ascii = move_str -> h
   | h::t -> get_move_from_str t move_str
 
-(** [can_move move] returns true if the pp for move [move] > 0 *)
 let can_move move=
   if Moves.get_pp move = 0  then false else true
 
@@ -65,12 +64,16 @@ let hit poke move =
   else 1.
 
 
+(**[calc_effective move poke dam] calculates the effectiveness of move on pokemon
+   [poke] and applies the necessary mutiliplier to the damage [dam]*)
 let calc_effective move poke= 
   let move_type = Moves.get_type move in
   match Pokemon.get_type poke with
   | (t1, None) -> (Ptype.get_effective move_type t1)
   | (t1, Some t2) -> (Ptype.get_effective move_type t1) *.
                      (Ptype.get_effective move_type t2)
+
+
 (** [calc_damge move battle] calculates the amount of damage [move] does to the 
     opponent pokemon in the [battle]. Take into account whether or not the move misses
     Calculation:
@@ -82,18 +85,15 @@ let calc_damage move battle =
   let other_poke = other_player battle in
   let other_poke_def = List.nth (Pokemon.get_attr other_poke) 2  in
   let type_mult = calc_effective move other_poke in
-  type_mult*.(20.*.(Moves.get_power move)*.1.5*.(curr_poke_atk)/.((other_poke_def)))/.50.
+  type_mult*.
+  (20.*.(Moves.get_power move)*.1.5*.(curr_poke_atk)/.((other_poke_def)))
+  /.50.
 
 
-(**[calc_effective move poke dam] calculates the effectiveness of move on pokemon
-   [poke] and applies the necessary mutiliplier to the damage [dam]*)
-
-
-
-(** [deal_damage dam poke]  Deals [dam] to pokemon [poke] *)
 let deal_damage dam poke = 
   Pokemon.change_health poke (-dam)
 
+(* Exception raised when attribute size and multiplier size are different *)
 exception AttributeSizesDifferent
 
 (*[deal_with_attribute_changes acc poke1 lst] goes through the stat changes in lst
@@ -151,7 +151,7 @@ let parse_side_effects eff bat dam=
   |None -> ()
   |Some effect -> apply_effect effect bat.turn (other_player bat) dam
 
-(* uses the move on poke*)
+
 let use_move battle move bool=
   let dam = battle |> calc_damage move |> Pervasives.int_of_float in 
   if not bool then (
