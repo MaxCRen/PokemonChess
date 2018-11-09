@@ -507,7 +507,8 @@ let use_move move btl =
        (* uses the move on the pokemon *)
        | _ -> use_move_helper btl move poke_name; 
          print_side_eff pokemon move op_pokemon)
-      (* If using a status changing move on another pokemon, the print that it failed *)
+      (* If using a status changing move on another pokemon, the print that it 
+         failed *)
     else if (Moves.get_power move = 0. && Moves.has_condition move) 
     then 
       (printed btl; 
