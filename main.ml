@@ -516,7 +516,8 @@ let use_move move btl =
     print_eff move (Battle.other_player btl); check_fainted btl;
     btl |> Battle.other_player |> Battle.change_turn btl)
     (* using a move out of pp wastes your move and dispalys can not move *)
-  else (printed btl; print_string "Cannot use move\n\n\n\n";btl |> Battle.other_player |> Battle.change_turn btl)
+  else (printed btl; print_string "Cannot use move\n\n\n\n";
+  btl |> Battle.other_player |> Battle.change_turn btl)
 
 (* [goes_first player opponent pl_move op_move] is the pokemon who moves first
 depends on the pokemon's speed as well as if the move is a priority move.*)
