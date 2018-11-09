@@ -326,6 +326,7 @@ let white_pawn = (Pawn (Pokemon.get_pawn ()), White, ("A", 2), false)
 let black_rook = (Rook (Pokemon.get_rook ()), Black, ("H", 8), false)
 let test_board = empty |> Chess.add_piece white_pawn |> 
                  Chess.add_piece black_rook |> Chess.add_piece black_pawn
+
 let white_bishop = (Bishop (Pokemon.get_bishop ()), White, ("C", 1), false)
 let black_knight = (Knight (Pokemon.get_knight ()), Black, ("G", 8), false)
 let white_queen = (Queen (Pokemon.get_queen ()), White, ("D", 1), false)
@@ -333,6 +334,7 @@ let black_king = (King (Pokemon.get_king ()), Black, ("E", 8), false)
 let test_board2 = test_board |> Chess.add_piece black_knight |> 
                   Chess.add_piece white_bishop |> Chess.add_piece white_queen
                   |> Chess.add_piece black_king
+
 let black_pawn2 = (Pawn (Pokemon.get_pawn ()), Black, ("B", 3), true)
 let black_pawn3 = (Pawn (Pokemon.get_pawn ()), Black, ("F", 4), true)
 let black_rook2 = (Rook (Pokemon.get_rook ()), Black, ("F", 1), true)
@@ -381,6 +383,40 @@ let postcastling_rook =
   match (Chess.get_piece postcastling_board ("D", 1)) with
   | Some p -> p
   | None -> raise (Invalid_argument "")
+
+
+let test_board3_turn1 = Chess.move white_pawn test_board3 ("A", 4)
+let postmove_pawn = 
+  match (Chess.get_piece test_board3_turn1 ("A", 4)) with
+  | Some p -> p
+  | None -> raise (Invalid_argument "")
+let test_board3_turn2 = Chess.move black_knight test_board3_turn1 ("F", 6)
+let postmove_knight = 
+  match (Chess.get_piece test_board3_turn2 ("F", 6)) with
+  | Some p -> p
+  | None -> raise (Invalid_argument "")
+let test_board3_turn3 = Chess.move white_bishop test_board3_turn2 ("B", 2)
+let postmove_bishop =
+  match (Chess.get_piece test_board3_turn3 ("B", 2)) with
+  | Some p -> p
+  | None -> raise (Invalid_argument "")
+let test_board3_turn4 = Chess.move black_rook test_board3_turn3 ("H", 6)
+let postmove_rook =
+  match (Chess.get_piece test_board3_turn4 ("H", 6)) with
+  | Some p -> p
+  | None -> raise (Invalid_argument "")
+let test_board3_turn5 = Chess.move white_queen test_board3_turn4 ("D", 5)
+let postmove_queen =
+  match (Chess.get_piece test_board3_turn5 ("D", 5)) with
+  | Some p -> p
+  | None -> raise (Invalid_argument "")
+let test_board3_turn6 = Chess.move black_king test_board3_turn5 ("D", 8)
+let postmove_king =
+  match (Chess.get_piece test_board3_turn6 ("D", 8)) with
+  | Some p -> p
+  | None -> raise (Invalid_argument "")
+
+
 
 (* [white_pawn_turn2] represents [white_pawn] after it has moved from
     square [("A", 2)] to square [("A", 4)]. *)
@@ -456,7 +492,25 @@ let chess_tests = [
     (King (Pokemon.get_king ()), White, ("C", 1), true)
     postcastling_king true;
   make_pieces_equal_test "rook is in expected position after castling" 
-    (Rook (Pokemon.get_rook ()), White, ("D", 1), true) postcastling_rook true
+    (Rook (Pokemon.get_rook ()), White, ("D", 1), true) postcastling_rook true;
+
+  (* testing [move] *)
+  make_pieces_equal_test "pawn is in expected position after moving"
+    (Pawn (Pokemon.get_pawn ()), White, ("A", 4), true) postmove_pawn true;
+  make_pieces_equal_test "knight is in expected position after moving"
+    (Knight (Pokemon.get_knight ()), Black, ("F", 6), true) 
+    postmove_knight true;
+  make_pieces_equal_test "bishop is in expected position after moving"
+    (Bishop (Pokemon.get_bishop ()), White, ("B", 2), true) 
+    postmove_bishop true;
+  make_pieces_equal_test "rook is in expected position after moving"
+    (Rook (Pokemon.get_rook ()), Black, ("H", 6), true) postmove_rook true;
+  make_pieces_equal_test "queen is in expected position after moving"
+    (Queen (Pokemon.get_queen ()), White, ("D", 5), true) postmove_queen true;
+  make_pieces_equal_test "king is in expected position after moving"
+    (King (Pokemon.get_king ()), Black, ("D", 8), true) postmove_king true;
+
+
 
 ]
 
