@@ -7,17 +7,29 @@ open Random
 open Chess
 open ChessGame
 
+(* Creates a new chess game *)
 let new_chess_game = ChessGame.new_game
+
+(* References to check if a player has fainted or opponent has fainted *)
 let player_fainted = ref false
 let opp_fainted = ref false
+
+(* Refrence flag to check if the first square has been selected *)
 let first_square = ref true
+
+(* list of all fainted pieces *)
 let fainted_green_pieces = ref []
 let fainted_red_pieces = ref []
 
+(**[print_colored btl str poke] prints the string str in either green or red
+depending if poke is opponent pokemon(red) or if the [poke] is the player 
+pokemon(green_*)
 let print_colored btl str poke=
   if poke == Battle.get_player btl then 
     ANSITerminal.(print_string [green] str)
   else ANSITerminal.(print_string[red] str)
+
+
 (**[print_logo ()] is used to print the ascii art of the logo for pokemon,
    ascii drawing courtesy of https://www.asciiart.eu/video-games/pokemon*)
 let print_logo () = 
@@ -37,72 +49,28 @@ let print_logo () =
 |                                `'                            '-._|    |
 _________________________________________________________________________\n\n")
 
+(** [print_str_color str color] prints the str depending on the color of the
+chess piece [color]*)
 let print_str_color str (color:Chess.color) =
   match color with 
   | White -> ANSITerminal.(print_string [green] str)
   | Black -> ANSITerminal.(print_string [red] str)
 
-(*
-let print_nth_of_col 
-    (square: Chess.square * Chess.piece option * Chess.color option * Chess.color) 
-    (blue_squares : Chess.square list) =
-  ANSITerminal.(print_string [yellow]  "#");
-  match square with 
-  | (sq, None, _, _) ->
-    print_string "       "
-  | (_, Some (Pawn x), Some c, _) -> print_str_color "   P   " c
-  | (_, Some (Rook x), Some c, _) -> print_str_color "   R   " c
-  | (_, Some (Knight x), Some c, _) -> print_str_color "   Z   " c
-  | (_, Some (Bishop x), Some c, _) -> print_str_color "   B   " c
-  | (_, Some (Queen x), Some c, _) -> print_str_color "   Q   " c
-  | (_, Some (King x), Some c, _) -> print_str_color "   K   " c
-  | _ -> print_string "error, all pieces should have a color"
-let print_line_gaps () (r:int)=
-  if r = -1 then 
-    ANSITerminal.(print_string 
-                    [yellow] 
-                    ("#\n#       #       #       #       #       #       #       #       #\n"))
-  else
-    ANSITerminal.(print_string 
-                    [yellow] ("#   "^(string_of_int (r+1))^"\n#       #       #       #       #       #       #       #       #\n"))
-*)
+
+(** [print_border lines ()] prints the border lines for the chess board*)
 let print_border_lines () =
   ANSITerminal.(print_string [yellow]  
                   "#################################################################\n")
 
+(**[prnt_letters()] prints the bottom row of letters for reference for the chess
+board*)
 let print_letters () =
   ANSITerminal.(print_string [yellow]  
                   "\n    A       B       C       D       E       F       G       H\n\n")
 
-(*
-let rec print_row 
-    (board: 
-       ((Chess.square * Chess.piece option * Chess.color option * Chess.color)
-          list) list) (r:int)
-    (blue_squares : Chess.square list) = 
-  match board with 
-  | [] -> print_line_gaps () r
-  | col::t ->  print_nth_of_col (List.nth col r) blue_squares; 
-    print_row t r blue_squares
-let rec print_blue_square2 () counter =
-  if counter = 0 then ()
-  else (ANSITerminal.(print_string [yellow] "#\n#");
-        ANSITerminal.(print_string [blue] "*******");
-        print_blue_square2 () (counter - 1))
-let rec board_helper 
-    (board: ((Chess.square * Chess.piece option * 
-              Chess.color option * Chess.color) list) list) (r:int)
-    (blue_squares : Chess.square list) =
-  if r < 0 then () else
-    match board with
-    | [] -> ()
-    | col::_ -> (match List.nth col r with
-        | (sq, _, _, _) -> if List.mem sq blue_squares 
-          then print_blue_square2 () 3
-          else print_line_gaps () (-1));
-      print_row board r blue_squares; 
-      print_border_lines (); board_helper board (r-1) blue_squares*)
 
+(**p[rint_normal_square square] prints out the chess board square [square] and
+puts our letter representation of a piece there if there is a piece on that square*)
 let print_normal_square (square: Chess.square * Chess.piece option 
                                  * Chess.color option * Chess.color) =
   ANSITerminal.(print_string [yellow]  "#");
@@ -116,6 +84,9 @@ let print_normal_square (square: Chess.square * Chess.piece option
   | (_, Some (King x), Some c, _) -> print_str_color "   K   " c
   | _ -> print_string "error, all pieces should have a color"
 
+(**[print_blue_square square] fills in the squares  with blue squares, and they
+put a piece in between the blue filling if there is a piece occupying that square.
+This is used for filling in all possible moves for a piece*)
 let print_blue_square (square: Chess.square * Chess.piece option 
                                * Chess.color option * Chess.color) =
   ANSITerminal.(print_string [yellow]  "#");
@@ -141,6 +112,11 @@ let print_blue_square (square: Chess.square * Chess.piece option
     ANSITerminal.(print_string [blue] "***")
   | _ -> print_string "error, all pieces should have a color"
 
+(**[print_row board r subrow blue_squares print_blue] prints out an entire row
+of the chess board, where subrow is the above and below buffer row for the board
+and r is the row number. [blue_squares] are all the blue squares that are filled
+in for the board, and print_blue is the bool telling us if they are meant to be
+filled in as blue.*)
 let rec print_row (board: ((Chess.square * Chess.piece option 
                             * Chess.color option * Chess.color)list) list) 
     (r:int) (subrow:int) (blue_squares : Chess.square list) 
@@ -161,6 +137,8 @@ let rec print_row (board: ((Chess.square * Chess.piece option
            | _ -> ()));
     print_row t r subrow blue_squares print_blue
 
+(**[print_board_helper board r] is a helps print the board [board] at a give
+row [r]*)
 let rec print_board_helper (board: ((Chess.square * Chess.piece option * 
                                      Chess.color option * Chess.color) list) 
                                 list) (r:int)
@@ -175,21 +153,8 @@ let rec print_board_helper (board: ((Chess.square * Chess.piece option *
     print_border_lines ();
     print_board_helper board (r - 1) blue_squares print_blue)
 
-(*
-let rec board_helper 
-    (board: ((Chess.square * Chess.piece option * 
-              Chess.color option * Chess.color) list) list) (r:int)
-    (blue_squares : Chess.square list) =
-  if r < 0 then () else
-    match board with
-    | [] -> ()
-    | col::_ -> (match List.nth col r with
-        | (sq, _, _, _) -> if List.mem sq blue_squares 
-          then print_blue_square2 () 3
-          else print_line_gaps () (-1));
-      print_row board r blue_squares; 
-      print_border_lines (); board_helper board (r-1) blue_squares*)
-
+(**[print_fainted_pieces piece_lst color] prints out all of the fainted pieces
+of each player*)
 let rec print_fainted_pieces piece_lst color =
   match piece_lst with
   | [] -> ANSITerminal.(print_string [red] "\n")
@@ -203,7 +168,8 @@ let rec print_fainted_pieces piece_lst color =
       | _ -> ANSITerminal.(print_string [color] ""));
     print_fainted_pieces t color
 
-
+(*[print_board board blue_squares print_blue] prints the board with the logo and
+all of the fainted pieces, gives the representation for the user*)
 let print_board (board: ((Chess.square * Chess.piece option * 
                           Chess.color option * Chess.color) list) list) 
     (blue_squares : Chess.square list) (print_blue : bool) =
@@ -223,8 +189,8 @@ let print_board (board: ((Chess.square * Chess.piece option *
 let get_move_names moves =
   List.map (fun x -> Moves.get_name x) moves
 
-(* Some Tests *)
-let rand = Random.self_init
+(* Some Tests Used for battles*)
+(* let rand = Random.self_init
 
 let water = make_type "water" [("water", 0.5);("fire", 2.)]
 
@@ -259,14 +225,15 @@ let charmander = Pokemon.make_pokemon "Charmander" (fire, None) [ember;ember;emb
     [39.;112.;93.;55.] 
 
 
-let battle = Battle.make_battle squirtle charmander 
+let battle = Battle.make_battle squirtle charmander  *)
 
-
+(**[print_eff move poke] prints the effectiveness of [move] on pokemon [poke], 
+effectiveness is dependent on the move type and pokemon type*)
 let print_eff move poke = 
   if Moves.get_power move = 0. then () else(
     match Battle.calc_effective move poke with
     | x -> if x >= 2. then print_string "It's super effective!\n\n\n"
-      else if x < 0. then print_string "It's not very effective...\n\n\n"
+      else if x <= 0.5 then print_string "It's not very effective...\n\n\n"
       else if x = 0. then print_string "But nothing happened...\n\n\n")
 
 (** [hp_display number pokemon] returns a rough percentage of [number] '*'
@@ -277,6 +244,10 @@ let hp_display num poke =
     (float_of_int (get_curr_hp poke)) /. (float_of_int (get_max_health poke)) in
   String.make (int_of_float (percentage_health *. num)) '*'
 
+(**[get_attr int] gives us the string attribute representation of the each
+attribute from the list of a pokemon's attributes. [int] is the index
+of the pokemon's attributes, where the 2nd item is always attack, the3rd item
+is defense and the 4th item is always speed*)
 let get_attr int = 
   match int with 
   |1 -> "ATK x"
@@ -284,10 +255,9 @@ let get_attr int =
   |3 -> "SPD x"
   |_ -> ""
 
-let rec string_of_list = function
-  |[] -> "]"
-  |h::t -> (h|> Pervasives.string_of_float)^";"^(string_of_list t)
-
+(**[display_mults bat poke] displays all of the stat multipliers a pokemon has
+if they are greater than 1 or less tha 1. i.e. if the pokemon increases its stats
+then it will be displayed next to their name.*)
 let display_mults bat poke =
   let rec display' bat attr_mult poke count =
     match attr_mult with
@@ -305,11 +275,15 @@ let rec display_moves btl pokemon moves =
   match moves with
   | [] -> print_string("\n")
   | h::t when ((List.length t) mod 2 = 0) -> (
-      print_colored btl ("\t\t\t\t["^(Moves.get_name h)^": "^(h |> Moves.get_pp |> Pervasives.string_of_int)^"pp]") pokemon; 
+      print_colored btl ("\t\t\t\t["^(Moves.get_name h)^": "^(h |> Moves.get_pp 
+      |> Pervasives.string_of_int)^"pp]") pokemon; 
       display_moves btl pokemon t)
-  | h::t ->  print_colored btl ("\n\n["^(Moves.get_name h)^": "^(h |> Moves.get_pp |> Pervasives.string_of_int)^"pp]") pokemon; 
+  | h::t ->  print_colored btl ("\n\n["^(Moves.get_name h)^": "^(h |> Moves.get_pp 
+  |> Pervasives.string_of_int)^"pp]") pokemon; 
     (display_moves btl pokemon t)
 
+(**[display_status poke] displays the status of a pokemon, so it can ether be
+poisoned, paralyzed, sleept, burned or frozen.*)
 let display_status poke = 
   match (Pokemon.get_status poke) with
   | Some Poison -> ANSITerminal.(print_string[blue] "[PSN]")
@@ -319,6 +293,8 @@ let display_status poke =
   | Some Frozen _-> ANSITerminal.(print_string[cyan] "[FRZ]")
   | _ -> ()
 
+(**[print_poke_stats btl opponent] prints the pokemon in a battle, i.e. giving
+its health, healthbar, and name.*)
 let print_poke_stats btl opponent = 
   display_status opponent;
   ANSITerminal.(print_colored btl (Pokemon.get_name opponent ^ "\n\t\t\tHealth:" ^ 
@@ -328,6 +304,7 @@ let print_poke_stats btl opponent =
   ANSITerminal.(print_colored btl (opp_health^"/"^opp_max_health^" hp\t") opponent);
   display_mults btl opponent
 
+(**[printed btl] prints a standard battle without display either of the moves.*)
 let printed btl = 
   print_string ("_______________________________________________________________________\n");
   let opponent = Battle.get_opponent btl in
@@ -444,7 +421,8 @@ let deal_with_conditions bat =
   | Some stat1, Some stat2 -> conditions_helper bat player stat1; 
     conditions_helper bat opponent stat2
 
-
+(**[print_side_eff poke move op_poke] prints the effects of the side effects of
+[move] from [poke] to the opposing pokemon [op_poke}*)
 let print_side_eff poke move op_poke= 
   let poke_name = Pokemon.get_name poke in
   let op_name = Pokemon.get_name op_poke in
@@ -455,9 +433,11 @@ let print_side_eff poke move op_poke=
       |Heal (perc, _) when perc < 0. -> print_string (poke_name^" took recoil!\n")
       |Heal (perc, _) when perc >= 0.-> print_string (poke_name^" Healed!\n")
       |Condition (Poison,_) -> print_string (op_name^" was Poisoned!\n")
-      |Condition (Burned, _) when Pokemon.get_status poke <> None -> print_string (op_name^" was Burned!\n")
+      |Condition (Burned, _) when Pokemon.get_status poke <> None -> 
+                  print_string (op_name^" was Burned!\n")
       |Condition (Sleep _, _) -> print_string (op_name^" fell asleep!\n")
-      |Condition (Paralyzed _, _) when Pokemon.get_status poke <> None-> print_string (op_name^" was paralyzed!\n")
+      |Condition (Paralyzed _, _) when Pokemon.get_status poke <> None-> 
+                  print_string (op_name^" was paralyzed!\n")
       |_ ->()
     end
 
@@ -466,6 +446,8 @@ let chances_of float =
   let ran_float = Random.float 1. in
   if ran_float <= float then true else false
 
+(**[use_move_helper btl move poke_name] uses the move [move] for the battle
+whose turn is [btl].turn and prints the corresponding effect.*)
 let use_move_helper btl move poke_name =
   ANSITerminal.erase Screen;
   let crit = Moves.get_crit move in
@@ -492,32 +474,40 @@ let use_move move btl =
   let acc_perc = Moves.get_acc move in 
   if Battle.can_move move then (
 
-
-
     if (Pokemon.get_status op_pokemon) = None then
       (match Pokemon.get_status pokemon with
-       | Some Paralyzed x-> if chances_of 0.25 then (ANSITerminal.erase Screen;
-                                                     printed btl;
-                                                     print_colored btl (poke_name^" is paralyzed and can not move!\n") pokemon;
-                                                     btl |> Battle.other_player |> Battle.change_turn btl)
+        (* 25% chance of paralyze pokemon to not move *)
+       | Some Paralyzed x-> if chances_of 0.25 then 
+       (ANSITerminal.erase Screen;
+        printed btl;
+        print_colored btl (poke_name^" is paralyzed and can not move!\n") pokemon;
+        btl |> Battle.other_player |> Battle.change_turn btl)
          else use_move_helper btl move poke_name
-       | Some Sleep x-> (ANSITerminal.erase Screen;
-                         printed btl;
-                         print_colored btl (poke_name^" is asleep and can't move!\n") pokemon;
-                         btl |> Battle.other_player |> Battle.change_turn btl)
-       |_ when chances_of (1.-.acc_perc) -> (ANSITerminal.erase Screen;
-                                             printed btl;
-                                             print_colored btl (poke_name^" missed!\n") pokemon;
-                                             btl |> Battle.other_player |> Battle.change_turn btl)
-       | _ -> use_move_helper btl move poke_name; print_side_eff pokemon move op_pokemon)
+       | Some Sleep x-> 
+       (* Asleep pokemon can not move *)
+       (ANSITerminal.erase Screen;
+        printed btl;
+        print_colored btl (poke_name^" is asleep and can't move!\n") pokemon;
+        btl |> Battle.other_player |> Battle.change_turn btl)
+        (* Chances of the pokemon missing *)
+       |_ when chances_of (1.-.acc_perc) -> 
+       (ANSITerminal.erase Screen;
+        printed btl;
+        print_colored btl (poke_name^" missed!\n") pokemon;
+        btl |> Battle.other_player |> Battle.change_turn btl)
+        (* uses the move on the pokemon *)
+       | _ -> use_move_helper btl move poke_name; 
+              print_side_eff pokemon move op_pokemon)
+      (* If using a status changing move on another pokemon, the print that it failed *)
     else if (Moves.get_power move = 0. && Moves.has_condition move) 
     then 
-      (printed btl; print_colored btl (poke_name^" used "^(Moves.get_name) move^"\n") (Battle.get_turn btl);
-       print_string "It failed.\n\n"; Moves.dec_pp move;btl |> Battle.other_player |> Battle.change_turn btl)
+      (printed btl; 
+      print_colored btl (poke_name^" used "^(Moves.get_name) move^"\n") (Battle.get_turn btl);
+       print_string "It failed.\n\n"; Moves.dec_pp move;
+       btl |> Battle.other_player |> Battle.change_turn btl)
+       (* Uses the move on the pokemon *)
     else use_move_helper btl move poke_name
-
-
-  )
+  )(*if pokemon is out off pp then it uses the move struggle*)
   else if (Pokemon.out_of_pp pokemon) then (
     Battle.use_move btl (Pokemon.struggle()) false;
     ANSITerminal.erase Screen;
@@ -525,9 +515,11 @@ let use_move move btl =
     print_colored btl (poke_name^" used struggle \n") (Battle.get_turn btl);
     print_eff move (Battle.other_player btl); check_fainted btl;
     btl |> Battle.other_player |> Battle.change_turn btl)
+    (* using a move out of pp wastes your move and dispalys can not move *)
   else (printed btl; print_string "Cannot use move\n\n\n\n";btl |> Battle.other_player |> Battle.change_turn btl)
 
-
+(* [goes_first player opponent pl_move op_move] is the pokemon who moves first
+depends on the pokemon's speed as well as if the move is a priority move.*)
 let goes_first player opponent pl_move op_move = 
   if(Moves.is_priority op_move && Moves.is_priority pl_move) then
     (compare_speed player opponent)
@@ -546,9 +538,8 @@ let move_turns btl str1 str2=
   let opponent = Battle.get_opponent btl in
   let opponent_moves = Pokemon.get_moves opponent in
   let op_move = get_move_from_str opponent_moves str2 in 
-
-
   let faster = goes_first player opponent move op_move in
+
   change_turn btl (faster); 
   if faster == Battle.get_player btl then
     (use_move move btl; pause_bet_states btl use_move (Some op_move);
@@ -560,10 +551,10 @@ let move_turns btl str1 str2=
     if not (!player_fainted || !opp_fainted) then
       pause_bet_states btl use_move None else ())
 
-
+(**[get_move btl pokemon] is the string move chosen by the player whose pokemon
+is [pokemon]*)
 let rec get_move btl pokemon= 
   let available_moves = get_move_names (Pokemon.get_moves pokemon) in
-
   match read_line () with
   | str -> begin
       match Command.parse_phrase_battle str with
@@ -588,6 +579,8 @@ let rec get_move btl pokemon=
       | Quit -> print_string "Quitting ...\n\n\n"; exit 0
     end
 
+(**[battle_loop btl] is the battle of the two pokemon from the battle [btl] it
+returns surving pokemon, i.e. the pokemon who did not faint*)
 let rec battle_loop btl = 
   ANSITerminal.erase Screen;
   printed_leaf btl;
@@ -616,11 +609,15 @@ let start_battle battle =
                 " has appeared! Fight to stay alive! \n");
   battle_loop battle
 
+(**[print_turn ches_game] prints the turn of the person whose turn it is
+i.e. indicates whose turn it is during the game.*)
 let print_turn chess_game =
   match ChessGame.get_current_player chess_game with
   | White -> ANSITerminal.(print_string[green] "Leaf Green: ");
   | Black -> ANSITerminal.(print_string[red] "Fire Red: ")
 
+(**[create_new_battle p1 p2 chess_game] is the surving pokemon of the created
+ battle of the pieces [p1] and [p2]*)
 let create_new_battle p1 p2 chess_game =
   if ChessGame.get_current_player chess_game = White then(
     let new_btl = 
@@ -632,7 +629,8 @@ let create_new_battle p1 p2 chess_game =
       Battle.make_battle (Chess.pokemon_from_piece (Some p2)) 
         (Chess.pokemon_from_piece (Some p1)) in
     start_battle new_btl
-
+(**[print_sattribute_helper curr_hp attr color counter] prints the attributes
+and general stats of a pokemon *)
 let rec print_attributes_helper curr_hp attr color counter =
   match attr with
   | [] -> ANSITerminal.(print_string [color] ("\n\n"))
@@ -716,7 +714,8 @@ let rec chess_loop chess_game curr_square blue_squares =
                 let survive = create_new_battle p1 p2 chess_game in
                 (if (survive == (Chess.pokemon_from_piece (Some p2))) then
                    if (Chess.pokemon_from_piece (Some p1) |> Pokemon.get_name = "Mew") then
-                     ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Green" else "Red") ^ " has lost the game!")); 
+                     ((print_endline ((if (ChessGame.get_current_player chess_game) = White 
+                     then "Green" else "Red") ^ " has lost the game!")); 
                       exit 0;)
                    else (
                      if (player_color = ANSITerminal.green) then 
@@ -726,7 +725,8 @@ let rec chess_loop chess_game curr_square blue_squares =
                       chess_loop loss_game curr_square blue_squares))
                  else 
                  if (Chess.pokemon_from_piece (Some p2) |> Pokemon.get_name = "Mew") then
-                   ((print_endline ((if (ChessGame.get_current_player chess_game) = White then "Red" else "Green") ^ " has lost game!")); 
+                   ((print_endline ((if (ChessGame.get_current_player chess_game) = White
+                    then "Red" else "Green") ^ " has lost game!")); 
                     exit 0;)
                  else (
                    if (player_color = ANSITerminal.green) then 
@@ -753,6 +753,7 @@ let rec chess_loop chess_game curr_square blue_squares =
         chess_loop chess_game curr_square blue_squares;
     end
 
+(**[play_game ()] initializes a new chess game and plays it*)
 let play_game () = 
   chess_loop new_chess_game ("A", 0) []
 
