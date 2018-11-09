@@ -305,6 +305,52 @@ let make_pieces_equal_test
     (expected_output : bool) =
   name >:: (fun _ -> assert_equal expected_output (piece1 = piece2))
 
+let make_current_player_equal_test
+    (name : string)
+    (color : color)
+    (game : ChessGame.t)
+    (expected_output : bool) = 
+  name >:: (fun _ -> assert_equal expected_output (color = ChessGame.get_current_player game))
+
+let int_of_letter ltr = 
+  (String.get ltr 0 |> Char.uppercase_ascii |> Char.code) - 65
+
+let piece_at_square_equals_test
+    (name : string)
+    ((c,r) : (string * int))
+    (game : ChessGame.t)
+    (expected_output : string) = 
+  name >:: (fun _ -> 
+      let col = int_of_letter c in
+      let game_list = ChessGame.as_list game in 
+      let row = List.nth game_list col in
+      let (sq, p, c_opt, c)  = List.nth row (r - 1) in
+      let piece_string = (
+        match p with
+        | None -> "empty"
+        | Some (Pawn _) -> "pawn"
+        | Some (Rook _) -> "rook"
+        | Some (Knight _) -> "knight"
+        | Some (Bishop _) -> "bishop"
+        | Some (Queen _) -> "queen"
+        | Some (King _) -> "king"
+        | Some (FakePawn _) -> "error"
+      ) in 
+      assert_equal expected_output piece_string)
+
+(** [move_game game move_list] moves [game] according to the assoc list of moves,
+    [move_list] *)
+let rec move_game game  = function 
+  | [] -> game
+  | (sq1,sq2)::t -> 
+    let (_,_,n,l)  = (ChessGame.move sq1 sq2 game) in 
+    let ng = (
+      match n with 
+      | None -> l
+      | Some new_game -> new_game
+    ) in 
+    move_game ng t
+
 
 let column_type_one : column =     [(1,(Black, None)); (2,(White, None)); 
                                     (3,(Black, None)); (4,(White, None));
@@ -422,6 +468,39 @@ let postmove_king =
     square [("A", 2)] to square [("A", 4)]. *)
 let white_pawn_turn2 = (Pawn (Pokemon.get_pawn ()), White, ("A", 4), true)
 
+let new_chess_game = Chess.ChessGame.new_game
+
+let opening = [(("D",2),("D",4));(("E",7),("E",5));(("D",4),("E",5))]
+
+let open_chess_game = move_game new_chess_game opening
+
+let knight_play = [(("B",8),("C",6));(("G",1),("F",3));(("C",6),("E",5));(("F",3),("E",5))]
+
+let knight_game = move_game open_chess_game knight_play
+
+let bishop_play = [(("F",8),("D",6));(("C",1),("F",4));(("D",6),("E",5));(("F",4),("E",5))]
+
+let bishop_game = move_game knight_game bishop_play
+
+let queen_play = [(("D",8),("F",6));(("D",1),("D",7));(("C",8),("D",7));(("E",5),("F",6))]
+
+let no_queens_game = move_game bishop_game queen_play
+
+let castle_queens = [(("G",8),("F",6));(("B",1),("C",3));(("E",8),("G",8));(("E",1),("C",1))]
+
+let castled = move_game no_queens_game castle_queens
+
+let en_passant_play = [(("G",7),("G",5));(("B",2),("B",4));(("G",5),("G",4));
+                       (("B",4),("B",5));(("C",7),("C",5));(("B",5),("C",6));
+                       (("A",8),("C",8));(("H",2),("H",4));(("G",4),("H",3))]
+let en_passant_passes = move_game castled en_passant_play
+
+let upgrade_pieces = [(("H",1),("G",1));(("H",3),("H",2));(("C",6),("C",7));
+                      (("H",2),("H",1));(("D",1),("D",7));(("C",8),("A",8));
+                      (("C",7),("C",8))]
+
+let promoted_board = move_game en_passant_passes upgrade_pieces
+
 let test_board_turn2 = test_board |> Chess.add_piece white_pawn_turn2
 
 let chess_tests = [
@@ -511,6 +590,37 @@ let chess_tests = [
     (King (Pokemon.get_king ()), Black, ("D", 8), true) postmove_king true;
 
 
+  (* testing state of ChessGame.t *)
+  make_current_player_equal_test "new chess game" White new_chess_game true;
+
+  piece_at_square_equals_test "pawn at e5" ("E",5) open_chess_game "pawn";
+
+  make_current_player_equal_test "pawn game" Black open_chess_game true;
+
+  piece_at_square_equals_test "knight at e5" ("E",5) knight_game "knight";
+
+  piece_at_square_equals_test "bishop at e5" ("E",5) bishop_game "bishop";
+
+  piece_at_square_equals_test "bishop at f6" ("F",6) no_queens_game "bishop"; 
+
+  piece_at_square_equals_test "rook at f8" ("F",8) castled "rook";
+  piece_at_square_equals_test "rook at d1" ("D",1) castled "rook";
+  piece_at_square_equals_test "king at c1" ("C",1) castled "king";
+  piece_at_square_equals_test "king at g8" ("G",8) castled "king";
+
+  piece_at_square_equals_test "pawn en-passant captured at c6" ("C",6) 
+    en_passant_passes "pawn";
+  piece_at_square_equals_test "pawn en-passant captured at h3" ("H",3)
+    en_passant_passes "pawn";
+
+  piece_at_square_equals_test "promoted pawn, so queen, at h1" ("H",1)
+    promoted_board "queen";
+
+  piece_at_square_equals_test "promoted pawn, so queen, at c8" ("C",8)
+    promoted_board "queen";
+
+  make_current_player_equal_test "promoted board should be black" Black
+    promoted_board true
 
 ]
 

@@ -54,28 +54,40 @@ val get_accuracy: t -> float
    less then zero then the pokemon's health becomes 0*)
 val change_health: t -> int -> unit
 
+(**[change_attr_mult poke attr] changes the attribute multiplier of pokemon
+[poke]*)
 val change_attr_mult: t -> float list -> unit
 
+(**[change_status pokemon stats] changes the pokemon [poke]'s status the stats*)
 val change_status: t -> Moves.status option -> unit
 
-val change_confusion: t -> int -> unit
-
+(**[change_accuracy poke acc] changes the pokemon [poke]'s accuracy to acc*)
 val change_accuracy: t -> float -> unit
 
+(**[get_promoted_pawn ()] is the pokemon that represents our promoted pawn*)
 val get_promoted_pawn : unit -> t
 
+(**[get_pawn ()] is the pokemon that represents our pawn*)
 val get_pawn: unit -> t
 
+(**[get_rook ()] is the pokemon that represents our rook*)
 val get_rook: unit -> t
 
+(**[get_bishop ()] is the pokemon that represents our bishop*)
 val get_bishop: unit -> t
 
+(**[get_knight ()] is the pokemon that represents our knight*)
 val get_knight: unit -> t
 
+(**[get_queen()] is the pokemon that represents our queen *)
 val get_queen: unit -> t
 
+(**[get_king ()] is the pokemon that represents our king *)
 val get_king: unit -> t
 
+(**[get_struggle ()] is the pokemon move that represents struggle*)
 val struggle: unit -> Moves.t
 
+(**[out_of_pp pokemon] is true if all the moves of [pokemon] are out of pp
+otherwise it is false*)
 val out_of_pp: t -> bool
